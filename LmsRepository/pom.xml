@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+							http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+	xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  	<modelVersion>4.0.0</modelVersion>
+  	
+  	<parent>
+	    <groupId>com.softech.ls360</groupId>
+	    <artifactId>LS360ApiGatewayModules</artifactId>
+	    <version>0.0.1</version>
+  	</parent>
+  
+  	<groupId>com.softech.ls360.lms.repository</groupId>
+  	<artifactId>LmsRepository</artifactId>
+ 
+  	<name>LmsRepository</name>
+  	<url>http://maven.apache.org</url>
+  
+  	<properties>
+    	<commons-dbcp2.version>2.1.1</commons-dbcp2.version>
+  	   <sqljdbc4.version>4.0</sqljdbc4.version>
+  	</properties>
+  	
+  	<dependencies>
+  		
+  		<dependency>
+        	<groupId>com.softech.ls360.util</groupId>
+        	<artifactId>LS360Util</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
+  		
+        <dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging</artifactId>
+		</dependency>
+		
+  		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-expression</artifactId>
+		</dependency>
+		
+		<dependency>
+	    	<groupId>org.springframework</groupId>
+	    	<artifactId>spring-tx</artifactId>
+	    </dependency>
+		
+        <!-- Spring Data module for JPA repositories. -->
+        <dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+	 		<groupId>org.springframework.security</groupId>
+	 		<artifactId>spring-security-config</artifactId>
+	 	</dependency>
+		
+		<dependency>
+    	    <groupId>org.springframework.security.oauth</groupId>
+    		<artifactId>spring-security-oauth2</artifactId>
+		</dependency>
+		 
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>javax.persistence</artifactId>
+        </dependency>
+        
+        <!-- Hibernate entity manager with JPA 2 support merge in hibernate-core from hibrnate 5.2 omwards.  -->
+        <dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+		</dependency>
+        
+		<!-- Javassist (JAVA programming ASSISTant) makes Java bytecode manipulation simple. It is a class library for editing 
+            bytecodes in Java.  
+        -->
+        <dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			 <!--  <scope>test</scope> -->
+		</dependency>
+		
+		<!-- Hibernate Validator excludes the transient JBoss Logging API dependency(Hibernate use this instead of Commons Logging as
+		    their logging API), and that a runtime JBoss Logging dependency is seperately declared. The hibernate-validator artifact
+		    declares a dependency on a jboss-logging version that doesn't support Log4j2, so it is necessary to declare a newer
+		    dependency that does. The exclusion isn't strictly necessary, but is shown for clarity.
+		-->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency>
+		
+		<dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator-annotation-processor</artifactId>
+        </dependency>
+        
+        <!-- database -->
+        <dependency>
+    		<groupId>com.microsoft.sqlserver</groupId>
+    		<artifactId>sqljdbc4</artifactId>
+    		<version>${sqljdbc4.version}</version>
+    		<scope>compile</scope>
+		</dependency>
+		
+		<!-- Apache Commons DBCP software implements Database Connection Pooling  -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
+			<version>${commons-dbcp2.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
+  	</dependencies>
+  	
+  	<build>
+  	    <finalName>${project.artifactId}</finalName>
+  	</build>
+  	
+</project>

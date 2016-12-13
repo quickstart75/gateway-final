@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+							http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+	xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  	<modelVersion>4.0.0</modelVersion>
+  	
+  	<parent>
+	    <groupId>com.softech.ls360</groupId>
+	    <artifactId>LS360ApiGatewayModules</artifactId>
+	    <version>0.0.1</version>
+  	</parent>
+  
+  	<groupId>com.softech.ls360.storefront.api</groupId>
+  	<artifactId>StorefrontApi</artifactId>
+ 
+  	<name>StorefrontApi</name>
+  	<url>http://maven.apache.org</url>
+  
+  	<properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	</properties>
+  
+  	<dependencies>
+    	
+    	<dependency>
+        	<groupId>com.softech.ls360.util</groupId>
+        	<artifactId>LS360Util</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
+    	
+    	<dependency>
+			<groupId>org.springframework.ws</groupId>
+			<artifactId>spring-ws-core</artifactId>
+		</dependency>
+		
+		<!-- Spring-ws depends on this dependency -->
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+		</dependency>
+    	
+  	</dependencies>
+  	
+  	<build>
+  	    <finalName>${project.artifactId}</finalName>
+  	</build>
+  	
+</project>

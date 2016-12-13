@@ -1,0 +1,174 @@
+<%-- JSP tags are a special syntax of the JavaServer Pages technology that looks like any normal HTML or XML tag. JSP tags are also 
+    called actions because thatÃ¢ÂÂs what they do. A JSP tag performs some action, such as creating or restricting output. The JSP and 
+    JSTL specifications refer almost exclusively to actions, but we can calls them tags. Because they are outside of the scope of any 
+    standard HTML-specified tag, JSP tags require an XML namespace to be referenced correctly. However, writing XML can be a very 
+    tedious and unforgiving task. In particular, the need to adhere to a strict XML document syntax is sometimes difficult even for 
+    seasoned programmers. Thus the idea of the JSP tag syntax includes some shortcuts to make writing JSPs easier. The first of these
+    shortcuts is the taglib directive.
+    
+    This directive is an alternative to the XMLNS technique for referencing XML namespaces in XML documents:
+
+		<jsp:root xmlns="http://www.w3.org/1999/xhtml" version="2.0"
+			xmlns:jsp="http://java.sun.com/JSP/Page"
+			xmlns:c="http://java.sun.com/jsp/jstl/core"
+			xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+			
+	The use of this directive prevents XML document parsers from parsing your JSP, but it also prevents you from having to worry about
+	XML standards compliance (the other important shortcut). Instead, the JSP engine in your web container understands the special 
+	JSP syntax and knows how to parse it, and (these days) all major Java IDEs also understand the JSP syntax and can alert you to 
+	syntax errors and other issues in your JSP.
+	
+	The prefix attribute in a taglib directive (or the XML namespace) represents the namespace with which the tag library is 
+	referenced throughout the JSP page. The tag prefix is suggested in the Tag Library Descriptor file (TLD) for that tag library but
+	is declared in the taglib directive using the prefix attribute. Thus the prefix can be whatever you set it to in the prefix 
+	attribute, but generally developers stick to using the prefix suggested in the TLD to prevent confusion among other developers.
+	
+	The uri attribute indicates the URI defined in the TLD for that tag library. This is how the JSP parser locates the appropriate 
+	TLD for the referenced tag library: It finds the TLD containing the same URI.
+	
+	The URI is a naming convention, not actually the location of the TLD (and not a real URL). In fact, in most cases navigating to 
+	the URI in your browser can result in a 404 Not Found or similar error. The TLDs you use are included with your application in 
+	some fashion, whether in the container, in your applicationÃ¢ÂÂs JAR files, or in your applicationÃ¢ÂÂs WEB-INF directory. The URI is 
+	merely a technique for uniquely identifying a TLD so that the tags you use can be correctly associated with the appropriate TLD.
+	
+	When the JSP parser encounters a taglib directive, it locates the TLD file for that tag library, using the URI, by looking for it
+	in a variety of locations. These locations are indicated in the JSP specification as follows, in order from highest to lowest 
+	precedence:
+
+		1. If the container is a Java EE-compliant container, the parser looks for any matching TLD files that are part of the Java EE
+		   specification, including the JSP tag library, the Java Standard Tag Library, and any JavaServer Faces libraries.
+
+		2. It then checks explicit <taglib> declarations within the <jsp-config> section of the deployment descriptor.
+		3. If the parser still hasnÃ¢ÂÂt located a matching TLD file, it checks any TLD files contained within the META-INF directory of
+		   any JAR files placed in your applicationÃ¢ÂÂs /WEB-INF/lib directory, or any TLD files placed in your applicationÃ¢ÂÂs /WEB-INF 
+		   directory or in any subdirectories of /WEB-INF, recursively.
+
+		4. Finally, the parser checks any other TLD files that ship as part of the web container or application server. (These are 
+		   usually custom to the web container, and as such using them ties your application specifically to that web container and 
+		   makes it non-portable.) An explicit <taglib> declaration is normally not needed unless the TLD you are referencing does not
+		   contain a URI (legal, but unusual), it is not located within one of the other locations previously listed (something you 
+		   can avoid by putting it in the right place), or you need to override a TLD with a conflicting URI supplied in some 
+		   third-party JAR file that you donÃ¢ÂÂt have control over (a more likely but still unusual scenario). Explicit <taglib> 
+		   declarations look like this:
+
+				<jsp-config>
+					...
+					<taglib>
+						<taglib-uri>http://www.example.org/xmlns/jsp/custom</taglib-uri>
+						<taglib-location>/tld/custom.tld</taglib-location>
+					</taglib>
+					...
+				</jsp-config>
+
+		In this example the <taglib-uri> value http://www.example.org/xmlns/jsp/custom would be compared against the taglib directive
+		uri attribute. If they matched, it would use the TLD specified (/tld/custom.tld), relative to the root of the web 
+		application. Notice this configuration does not specify a prefix. This is because it is not a tag library declaration, like 
+		the taglib directive. ItÃ¢ÂÂs simply a map telling the container where the TLD file for the specified tag library URI lives. The 
+		use of explicit <taglib> declarations is almost universally avoidable.
+		
+		After a taglib directive is correctly configured to resolve to the appropriate TLD, you can use the tags within that library
+		in your JSP. All JSP tags follow the same basic syntax:
+
+			<prefix:tagname[ attribute=value[ attribute=value[ ...]]] />
+			<prefix:tagname[ attribute=value[ attribute=value[ ...]]]>
+				content
+			</prefix:tagname>
+
+		In this syntactic notation, prefix denotes the JSP tag library prefix, also known as the namespace (which is the standard XML
+		nomenclature). tagname is the name of the tag as defined in the TLD. Attribute values are quoted with either single quotes (')
+		or double quotes (") but are never unquoted. Two attributes in the same tag can use different quoting styles, but if an 
+		attribute value starts with a single quote, it must end with a single quote, and if it starts with a double quote, it must 
+		end with a double quote. There must be white space between attributes, but in a self-closing tag, the white space before the
+		/> is optional. All JSP tags must either be valid XML self-closing tags (<prefix:tagname />) or they must have matching 
+		closing tags (<prefix:tagname></prefix:tagname>). Non-XML self-closing tags without matching closing tags (<prefix:tagname>) 
+		are syntax errors.
+		
+		When you write a JSP, note that one tag library is already implicitly included for use in all your JSPs. This is the JSP tag 
+		library (prefix jsp), and you do not need to place a taglib directive in a JSP to use it. (In a JSP document, however, you do
+		need to add an XMLNS declaration for the jsp tag library.) You have already seen uses of tags in the JSP tag library, such 
+		as <jsp:include>, <jsp:forward>, <jsp:plugin>, <jsp:useBean>, and so on. You have also seen how the JSP tag library can be 
+		used in JSP Documents with <jsp:root>, <jsp:directive>, <jsp:declaration>, <jsp:scriptlet>, and <jsp:expression>. All these 
+		tags are already available to you in any JSP you write.
+		
+		There are full, Java EE-compliant application servers, and then there are more limited Java EE web containers. Application 
+		servers implement the entire Java EE specification, whereas web containers implement the Servlet and JSP specifications Ã¢ÂÂ 
+		and maybe a handful of other specifications that the creators of the web container thought important. Most web containers 
+		also implement the EL specification because it used to be part of the JSP specification and today remains inextricably linked
+		to the JSP specification. All web containers support using tag libraries with JSPs because this support is part of the JSP 
+		specification. However, some web containers do not implement the Java Standard Tag Library (JSTL) specification, because the
+		specific tag libraries in the JSTL are easily decoupled from the generic concept of tag libraries. Tomcat has historically 
+		been one of these web containers, and to this day, it does not implement the JSTL. However, this does not mean that you 
+		cannot use JSTL in applications you plan on deploying in Tomcat.
+		
+		We added three nMaven dependencies in our project. One of these was the JSP API, which simply enables you to compile against
+		the JSP features. Another dependency is for the Servlet API. These Maven dependencies have "provided" scope because Tomcat 
+		already includes the JSP API library, and as such you do not need to include it in your deployed application. The other two
+		dependencies you added were the JSTL API (the interfaces, abstract classes, and tag descriptions for the JSTL) and the JSTL
+		implementation provided by GlassFish (the JSTL TLD, concrete classes, and implementations of the interfaces). If Tomcat 
+		provided a JSTL implementation, you still would need JSTL Maven dependencies, but they would have "provided" scope. Because 
+		Tomcat does not provide a JSTL implementation, these libraries are in "compile" scope so that they deploy with your 
+		application. This enables you to use JSTL in your application despite TomcatÃ¢ÂÂs lack of a JSTL implementation.
+--%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+<%-- The taglib directive for the Internationalization and Formatting library --%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<%-- Tag Library Descriptor (TLD), a special file that describes the tags and/or functions in a library. All JSP tags result in 
+    execution of some tag handler. The tag handler is an implementation of javax.servlet.jsp.tagext.Tag or 
+    javax.servlet.jsp.tagext.SimpleTag and contains the Java code necessary to achieve the tagâs wanted behavior. A tag handler is 
+    specified within a tag definition in a TLD, and the container uses this information to map a tag in a JSP to the Java code that 
+    should execute in place of that tag.
+    
+    However, tags do not always have to be written as Java classes explicitly. Just like the container can translate and compile JSPs
+    into HttpServlets, it can also translate and compile tag files into SimpleTags. Tag files are not as powerful as straight Java 
+    code, and you cannot do things like parse nested tags within a tag file like you can with an explicit tag handler, but tag files
+    do have the advantages of using simple markup like JSPs and allowing the use of other JSP tags within them. A tag definition in a
+    TLD can point to either a tag handler class or to a tag file. However, you do not have to create a TLD to use a tag defined in a
+    tag file. The taglib directive enables you to do this using the tagdir attribute:
+
+		<%@ taglib prefix="myTags" tagdir="/WEB-INF/tags" %>
+
+	Notice how this taglib directive is different from others. Instead of specifying a URI for a TLD file containing the tag 
+	libraryâs definitions, it specifies a directory in which tag files can be found. Any .tag or .tagx files within the tagdir 
+	directory are bound to the myTags namespace in this case. Tag files in an application must be within the /WEB-INF/tags 
+	directory, but they may also be within a subdirectory of this directory. You could use this to have multiple name spaces of tag 
+	files in your application, as in the following example.
+
+		<%@ taglib prefix="t" tagdir="/WEB-INF/tags/template" %>
+		<%@ taglib prefix="f" tagdir="/WEB-INF/tags/formats" %> 
+		
+	JSP tag files can also be defined in JAR files within your applicationâs /WEB-INF/lib directory, but the rules are slightly 
+	different. Whereas tag files in your application must be in /WEB-INF/tags and can be declared either in a TLD or with a taglib 
+	directive pointing to the directory, tag files in a JAR file are placed in the /META-INF/tags directory and must be declared 
+	within a TLD in the /META-INF directory (or subdirectory) of the same JAR file.
+	
+	taglib directive can be use to collect a directory of tag files into a namespace of custom tags, and tag files are essentially 
+	JSPs with slightly different semantics.
+	
+	tag files work essentially like JSP files do. They contain the same syntax and must follow the same basic rules, and at run time
+	they get translated and compiled into Java just like JSPs do. Tag files can use any normal template text (including HTML), any 
+	other JSP tag, declarations, scriptlets, expressions, and expression language. It should not be surprising, however, that there
+	are some minor differences between the two file formats, mainly concerning the directives available for tag files.
+	
+	Tag files can also use the include and taglib directives to include files and other tag libraries in the JSP, but there is no 
+	page directive in tag files. The include directive can be used to include .jsp, .jspf, and other .tag files in a .tag file, or 
+	.jspx and other .tagx files in a .tagx file. Using a taglib directive in a tag file is identical to using one in a JSP file.
+
+	Instead of the page directive, tag files have a tag directive. This directive replaces the necessary functionality from JSPâs 
+	page directive and also replaces many of the configuration elements from a <tag> element in a TLD file.
+
+--%>
+<%@ taglib prefix="template" tagdir="/WEB-INF/tags/template" %>
+
+<%-- Now that you’ve configured method security, your services are secured against unauthorized access. However, is it really a good
+    user experience to click a link only to be greeted with an “Access Denied” message? You need to improve your views so that users
+    can’t see actions they can’t perform. The creators of Spring Security thought about pretty much everything, so you have a tag 
+    library at your disposal to make this task easy.
+--%>
+<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
+

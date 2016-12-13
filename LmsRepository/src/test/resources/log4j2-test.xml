@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration status="WARN">
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{dd-MM-yyyy'T'HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </appenders>
+   
+    <loggers>
+        <root level="debug">
+            <appender-ref ref="Console"/>
+        </root>
+    	<logger name="org.springframework" level="info" />
+        <logger name="org.hibernate" level="info"  />
+    	<logger name="org.hibernate.SQL" level="debug"  />
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="trace" />
+    </loggers>
+</configuration>

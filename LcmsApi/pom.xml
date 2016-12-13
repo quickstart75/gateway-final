@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+							http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+	xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  	<modelVersion>4.0.0</modelVersion>
+  
+  	<parent>
+    	<groupId>com.softech.ls360</groupId>
+    	<artifactId>LS360ApiGatewayModules</artifactId>
+    	<version>0.0.1</version>
+  	</parent>
+  
+  	<groupId>com.softech.ls360.lcms.api</groupId>
+  	<artifactId>LcmsApi</artifactId>
+ 
+  	<name>LcmsApi</name>
+  	<url>http://maven.apache.org</url>
+  
+  	<properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	</properties>
+  
+  	<dependencies>
+    
+       <dependency>
+        	<groupId>com.softech.ls360.lms.repository</groupId>
+        	<artifactId>LmsRepository</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
+    
+        <dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+    
+        <dependency>
+			<groupId>org.springframework.ws</groupId>
+			<artifactId>spring-ws-core</artifactId>
+		</dependency>
+		
+		<!-- Spring-ws depends on this dependency -->
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+		</dependency>
+		
+    </dependencies>
+    
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <!-- To generate Java classes from the WSDL in maven, you need the following plugin setup. This setup will generate 
+  		    	 classes for the WSDL found at the specified URL, putting those classes in the package specified in the 
+  		    	 generatePackag element(i.e hello.wsdl).  
+  		    -->
+  			<plugin>
+    			<groupId>org.jvnet.jaxb2.maven2</groupId>
+    			<artifactId>maven-jaxb2-plugin</artifactId>
+    			<executions>
+    			    <execution>
+    			        <id>stub-generation-wsdl</id>
+      					<goals>
+        					<goal>generate</goal>
+      					</goals>
+      					<configuration>
+      					    <bindingDirectory>src/main/resources/jaxb</bindingDirectory>
+      					    <bindingIncludes>
+    							<include>**/*.xjb</include>
+							</bindingIncludes>
+						
+                			<!-- Target directory for the generated code, ${project.build.directory}/generated-sources/xjc by default -->
+        					<generateDirectory>${basedir}/src/main/java</generateDirectory>
+        			
+        					<!-- The generated classes will all be placed under this Java package (XJC's -p option), unless otherwise 
+        			      	specified in the schemas. If left unspecified, the package will be derived from the schemas only.  
+        			
+        					<generatePackage>com.softech.ls360.storefront.proxy.webservice.messages.orderdetails</generatePackage>
+    			    		-->
+    			    		<!-- Type of input schema language. One of: DTD, XMLSCHEMA, RELAXNG, RELAXNG_COMPACT, WSDL, AUTODETECT. If 
+    			    	 		unspecified, it is assumed AUTODETECT.  
+    			    		-->
+        					<schemaLanguage>WSDL</schemaLanguage>
+        					<!--  
+       		 				<schemas>
+            					<schema>
+                					<url>http://10.0.100.179/icp4/PlayerUtility.asmx?wsdl</url>
+            					</schema>
+        					</schemas>
+        					-->
+   				 		</configuration>
+    			    </execution>
+    			</executions>
+			</plugin>
+        </plugins>
+    </build>
+</project>

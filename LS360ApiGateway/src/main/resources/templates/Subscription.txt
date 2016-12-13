@@ -1,0 +1,15 @@
+<html>
+
+    <body>
+        <div>Subscriber Name:   ${subscriberName}</div>
+        <div>Subscriber Email:	${subscriberEmail}</div>
+        <div>Subscription Name:	${subscriptionName}</div>
+        <div>Student Name:	${learnerName}</div>
+        <div>Student Email:	${learnerEmail}</div>
+        <div>Student Phone:	${learnerPhone}</div>
+        <div>Class Name:	${className}</div>
+        <div>Location Name:	${locationName}</div>
+        <div>Start Date:	${startDateTime}</div>
+        <div>Comments:	${comments}</div>
+    </body>
+</html>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="LS360ApiGateway">
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <dependent-module archiveName="LS360ApiGatewayService-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/LS360ApiGatewayService/LS360ApiGatewayService">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="OAuth2Authorization-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/OAuth2Authorization/OAuth2Authorization">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="LmsRepository-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/LmsRepository/LmsRepository">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="LS360Util-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/LS360Util/LS360Util">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="LmsApi-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/LmsApi/LmsApi">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="LS360ApiGateway"/>
+        <property name="java-output-path" value="/LS360ApiGateway/target/classes"/>
+    </wb-module>
+</project-modules>

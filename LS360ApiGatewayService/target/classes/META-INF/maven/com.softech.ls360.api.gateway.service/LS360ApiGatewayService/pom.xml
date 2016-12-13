@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+							http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+	xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  	<modelVersion>4.0.0</modelVersion>
+  	
+  	<parent>
+	    <groupId>com.softech.ls360</groupId>
+	    <artifactId>LS360ApiGatewayModules</artifactId>
+	    <version>0.0.1</version>
+  	</parent>
+  
+  	<groupId>com.softech.ls360.api.gateway.service</groupId>
+  	<artifactId>LS360ApiGatewayService</artifactId>
+
+  	<name>LS360ApiGatewayService</name>
+  	<url>http://maven.apache.org</url>
+  
+  	<properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	</properties>
+  
+  	<dependencies>
+    
+        <dependency>
+        	<groupId>com.softech.ls360.oauth2.auth</groupId>
+        	<artifactId>OAuth2Authorization</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
+        
+        <dependency>
+        	<groupId>com.softech.ls360.lms.api</groupId>
+        	<artifactId>LmsApi</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
+		
+    </dependencies>
+    
+    <build>
+        <finalName>${project.artifactId}</finalName>
+    </build>
+</project>

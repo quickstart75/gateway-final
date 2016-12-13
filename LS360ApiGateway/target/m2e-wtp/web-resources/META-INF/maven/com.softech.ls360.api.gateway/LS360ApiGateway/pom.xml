@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+							http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+	xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  	<modelVersion>4.0.0</modelVersion>
+  	
+  	<parent>
+	    <groupId>com.softech.ls360</groupId>
+	    <artifactId>LS360ApiGatewayModules</artifactId>
+	    <version>0.0.1</version>
+  	</parent>
+  
+  	<groupId>com.softech.ls360.api.gateway</groupId>
+  	<artifactId>LS360ApiGateway</artifactId>
+  	<packaging>war</packaging>
+  	
+  	<name>LS360ApiGateway Maven Webapp</name>
+  	<url>http://maven.apache.org</url>
+  
+  	<dependencies>
+    	
+        <dependency>
+        	<groupId>com.softech.ls360.api.gateway.service</groupId>
+        	<artifactId>LS360ApiGatewayService</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
+       
+        <dependency>
+    		<groupId>org.apache.logging.log4j</groupId>
+    		<artifactId>log4j-web</artifactId>
+  		</dependency>
+        
+        <!-- Servlet -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
+        
+        <dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>javax.servlet.jsp-api</artifactId>
+		</dependency>
+		
+		<dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+        </dependency>
+        
+        <dependency>
+			<groupId>javax.servlet.jsp.jstl</groupId>
+			<artifactId>javax.servlet.jsp.jstl-api</artifactId>
+		</dependency>
+		
+		<!-- The exclusions are necessary because the JSTL implementation defines transient dependencies on older versions of the JSP
+		     and Servlet specifications that have different Maven artifact IDs than the current versions. 
+		-->
+		<dependency>
+			<groupId>org.glassfish.web</groupId>
+			<artifactId>javax.servlet.jsp.jstl</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet.jsp</groupId>
+					<artifactId>jsp-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet.jsp.jstl</groupId>
+					<artifactId>jstl-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+        	<groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-taglibs</artifactId>
+        </dependency>
+        
+  	</dependencies>
+  	<build>
+    	<finalName>${project.artifactId}</finalName>
+    	<plugins>
+    		
+    		<!-- With Java EE 7, deployment descriptors are optional; therefore, you don’t need a web.xml or webservices.xml file. 
+			     However, as Maven still obliges you to add a web.xml file into a war by default, you need to change the 
+			     failOnMissingWebXml attribute of the maven-war-plugin to false; otherwise, Maven will fail the build. 
+			-->
+    		<plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+            	<artifactId>maven-war-plugin</artifactId>
+            	<version>${maven-war-plugin.version}</version>
+            	<configuration>
+            	    <failOnMissingWebXml>false</failOnMissingWebXml>
+             		<warName>${project.artifactId}</warName>
+             		<outputDirectory>${tomcat-directory-path}\webapps</outputDirectory>
+            	</configuration>
+       		</plugin>
+    	</plugins>
+  	</build>
+</project>

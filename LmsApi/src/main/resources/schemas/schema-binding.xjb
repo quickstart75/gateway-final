@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxb:bindings version="2.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" 
+    xmlns:annox="http://annox.dev.java.net"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb 
+    					http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd">
+    <!--  -->
+    <jaxb:globalBindings>
+        
+    	<!-- Use java.util.Calendar instead of javax.xml.datatype.XMLGregorianCalendar for xs:dateTime -->
+        <jaxb:javaType name="java.time.LocalDateTime" xmlType="xsd:dateTime"
+                parseMethod="com.softech.ls360.lms.api.proxy.schema.binder.XSDateTimeCustomBinder.parseDateTime"
+                printMethod="com.softech.ls360.lms.api.proxy.schema.binder.XSDateTimeCustomBinder.printDateTime" />
+                
+        <jaxb:javaType name="java.time.LocalDate" xmlType="xsd:date"
+                parseMethod="com.softech.ls360.lms.api.proxy.schema.binder.XSDateCustomBinder.parseDateTime"
+                printMethod="com.softech.ls360.lms.api.proxy.schema.binder.XSDateCustomBinder.printDateTime" />
+                
+        <!-- Force all classes implements Serializable -->
+        <xjc:serializable uid="1" />
+       
+    </jaxb:globalBindings>
+    
+   
+	<jaxb:bindings schemaLocation="lmsapi/types/Enrollment.xsd" node="/xsd:schema" >
+	    <jaxb:schemaBindings >
+            <jaxb:package name="com.softech.vu360.lms.webservice.message.lmsapi.types.enrollment" />
+    	</jaxb:schemaBindings>
+	</jaxb:bindings>
+	
+</jaxb:bindings>

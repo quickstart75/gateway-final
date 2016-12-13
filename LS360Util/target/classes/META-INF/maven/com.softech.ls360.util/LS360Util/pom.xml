@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+							http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+	xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  	<modelVersion>4.0.0</modelVersion>
+  	<parent>
+	    <groupId>com.softech.ls360</groupId>
+	    <artifactId>LS360ApiGatewayModules</artifactId>
+	    <version>0.0.1</version>
+  	</parent>
+  
+  	<groupId>com.softech.ls360.util</groupId>
+  	<artifactId>LS360Util</artifactId>
+  
+  	<name>LS360Util</name>
+  	<url>http://maven.apache.org</url>
+  
+  	<properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	</properties>
+  	
+  	<dependencies>
+  	
+  	    <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        
+        <!-- contains the standard Log4j 2 implementation. It is the implementation you are configuring, not the API. The API 
+            requires no configuration.  
+        -->
+       	<dependency>
+	        <groupId>org.apache.logging.log4j</groupId>
+	        <artifactId>log4j-core</artifactId>
+        </dependency>
+        
+         <!-- is an adapter to support the Commons Logging API. Several libraries you can use to log against the Commons Logging API,
+            and this adapter causes Commons Logging to use Log4j 2 as its implementation.  For spring logging
+         -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jcl</artifactId>
+        </dependency>
+  	
+  	    <dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>	
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>	
+		</dependency>
+  	
+  	    <dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+		</dependency>
+		
+		<!-- Java Mail API
+    	    The javax.mail-api artifact is only good for compiling against. You actually need to run code, so you 
+    	    need a complete implementation of JavaMail. This is also needed along with the spring-context-support for emails
+    	-->
+    	<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+		</dependency>
+		
+		<!-- Apache Commons Lang, a package of Java utility classes for the classes that are in java.lang's 
+    		hierarchy, or are considered to be so standard as to justify existence in java.lang. Maven dependency 
+    		for org.apache.commons.lang.StringUtils, DateUtils etc 
+    	-->
+    	<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+  	
+    	<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+		</dependency>
+		
+		<!-- General data-binding package for Jackson (2.x): works on streaming API (core) implementation(s) -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		
+  	</dependencies>
+</project>

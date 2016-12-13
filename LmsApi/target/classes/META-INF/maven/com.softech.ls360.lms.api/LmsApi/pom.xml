@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+							http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  	<modelVersion>4.0.0</modelVersion>
+  	<parent>
+	    <groupId>com.softech.ls360</groupId>
+	    <artifactId>LS360ApiGatewayModules</artifactId>
+	    <version>0.0.1</version>
+  	</parent>
+  
+  	<groupId>com.softech.ls360.lms.api</groupId>
+  	<artifactId>LmsApi</artifactId>
+ 
+  	<name>LmsApi</name>
+  	<url>http://maven.apache.org</url>
+  
+  	<properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	</properties>
+  
+  	<dependencies>
+    
+       <dependency>
+        	<groupId>com.softech.ls360.lms.repository</groupId>
+        	<artifactId>LmsRepository</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
+    
+        <dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+    
+        <dependency>
+			<groupId>org.springframework.ws</groupId>
+			<artifactId>spring-ws-core</artifactId>
+		</dependency>
+		
+		<!-- Spring-ws depends on this dependency -->
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+		</dependency>
+		
+    </dependencies>
+    
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <!-- To generate Java classes from the WSDL in maven, you need the following plugin setup. This setup will generate 
+  		    	 classes for the WSDL found at the specified URL, putting those classes in the package specified in the 
+  		    	 generatePackag element(i.e hello.wsdl).  
+  		    
+  			<plugin>
+    			<groupId>org.jvnet.jaxb2.maven2</groupId>
+    			<artifactId>maven-jaxb2-plugin</artifactId>
+    			<executions>
+    			    <execution>
+        				<id>xjc-serviceoperations</id>
+        				<phase>generate-resources</phase>
+        				<goals>
+            				<goal>generate</goal>
+        				</goals>
+        				<configuration>
+        					<generateDirectory>${basedir}/src/main/java/</generateDirectory>
+            				<schemaIncludes>
+            				    <schemaInclude>schemas/lmsapi/serviceoperations/*.xsd</schemaInclude>
+            				</schemaIncludes>
+            				<bindingIncludes>
+            				     <bindingInclude>schemas/schema-binding.xjb</bindingInclude>
+            				</bindingIncludes>
+            				<verbose>true</verbose>
+                			<extension>true</extension>
+            				<removeOldOutput>false</removeOldOutput>
+        				</configuration>
+    				</execution>
+    				<execution>
+        				<id>xjc-types</id>
+        				<phase>generate-resources</phase>
+        				<goals>
+            				<goal>generate</goal>
+        				</goals>
+        				<configuration>
+        					<generateDirectory>${basedir}/src/main/java</generateDirectory>
+        					<schemaDirectory>schemas/lmsapi/types</schemaDirectory>
+        					<schemaIncludes>
+            				    <schemaInclude>**/*.xsd</schemaInclude>
+            				</schemaIncludes>
+            				<schemaExcludes>
+            					<schemaExclude>Enrollment.xsd</schemaExclude>
+            				</schemaExcludes>
+            				<removeOldOutput>false</removeOldOutput>
+            				<verbose>true</verbose>
+                			<extension>true</extension>
+        				</configuration>
+    				</execution>
+    			</executions>
+			</plugin>	
+			-->
+        </plugins>
+    </build>
+    
+</project>
