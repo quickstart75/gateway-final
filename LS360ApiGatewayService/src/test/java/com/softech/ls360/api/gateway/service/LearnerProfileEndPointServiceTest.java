@@ -40,8 +40,8 @@ public class LearnerProfileEndPointServiceTest extends LS360ApiGatewayServiceAbs
 		CourseRequest courseRequest = new CourseRequest();
 		List<String> courseGuids = new ArrayList<String>();
 		
-		courseGuids.add("14F93637DED84498BCBB8A336A1A18611");
-		courseGuids.add("a75026b92ce44e7fad47e321b56654211");
+		courseGuids.add("14F93637DED84498BCBB8A336A1A1861");
+		courseGuids.add("a75026b92ce44e7fad47e321b5665421");
 		
 		try {
 			Map<String, String> lstCourseOutlines = new HashMap<String, String>();
