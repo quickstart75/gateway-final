@@ -38,8 +38,14 @@ import javax.persistence.OneToOne;
                 @NamedSubgraph(
                         name = "enrollmentGraph",
                         attributeNodes = {
-                                @NamedAttributeNode(value = "course"),
+                                @NamedAttributeNode(value = "course", subgraph = "course.labType"),
                                 @NamedAttributeNode(value = "learner")
+                        }
+                ),
+                @NamedSubgraph(
+                        name = "course.labType",
+                        attributeNodes = {
+                                @NamedAttributeNode(value = "labType")
                         }
                 )
         }

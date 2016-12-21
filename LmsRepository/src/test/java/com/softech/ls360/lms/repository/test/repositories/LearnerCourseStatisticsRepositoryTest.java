@@ -31,7 +31,7 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 	@Transactional
 	public void findMyCoursesCountByUserName()
 	{
-		String userName = "26april@10.com";
+		String userName = "admin";//"manager_learner@lms.com"; //"26april@10.com";
 		List<String> status = new ArrayList<String>();
 		
 		status.add("completed");
@@ -42,10 +42,13 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 		try {
 			
 				PageRequest request = new PageRequest(0, 10, Sort.Direction.DESC, "firstAccessDate");
-				String searchText = "shariq";
-				Page<LearnerCourseStatistics> learnerEnrollments = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus(userName, "Active", request);
+				String searchText = "Introduction to SQA_2";
+				//Page<LearnerCourseStatistics> learnerEnrollments = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus(userName, "Active", request);
 				
-				//Page<LearnerCourseStatistics> learnerEnrollments = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatusAndLearnerEnrollment_course_nameLike(userName, "Active", "%"+searchText+"%", request);
+				//---Page<LearnerCourseStatistics> learnerEnrollments = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatusAndLearnerEnrollment_course_nameLike(userName, "Active", request);
+				
+				
+				Page<LearnerCourseStatistics> learnerEnrollments = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatusAndLearnerEnrollment_course_nameLike(userName, "Active", "%"+searchText+"%", request);
 				
 				System.out.println("Page Number :: " + learnerEnrollments.getNumber());
 				System.out.println("Number Of Elements :: " + learnerEnrollments.getNumberOfElements());
@@ -54,7 +57,17 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 				System.out.println("Size :: " + learnerEnrollments.getTotalPages());
 				
 				List<LearnerCourseStatistics> learnerCourses = learnerEnrollments.getContent();
+				com.softech.ls360.lms.repository.entities.Course crs =  learnerCourses.get(0).getLearnerEnrollment().getCourse(); // learnerCourses.getLearnerEnrollment().getCourse();
+			//	String courseType = crs.getCourseType();
 				
+				String labType = crs.getLabType() != null ? crs.getLabType().getLabName() : ""; //"GoToMyPC";
+				String labURL = crs.getLabType() != null ? crs.getLabType().getLabURL() : "";  //"https://www.gotomypc.com/en_US/members/login.tmpl";
+				
+				if((crs.equals("Classroom Course")) || crs.equals("Webinar Course")){
+					
+					System.out.println("Classroom Class :: " +  crs.getLabType().getLabURL().toString());
+					
+					System.out.println("Classroom Class :: " +  learnerCourses.get(0).getLearnerEnrollment().getSynchronousClass().getClassName());
 				System.out.println("Classroom Class :: " +  learnerCourses.get(0).getLearnerEnrollment().getSynchronousClass().getClassName());
 				
 				System.out.println("Session :: " +  learnerCourses.get(0).getLearnerEnrollment().getSynchronousClass().getSynchronousSession().get(0).getSessionKey());
@@ -63,7 +76,7 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-DD-yyyy hh:mm a");
 				
 				System.out.println("Formatted Date :: " +  learnerCourses.get(0).getLearnerEnrollment().getSynchronousClass().getSynchronousSession().get(0).getStartDateTime());
-				
+				}
 				System.out.println("Courses in this page ::" + learnerCourses.size() );
 				
 		        /*
@@ -74,9 +87,9 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 				count = learnerCourseStatisticsRepository.countByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus("noman.test4","Active");
 				System.out.println("all Course Count ::"+ count);
 				*/
-				//List<LearnerCourseStatistics> learnerEnrollments = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus("noman.test4","Active");
+			//	List<LearnerCourseStatistics> learnerEnrollments = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus("noman.test4","Active");
 				
-				//Iterator le = learnerEnrollments.iterator();
+			//	Iterator le = learnerEnrollments.iterator();
 				
 				/*
 				LearnerCourseResponse learnerCourse = new LearnerCourseResponse();

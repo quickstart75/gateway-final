@@ -4,6 +4,8 @@ import java.net.InetAddress;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
@@ -12,7 +14,11 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 public class SpringUtil {
 	
+	private static final Logger logger = LogManager.getLogger();
+	
 	public static GenericXmlApplicationContext loadSpringContext(String springXmlFile) {
+		
+		
 		
 		/* In Spring, the ApplicationContext interface is an extension to BeanFactory. In addition to DI services, the
 		 * ApplicationContext also provides other services, such as transaction and AOP service, message source for 
@@ -106,6 +112,11 @@ public class SpringUtil {
 	public static boolean matchByIpAddresses(String... ipAdresses) throws Exception {
 		boolean ipAddressMatch = false;
 		InetAddress localHost = InetAddress.getLocalHost();
+		
+		logger.info("Local Host :: :: :: " + localHost);
+		logger.info("Host Address :: :: :: " + localHost.getHostAddress());
+		
+		
 		if (localHost != null && ipAdresses != null) {
 			String hostAddress = localHost.getHostAddress();
 			for (String ipAdress : ipAdresses) {

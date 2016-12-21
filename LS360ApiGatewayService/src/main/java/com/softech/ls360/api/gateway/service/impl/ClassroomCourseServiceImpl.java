@@ -136,7 +136,7 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 
 	@Override
 	@Transactional
-	public ClassroomStatistics getClassroomStatistics(Long classId) {
+	public ClassroomStatistics getClassroomStatistics(Long classId,com.softech.ls360.lms.repository.entities.Course course) {
 		logger.info("Call for Classroom statistics (for My Courses/Isotopes) from class" + getClass().getName());
 		ClassroomStatistics classroomStatistics = null;
 		
@@ -151,8 +151,8 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 			String endDate = startEndDate.get("endDate");
 			String duration = classRoom.getCourse().getDuration();
 			//String durationUnit = classRoom.getCourse().getDurationUnit();
-			String labType = "GoToMyPC";
-			String labURL = "https://www.gotomypc.com/en_US/members/login.tmpl";
+			String labType = course.getLabType() != null ? course.getLabType().getLabName() : ""; //"GoToMyPC";
+			String labURL = course.getLabType() != null ? course.getLabType().getLabURL() : "";  //"https://www.gotomypc.com/en_US/members/login.tmpl";
 			
 			classroomStatistics.setStartDate(startDate);
 			classroomStatistics.setEndDate(endDate);

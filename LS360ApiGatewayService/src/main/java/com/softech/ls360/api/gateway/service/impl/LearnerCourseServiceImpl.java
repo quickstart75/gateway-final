@@ -115,6 +115,8 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 												status, true, userName,
 												"Active"));
 			} else if (str.toLowerCase().equals("subscriptions") && storeId != 0) {
+				
+				/*
 				logger.info("Call for subscription course count from "
 						+ getClass().getName());
 
@@ -138,7 +140,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				}
 				else
 					myCoursesCount.put("subscriptions", 0);
-				
+				*/
 			} else if (str.toLowerCase().equals("all")) {
 				logger.info("Call for all enrollments count from "
 						+ getClass().getName());
@@ -234,7 +236,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		//String enrollments = getEnrollments(learnerCoursesList);
 		String enrollments = getEnrollmentIdsByStatus(learnerCoursesList, "inprogress");
 		
-		List<LockedCourseStatus> learnerLockedCourses = getLockedCourses(enrollments);
+		
+		//Locked Course
+		//List<LockedCourseStatus> learnerLockedCourses = getLockedCourses(enrollments);
 		
 		String postAttemptedEnrollments = getPostAttemptedEnrollments(learnerCoursesList);
 		
@@ -268,7 +272,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			learnerCourse.setCourseGUID(lcs.getLearnerEnrollment().getCourse().getCourseGuid());
 			
 			learnerCourse.setCourseImage("");
-			
+			/*
 			if(!((storeId <= 0) || (storeId == null)))
 			{
 				CourseGroup cg = null;
@@ -289,17 +293,21 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 					
 				}
 			}
+			*/
+			
 			learnerCourse.setCourseName(lcs.getLearnerEnrollment().getCourse().getName());
 			learnerCourse.setCourseProgress(lcs.getPercentComplete());
 			learnerCourse.setCourseStatus(lcs.getStatus());
 			
 			String courseType = lcs.getLearnerEnrollment().getCourse().getCourseType();
-
+			
+			
 			//Setting Classroom Course Statistics
 			if((courseType.equals("Classroom Course")) || courseType.equals("Webinar Course")){
 				learnerCourse.setCourseType(courseType);
 				Long classId = lcs.getLearnerEnrollment().getSynchronousClass().getId();
-				ClassroomStatistics classroomStatistics = classroomCourseService.getClassroomStatistics(classId);
+				com.softech.ls360.lms.repository.entities.Course crs = lcs.getLearnerEnrollment().getCourse();
+				ClassroomStatistics classroomStatistics = classroomCourseService.getClassroomStatistics(classId,crs);
 				learnerCourse.setClassroomStatistics(classroomStatistics);
 			}
 			else{
@@ -342,6 +350,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			// View Assessment Link
 			learnerCourse.setViewAssessmentURI("");
 			
+			/*
 			if(lcs.getNumberPostTestsTaken()>0){
 				if(viewAssessmentEnrollmentList.get(enrollmentId) != null){
 				
@@ -350,10 +359,15 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 					learnerCourse.setViewAssessmentURI(viewAssessmentURL+enrollmentId);
 				}
 			}
+			*/
 			
 			learnerCourse.setIsLocked(false);
 			
 			//Check Locked Course status
+			/*
+			 * 
+			 * 
+			
 			if (learnerLockedCourses != null) {
 				if (((lcs.getStatus().equals("notstarted")) || (lcs.getStatus().equals("inprogress")))) {
 					String lockMessage = isCourseLocked(learnerLockedCourses,learnerCourse.getEnrollmentId());
@@ -363,6 +377,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 					}
 				}
 			}
+			 */
 			
 			learnerCourse.setFirstAccessDate(lcs.getFirstAccessDate());
 			learnerCourse.setScore(lcs.getHighestPostTestScore());

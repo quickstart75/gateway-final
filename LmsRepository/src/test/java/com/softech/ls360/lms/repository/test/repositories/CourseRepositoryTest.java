@@ -10,7 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.repositories.CourseRepository;
-import com.softech.ls360.lms.repository.test.LmsRepositoryAbstractTest;
+import com.softech.ls360.lms.repository.test.LmsRepositoryAbstractTest;;
 
 public class CourseRepositoryTest extends LmsRepositoryAbstractTest {
 	
@@ -48,7 +48,22 @@ public class CourseRepositoryTest extends LmsRepositoryAbstractTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		 
 	}
+	//
+	@Test
+	public void findCourseByid() {
+			
+			Long Id = 220278L; //220279L;
+			
+			try {
+				com.softech.ls360.lms.repository.entities.Course c = courseRepository.findOne(Id);
+			System.out.println( c.getLabType() != null ? c.getLabType().getLabName() : "");
+				//List<Course> customerEntitlementCourseList = courseRepository.findByCourseCustomerEntitlementCustomerEntitlementId(customerEntitlementId);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
 	
 }

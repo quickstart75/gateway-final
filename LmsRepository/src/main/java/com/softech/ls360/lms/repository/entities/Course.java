@@ -8,7 +8,15 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -91,6 +99,17 @@ public class Course extends AuditedEntity implements Serializable {
 	private LocalDateTime courseExpiration;
 	private LocalDateTime lastPublishedDate;
 	private String durationUnit;
+	
+	//@OneToOne
+//	@Fetch(FetchMode.JOIN)
+	
+//	@ManyToOne(fetch=FetchType.LAZY)
+//	@JoinColumn(name="LABTYPE_ID")
+	
+//	@JoinColumn(name="LABTYPE_ID")
+
+	private LabType labType ;
+//	private Integer LABTYPE_ID;
 
 	private List<CourseCourseGroup> courseCourseGroup;
 	private List<CourseCustomerEntitlement> courseCustomerEntitlement;
@@ -591,6 +610,20 @@ public class Course extends AuditedEntity implements Serializable {
 		this.durationUnit = durationUnit;
 	}
 
+	/**/
+	@OneToOne(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.JOIN)
+	@JoinColumn(name = "LABTYPE_ID", referencedColumnName = "ID") 
+	public LabType getLabType() {
+		return labType;
+	}
+
+	
+	public void setLabType(LabType labType) {
+		this.labType = labType;
+	}
+	
+	
 	@Override
 	public String toString() {
 		return "Course [id=" + id + ", name=" + name + ", courseStatus="
@@ -598,5 +631,13 @@ public class Course extends AuditedEntity implements Serializable {
 				+ courseType + ", courseGuid=" + courseGuid + ", businessKey="
 				+ businessKey + "]";
 	}
-	
+/*
+	public Integer getLABTYPE_ID() {
+		return LABTYPE_ID;
+	}
+
+	public void setLABTYPE_ID(Integer lABTYPE_ID) {
+		LABTYPE_ID = lABTYPE_ID;
+	}
+	*/
 }
