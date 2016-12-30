@@ -305,10 +305,14 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			//Setting Classroom Course Statistics
 			if((courseType.equals("Classroom Course")) || courseType.equals("Webinar Course")){
 				learnerCourse.setCourseType(courseType);
+				
+				if(lcs.getLearnerEnrollment().getSynchronousClass() != null){
 				Long classId = lcs.getLearnerEnrollment().getSynchronousClass().getId();
 				com.softech.ls360.lms.repository.entities.Course crs = lcs.getLearnerEnrollment().getCourse();
 				ClassroomStatistics classroomStatistics = classroomCourseService.getClassroomStatistics(classId,crs);
 				learnerCourse.setClassroomStatistics(classroomStatistics);
+				}
+				
 			}
 			else{
 				learnerCourse.setCourseType("Online Course");
