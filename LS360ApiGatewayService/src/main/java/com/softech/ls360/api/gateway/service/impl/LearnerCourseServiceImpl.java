@@ -390,6 +390,16 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			
 		}
 		
+		/************ Subscription ******************/
+		List<Subscription> subscriptions = subscriptionRepository.findByVu360User_usernameAndSubscriptionStatus(userName, "Active");
+		List<String> lstsubscription = new ArrayList<String>();
+		
+		for(Subscription subscription : subscriptions){
+			lstsubscription.add(subscription.getSubscriptionName());
+		}
+		
+		learnerCourseResponse.setSubscriptions(lstsubscription);
+		
 		learnerCourseResponse.setLearnerEnrollments(learnerEnrollments);
 		learnerCourseResponse.setPageNumber(page.getNumber()+1);
 		learnerCourseResponse.setPageSize(page.getSize());
