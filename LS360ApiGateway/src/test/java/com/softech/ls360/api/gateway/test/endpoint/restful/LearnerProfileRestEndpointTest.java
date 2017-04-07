@@ -43,7 +43,7 @@ public class LearnerProfileRestEndpointTest extends
 	}
 	
 	
-	@Test
+	//@Test
 	public void getCourseOutlineByGuids(){
 		String inputJSON = getRequestJson();
 		String restEndPoint = LOCAL_URL + "course/getCourseOutlineByGuids";
@@ -53,13 +53,32 @@ public class LearnerProfileRestEndpointTest extends
 			String response2 = getResponse(
 					restEndPoint,
 					inputJSON,
-					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDE2LTEyLTIwVDIzOjM3OjQ0LjcyMSIsInVzZXJfbmFtZSI6IlJlaGFuQ3VzdG9tZXI0QGxtcy5jb20iLCJhdXRob3JpdGllcyI6WyJST0xFX0xFQVJORVIiLCJST0xFX1RSQUlOSU5HQURNSU5JU1RSQVRPUiJdLCJjbGllbnRfaWQiOiJUZXN0Q2xpZW50Iiwic2NvcGUiOlsiUkVBRCIsIlRSVVNUIiwiV1JJVEUiXX0.xiOur4feidLCbZwVSKQ4SBPZTq6AbwNfmjV9ONCe3Ew");
+					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDE3LTA0LTA4VDA1OjA2OjE4LjMyOCIsInVzZXJfbmFtZSI6ImZhaGFkX2F1dGhvciIsImF1dGhvcml0aWVzIjpbIlJPTEVfTEVBUk5FUiIsIlJPTEVfVFJBSU5JTkdBRE1JTklTVFJBVE9SIl0sImNsaWVudF9pZCI6IlRlc3RDbGllbnQiLCJzY29wZSI6WyJSRUFEIiwiVFJVU1QiLCJXUklURSJdfQ.5yCZbBf7VBBvsOFtqFQkCGuT1UlNgNAR7ScjYCvWjLQ");
 			
 			System.out.println(JsonUtil.convertObjectToJson(response2));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
+	
+	@Test
+	public void changePassword(){
+		String inputJSON = getRequestJson();
+		String restEndPoint = LOCAL_URL + "profile/updatePassword?username=admin&updatedValue=admin123";
+		logger.info("calling URL :: " + restEndPoint);
+		
+		try {
+			String response2 = getResponse(
+					restEndPoint,
+					"",
+					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDE3LTA0LTA4VDA4OjU5OjM3LjI2NSIsInVzZXJfbmFtZSI6ImZhaGFkLmF1dGhvciIsImF1dGhvcml0aWVzIjpbIlJPTEVfTEVBUk5FUiIsIlJPTEVfVFJBSU5JTkdBRE1JTklTVFJBVE9SIl0sImNsaWVudF9pZCI6IlRlc3RDbGllbnQiLCJzY29wZSI6WyJSRUFEIiwiVFJVU1QiLCJXUklURSJdfQ.x4Lq-WJqVV9pu5DWBzAV_nE_c2oIWfOvQyxrGC9ePpk");
+			
+			System.out.println(JsonUtil.convertObjectToJson(response2));
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	
 	private String getRequestJson() {
 		CourseRequest courseRequest = getCourseRequest();

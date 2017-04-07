@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.LearnerProfileService;
@@ -77,4 +80,37 @@ public class LearnerProfileRestEndPoint {
         }
         return responseData;
     }
+	
+	
+	@RequestMapping(value = "/profile/updatePassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String changePassword(@RequestHeader("Authorization") String authorization, @RequestParam("username") String username,
+			@RequestParam("updatedValue") String password) {
+			
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/lms/restful/userEvents/update.do")
+		        .queryParam("username", username)
+		        .queryParam("updatedValue", password);
+		
+		 RestTemplate lmsTemplate = new RestTemplate();
+
+         HttpHeaders headers = new HttpHeaders();
+         String tokenString = authorization.substring("Bearer".length()).trim();
+         headers.add("token", tokenString);
+         headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+
+         //String inpurJson = JsonUtil.convertObjectToJson(learnerProfile);
+         HttpEntity<String> entity = new HttpEntity<>(headers);
+
+         //String location = env.getProperty("lms.learner.profile.save.url");
+         ResponseEntity<String> returnedData = (ResponseEntity<String>) lmsTemplate.exchange(
+        		 	builder.build().encode().toUri(),
+        		 	HttpMethod.GET, 
+        	        entity, 
+        	        String.class);
+         
+         Object o = returnedData.getBody();
+         
+			return "Pass";
+			
+	}
 }
