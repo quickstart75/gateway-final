@@ -86,8 +86,9 @@ public class LearnerProfileRestEndPoint {
 	@ResponseBody
 	public String changePassword(@RequestHeader("Authorization") String authorization, @RequestParam("username") String username,
 			@RequestParam("updatedValue") String password) {
-			
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/lms/restful/userEvents/update.do")
+		
+		String servicePoint = env.getProperty("lms.webservice.profile.updatePassword");
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(servicePoint)
 		        .queryParam("username", username)
 		        .queryParam("updatedValue", password);
 		
@@ -98,19 +99,23 @@ public class LearnerProfileRestEndPoint {
          headers.add("token", tokenString);
          headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
 
-         //String inpurJson = JsonUtil.convertObjectToJson(learnerProfile);
+         logger.info(" - /profile/updatePassword is called - ");
          HttpEntity<String> entity = new HttpEntity<>(headers);
 
-         //String location = env.getProperty("lms.learner.profile.save.url");
-         ResponseEntity<String> returnedData = (ResponseEntity<String>) lmsTemplate.exchange(
-        		 	builder.build().encode().toUri(),
-        		 	HttpMethod.GET, 
-        	        entity, 
-        	        String.class);
-         
-         Object o = returnedData.getBody();
-         
-			return "Pass";
+         try{
+	         //String location = env.getProperty("lms.learner.profile.save.url");
+	         ResponseEntity<String> returnedData = (ResponseEntity<String>) lmsTemplate.exchange(
+	        		 	builder.build().encode().toUri(),
+	        		 	HttpMethod.GET, 
+	        	        entity, 
+	        	        String.class);
+	         
+	         Object o = returnedData.getBody();
+	         return "PASSED";
+         }catch(Exception ex){
+        	 return "FAIL";
+         }
+			
 			
 	}
 }
