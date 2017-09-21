@@ -5,7 +5,15 @@ public class SubscriptionEnrollmentRequest {
     private String courseGuid;
     private String courseGroupGUID;
     private int subscriptionCode;
+    private String classGuid;
     
+    
+	public String getClassGuid() {
+		return classGuid;
+	}
+	public void setClassGuid(String classGuid) {
+		this.classGuid = classGuid;
+	}
 	public String getCourseGuid() {
 		return courseGuid;
 	}

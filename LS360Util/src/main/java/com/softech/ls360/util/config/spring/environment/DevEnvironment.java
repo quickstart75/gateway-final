@@ -38,7 +38,7 @@ public class DevEnvironment implements Condition {
 		}
 		if (StringUtils.isNotBlank(operatingSystem) && StringUtils.isNotBlank(ls360Environment)) {
 			boolean windowsOperatingSystem = operatingSystem.indexOf("Win") >= 0;
-			if (windowsOperatingSystem && ls360Environment.equalsIgnoreCase("development")) {
+			if (windowsOperatingSystem && ls360Environment.equalsIgnoreCase("dev")) {
 				matches = true;
 			}
 		} else if (StringUtils.isNotBlank(operatingSystem)) {

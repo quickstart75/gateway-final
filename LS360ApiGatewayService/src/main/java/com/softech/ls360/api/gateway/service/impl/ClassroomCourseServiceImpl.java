@@ -153,6 +153,7 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 			//String durationUnit = classRoom.getCourse().getDurationUnit();
 			String labType = course.getLabType() != null ? course.getLabType().getLabName() : ""; //"GoToMyPC";
 			String labURL = course.getLabType() != null ? course.getLabType().getLabURL() : "";  //"https://www.gotomypc.com/en_US/members/login.tmpl";
+			String meetingURL = classRoom.getMeetingUrl() != null ? classRoom.getMeetingUrl() : ""; 
 			
 			classroomStatistics.setStartDate(startDate);
 			classroomStatistics.setEndDate(endDate);
@@ -161,6 +162,7 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 			//classroomStatistics.setDurationUnit(durationUnit);
 			classroomStatistics.setLabType(labType);
 			classroomStatistics.setLabURL(labURL);
+			classroomStatistics.setMeetingURL(meetingURL);			
 		}
 		return classroomStatistics;
 	}

@@ -278,7 +278,7 @@ public class SynchronousClass extends BaseEntity implements Serializable {
 	}
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "synchronousClass")
-	@Where(clause = "status = 'A'")
+	@Where(clause = "status in ('A','U')")
 	@OrderBy("startDateTime ASC")
 	public List<SynchronousSession> getSynchronousSession() {
 		return synchronousSession;

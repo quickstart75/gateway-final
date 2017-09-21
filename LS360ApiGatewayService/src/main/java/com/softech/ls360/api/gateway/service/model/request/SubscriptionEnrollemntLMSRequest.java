@@ -6,6 +6,15 @@ public class SubscriptionEnrollemntLMSRequest {
 	private String courseId;
     private String subscriptionId;
     private String courseGroupGUID;
+    private String classGuid;
+    
+    
+	public String getClassGuid() {
+		return classGuid;
+	}
+	public void setClassGuid(String classGuid) {
+		this.classGuid = classGuid;
+	}
 
     public String getUserName() {
 		return userName;

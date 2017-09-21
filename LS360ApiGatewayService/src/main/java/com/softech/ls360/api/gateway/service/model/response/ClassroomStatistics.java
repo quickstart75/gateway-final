@@ -9,8 +9,15 @@ public class ClassroomStatistics {
 	private String durationUnit = "0";
 	private String labType = "";
 	private String labURL = "";
+	private String meetingURL = "";
 	
 	
+	public String getMeetingURL() {
+		return meetingURL;
+	}
+	public void setMeetingURL(String meetingURL) {
+		this.meetingURL = meetingURL;
+	}
 	public String getStartDate() {
 		return startDate;
 	}

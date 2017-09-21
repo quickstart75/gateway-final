@@ -45,6 +45,8 @@ public class SubscriptionEnrollmentServiceImpl implements SubscriptionEnrollment
 		String courseGUID = request.getCourseGuid();
 		String courseGroupGUID = request.getCourseGroupGUID();
 		String subscriptionCode = request.getSubscriptionCode()+"";
+		String classGuid = request.getClassGuid()+"";
+		
 		Course course = courseRepository.findByCourseGuid(courseGUID);
 		Long subscriptionId = null;
 		Subscription subscription = subscriptionRepository.findBySubscriptionCodeAndSubscriptionStatus(subscriptionCode, "Active");
@@ -56,6 +58,7 @@ public class SubscriptionEnrollmentServiceImpl implements SubscriptionEnrollment
 			lmsRequest.setCourseId(course.getId().toString());
 			lmsRequest.setSubscriptionId(subscriptionId.toString());
 			lmsRequest.setCourseGroupGUID(courseGroupGUID);
+			lmsRequest.setClassGuid(classGuid);
 			
 			String requestJson = JsonUtil.convertObjectToJson(lmsRequest);
 			
