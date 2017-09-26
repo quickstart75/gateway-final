@@ -1,7 +1,10 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +91,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	
 	@Value("${lms.launch.course.url}")
 	private String launchCourseURL;
+	
+	@Value("${lab.password}")
+	private String labPassword;
 	
 	Integer storeId = 0;
 	
@@ -387,6 +393,22 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			learnerCourse.setScore(lcs.getHighestPostTestScore());
 
 			learnerEnrollments.add(learnerCourse);
+			
+			// -- Start -- setup course Lab URL for all enrollment behalf if available in course's LabType_id field
+			if(lcs.getLearnerEnrollment().getCourse()!=null && lcs.getLearnerEnrollment().getCourse().getLabType()!=null &&
+						lcs.getLearnerEnrollment().getCourse().getLabType().getIsActive() && !lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
+				try {
+					MessageDigest md = MessageDigest.getInstance("SHA-1");
+					String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
+					String labName = lcs.getLearnerEnrollment().getCourse().getLabType().getLabName() ;
+					byte[] userToken = Base64.getEncoder().encode(md.digest( (userName + "-" + learnerCourse.getEnrollmentId() + "|" + labPassword).getBytes() )); 
+					learnerCourse.setLabLaunchUrl(laburl+"?labAccessKey="+ new String(userToken) +"");
+					learnerCourse.setLabName(labName);
+				} catch (NoSuchAlgorithmException e) {
+					logger.error(e);
+				}
+			}
+			// -- end -- setup course Lab URL
 			
 		}
 		
