@@ -37,8 +37,9 @@ public class LearnerEnrollmentStatistics   {
   private LocalDateTime firstAccessDate = null;
   private double score = 0.0;
   private ClassroomStatistics classroomStatistics; 
-  private String labLaunchUrl;
+  private String labURL;
   private String labName;
+  private Boolean isLabThirdParty;
   /**
    * Completion Certificate URI if the course is completed.
    **/
@@ -413,21 +414,28 @@ public class LearnerEnrollmentStatistics   {
 		this.classroomStatistics = classroomStatistics;
 	}
 	
-	public String getLabLaunchUrl() {
-		return labLaunchUrl;
+	public String getLabURL() {
+		return labURL;
 	}
 
-	public void setLabLaunchUrl(String labLaunchUrl) {
-		this.labLaunchUrl = labLaunchUrl;
+	public void setLabURL(String labURL) {
+		this.labURL = labURL;
 	}
 
-	
 	public String getLabName() {
 		return labName;
 	}
 
 	public void setLabName(String labName) {
 		this.labName = labName;
+	}
+	
+	public Boolean getIsLabThirdParty() {
+		return isLabThirdParty;
+	}
+
+	public void setIsLabThirdParty(Boolean isLabThirdParty) {
+		this.isLabThirdParty = isLabThirdParty;
 	}
 
 @Override

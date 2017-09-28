@@ -396,17 +396,23 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			
 			// -- Start -- setup course Lab URL for all enrollment behalf if available in course's LabType_id field
 			if(lcs.getLearnerEnrollment().getCourse()!=null && lcs.getLearnerEnrollment().getCourse().getLabType()!=null &&
-						lcs.getLearnerEnrollment().getCourse().getLabType().getIsActive() && !lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
-				try {
-					MessageDigest md = MessageDigest.getInstance("SHA-1");
-					String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
-					String labName = lcs.getLearnerEnrollment().getCourse().getLabType().getLabName() ;
-					byte[] userToken = Base64.getEncoder().encode(md.digest( (userName + "-" + learnerCourse.getEnrollmentId() + "|" + labPassword).getBytes() )); 
-					learnerCourse.setLabLaunchUrl(laburl+"?labAccessKey="+ new String(userToken) +"");
-					learnerCourse.setLabName(labName);
-				} catch (NoSuchAlgorithmException e) {
-					logger.error(e);
-				}
+						lcs.getLearnerEnrollment().getCourse().getLabType().getIsActive()){
+				if(!lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
+					try {
+						MessageDigest md = MessageDigest.getInstance("SHA-1");
+						String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
+						String labName = lcs.getLearnerEnrollment().getCourse().getLabType().getLabName() ;
+						byte[] userToken = Base64.getEncoder().encode(md.digest( (userName + "-" + learnerCourse.getEnrollmentId() + "|" + labPassword).getBytes() )); 
+						learnerCourse.setLabURL(laburl+"?labAccessKey="+ new String(userToken) +"");
+						learnerCourse.setLabName(labName);
+						learnerCourse.setIsLabThirdParty(false);
+					} catch (NoSuchAlgorithmException e) {
+						logger.error(e);
+					}
+				}else{
+					learnerCourse.setIsLabThirdParty(true);
+				}	
+				
 			}
 			// -- end -- setup course Lab URL
 			
