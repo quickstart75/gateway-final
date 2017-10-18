@@ -399,14 +399,15 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 						lcs.getLearnerEnrollment().getCourse().getLabType().getIsActive()){
 				if(!lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
 					try {
-						MessageDigest md = MessageDigest.getInstance("SHA-1");
 						String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
 						String labName = lcs.getLearnerEnrollment().getCourse().getLabType().getLabName() ;
-						byte[] userToken = Base64.getEncoder().encode(md.digest( (userName + "-" + learnerCourse.getEnrollmentId() + "|" + labPassword).getBytes() )); 
+						byte[] userToken = Base64.getEncoder().encode((userName + "-" + learnerCourse.getEnrollmentId() + "|" + labPassword).getBytes()); 
 						learnerCourse.setLabURL(laburl+"?labAccessKey="+ new String(userToken) +"");
 						learnerCourse.setLabName(labName);
 						learnerCourse.setIsLabThirdParty(false);
-					} catch (NoSuchAlgorithmException e) {
+					} catch (Exception e) {
+						logger.error(" >>>> ERROR >>>>");
+						logger.error("Error in making Course URL for enrollment id : " + learnerCourse.getEnrollmentId());
 						logger.error(e);
 					}
 				}else{
