@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.endpoint.restful;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -18,8 +19,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
+import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
+import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerClassroomDetailResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
 import com.softech.ls360.lms.api.model.request.LearnerEnrollmentsRequest;
@@ -70,6 +73,21 @@ public class EnrollmentRestEndpoint {
 		String userName = auth.getName(); //get logged in username
 		
 		return learnerCourseCountService.getCourseCount(learnerCourseCountRequest, userName);
+			
+	}
+	
+	@RequestMapping(value = "/learner/course/timespent", method = RequestMethod.POST)
+	@ResponseBody
+	public List<CourseTimeSpentResponse> learnerCourseTimeSpent(@RequestBody CourseTimeSpentRequest courseTimeSpentRequest
+			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
+		
+		logger.info("Request received at " + getClass().getName() + " for learner enrollment count");
+		
+		//validate get user from token	
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		String userName = auth.getName(); //get logged in username
+		
+		return (List<CourseTimeSpentResponse>) learnerCourseCountService.getCourseTimeSpent(courseTimeSpentRequest, userName);
 			
 	}
 	

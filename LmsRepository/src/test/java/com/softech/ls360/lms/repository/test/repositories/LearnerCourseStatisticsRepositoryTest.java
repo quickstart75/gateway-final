@@ -27,10 +27,17 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 		
 	}
 	
+	
+	
+	
 	@Test
 	@Transactional
 	public void findMyCoursesCountByUserName()
 	{
+		
+		
+		
+		
 		String userName = "admin";//"manager_learner@lms.com"; //"26april@10.com";
 		List<String> status = new ArrayList<String>();
 		
@@ -40,6 +47,9 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 		status.add("Reported");
 		
 		try {
+			
+			Integer ans = learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse("manager_learner@lms.com", "Active");
+			System.out.println(ans);
 			
 				PageRequest request = new PageRequest(0, 10, Sort.Direction.DESC, "firstAccessDate");
 				String searchText = "Introduction to SQA_2";

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
+import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
 import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
+import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerEnrollmentStatistics;
 import com.softech.ls360.lcms.api.service.LockedCourseService;
@@ -99,13 +102,79 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	
 	@Override
 	@Transactional
+	public List<CourseTimeSpentResponse> getCourseTimeSpent(CourseTimeSpentRequest request, String userName){
+		List<CourseTimeSpentResponse> lstCourseTimeSpent = new ArrayList<CourseTimeSpentResponse>();
+		String startDate = request.getStartDate() ;
+		String endDate =  request.getEndDate() ;
+		List<Long> enrollmentIds = new ArrayList<Long>();
+		
+		if(request.getEnrollmentId().size() > 0 ){
+			enrollmentIds = request.getEnrollmentId();
+		}else{
+			enrollmentIds	 = learnerCourseStatisticsRepository.getRecentActivityCourse(userName,"Active",request.getLatestCount());
+		}
+		
+		List<Object[]> courseTimeSpent	 = learnerCourseStatisticsRepository.getCourseTimeSpentDateWise( enrollmentIds,startDate,endDate);
+		HashSet<Long> uniqueEnrollmentIds =  getUniqueValue(courseTimeSpent,1); 
+		
+		for(Long enrollmentId : uniqueEnrollmentIds){
+			CourseTimeSpentResponse courseTimeSpentResponse = new CourseTimeSpentResponse();
+			courseTimeSpentResponse.setEnrollmentId(enrollmentId);
+			courseTimeSpentResponse.setTimeSpent(getEnrollmentTimeSpent(courseTimeSpent,enrollmentId));
+			lstCourseTimeSpent.add(courseTimeSpentResponse);
+		}
+		
+/*
+		if(request.getEnrollmentId().size() > 0 ){
+			List<Object[]> courseTimeSpent	 = learnerCourseStatisticsRepository.getCourseTimeSpentDateWise( request.getEnrollmentId(),startDate,endDate);
+			HashSet<Long> uniqueEnrollmentIds =  getUniqueValue(courseTimeSpent,1); 
+			
+			for(Long enrollmentId : uniqueEnrollmentIds){
+				CourseTimeSpentResponse courseTimeSpentResponse = new CourseTimeSpentResponse();
+				courseTimeSpentResponse.setEnrollmentId(enrollmentId);
+				courseTimeSpentResponse.setTimeSpent(getEnrollmentTimeSpent(courseTimeSpent,enrollmentId));
+				lstCourseTimeSpent.add(courseTimeSpentResponse);
+			}
+		} else{
+			//getRecentActivityCourse
+			
+			List<Long> courseTimeSpent	 = learnerCourseStatisticsRepository.getRecentActivityCourse(userName,"Active",request.getLatestCount());
+			HashSet<Long> uniqueEnrollmentIds =  getUniqueValue(courseTimeSpent,0);
+			
+			List<Long> enrollmentIds = new ArrayList<Long>();
+			
+		}\*/
+		return lstCourseTimeSpent;
+	}
+	
+	private HashSet<Long> getUniqueValue (List<Object[]> records,int index){
+		HashSet<Long> unique = new HashSet<Long>();
+		for (Object[] record : records) {
+			unique.add(Long.parseLong(record[index].toString()));
+		}
+		return unique;
+	}
+	
+	private HashMap<String,Long> getEnrollmentTimeSpent(List<Object[]> records,Long enrollmentId){
+		
+		HashMap<String,Long> timeSpent = new HashMap<String,Long>();
+		for (Object[] record : records) {
+			if(Long.parseLong(record[1].toString()) == enrollmentId)
+				timeSpent.put(record[0].toString(), Long.parseLong(record[3].toString()));
+			
+		}
+		return timeSpent;
+	}
+	
+	@Override
+	@Transactional
 	public Map<String, Integer> getCourseCount(LearnerCourseCountRequest request, String userName) {
 
 		logger.info("Calling Service for UserName :: :: :: " + userName);
 		
 		Map<String, Integer> myCoursesCount = new HashMap<String, Integer>();
 		
-		Integer storeId = getStoreId(userName);
+	//	Integer storeId = getStoreId(userName);
 		
 		try{
 		for (String str : request.getCountType()) {
@@ -147,6 +216,13 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				else
 					myCoursesCount.put("subscriptions", 0);
 				*/
+			}else if (str.toLowerCase().equals("totalseconds")) {
+				
+				//logger.info("Call for all enrollments count from " + getClass().getName());
+				myCoursesCount
+						.put(str,
+							 learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active"));
+				
 			} else if (str.toLowerCase().equals("all")) {
 				logger.info("Call for all enrollments count from "
 						+ getClass().getName());
