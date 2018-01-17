@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.lms.repository.entities.CustomField;
+import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.projection.customer.CustomerCustomFields;
 import com.softech.ls360.lms.repository.repositories.CustomerRepository;
 
@@ -35,6 +36,14 @@ public class CustomerServiceImpl implements CustomerService {
 			}
 		}
 		return customFields;
+	}
+	
+	public Customer findByUsername(String username){
+		List<Customer> lstCustomer = customerRepository.findByUsername(username);
+		if (lstCustomer!=null && lstCustomer.size()>0)
+			return lstCustomer.get(0);
+		else
+			return null;
 	}
 
 }
