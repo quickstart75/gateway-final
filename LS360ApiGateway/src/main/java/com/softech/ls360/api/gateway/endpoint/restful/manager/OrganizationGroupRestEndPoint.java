@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
-import com.softech.ls360.api.gateway.model.response.OrganizationRequest;
+import com.softech.ls360.api.gateway.request.OrganizationRequest;
 import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.util.json.JsonUtil;
