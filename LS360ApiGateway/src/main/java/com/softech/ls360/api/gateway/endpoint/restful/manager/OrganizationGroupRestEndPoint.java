@@ -44,37 +44,9 @@ public class OrganizationGroupRestEndPoint {
 	}
 	
 	
-	@RequestMapping(value = "/customer/organizationgroup", method = RequestMethod.POST)
+	@RequestMapping(value = "/customer/organizationgroup", method = RequestMethod.PUT)
 	@ResponseBody
 	public Map<String, Boolean> saveOrganizationgroup(@RequestHeader("Authorization") String authorization, @RequestParam (name = "organization") String organization) throws Exception {
-/*
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("organization", organization);
-		
-		RestTemplate lmsTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        String tokenString = authorization.substring("Bearer".length()).trim();
-        headers.add("token", tokenString);
-        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
-        HttpEntity<?> request = new HttpEntity(headers);
-        
-        try{
-        Map<String, String> requestData = new HashMap<>();
-        requestData.put("organization", organization);
-        String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
-        
-        HttpEntity<String> response = lmsTemplate.exchange(location, HttpMethod.POST, request, String.class, params);
-        
-        System.out.println("sd  " + response.getBody());
-        }catch(Exception ex){
-        	System.out.println( "organization ---> > > " + ex.getStackTrace());
-        }
-		System.out.println( "organization ---> > > " + organization);
-		return "XXX";
-		*/
-		
-		
 		OrganizationRequest org = new OrganizationRequest();
 		org.setOrganizationName(organization);
 		 Map<String, Boolean> responseData = null;
@@ -90,8 +62,7 @@ public class OrganizationGroupRestEndPoint {
 	            HttpEntity requestData = new HttpEntity(org, headers);
 
 	            StringBuffer location = new StringBuffer();
-	            location.append(env.getProperty("lms.baseURL"));
-	            location.append("/restful/customer/organizationgroup");
+	            location.append(env.getProperty("lms.baseURL")).append("/restful/customer/organizationgroup");
 	            
 	            //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
 	            ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
