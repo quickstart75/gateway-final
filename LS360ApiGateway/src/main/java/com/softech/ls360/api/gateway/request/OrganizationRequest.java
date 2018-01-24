@@ -1,14 +1,14 @@
 package com.softech.ls360.api.gateway.request;
 
 public class OrganizationRequest {
-	String OrganizationName;
+	String organizationName;
 
 	public String getOrganizationName() {
-		return OrganizationName;
+		return organizationName;
 	}
 
 	public void setOrganizationName(String organizationName) {
-		OrganizationName = organizationName;
+		this.organizationName = organizationName;
 	}
 	
 	

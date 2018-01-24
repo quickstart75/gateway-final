@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
-import com.softech.ls360.api.gateway.response.CustomerResponse;
+import com.softech.ls360.api.gateway.response.OrganizationResponse;
 import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.api.gateway.service.impl.UserGroupServiceImpl;
@@ -45,7 +45,7 @@ public class UserGroupRestEndPoint {
 	
 	@RequestMapping(value = "usergroups", method = RequestMethod.GET)
 	@ResponseBody
-	public CustomerResponse getUsergroupByCustomer() throws Exception {
+	public OrganizationResponse getUsergroupByCustomer() throws Exception {
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = customerService.findByUsername(userName);
         List<LearnerGroup> lstUserGroup = userGroupServiceImpl.findByCustomer(customer.getId());
@@ -54,12 +54,13 @@ public class UserGroupRestEndPoint {
         
         for(LearnerGroup objLearnerGroup : lstUserGroup){
         	UserGroupRest rg = new UserGroupRest();
-        	rg.setId(objLearnerGroup.getId());
+        	rg.setGuid(objLearnerGroup.getId());
         	rg.setName(objLearnerGroup.getName());
         	lstRestUserGroup.add(rg);
         }
         
-        return new CustomerResponse(customer.getName(),lstRestUserGroup);
+        
+        return new OrganizationResponse(customer.getName(),lstRestUserGroup, "","", null);
         
 	}
 	
@@ -80,7 +81,7 @@ public class UserGroupRestEndPoint {
             HttpEntity requestData = new HttpEntity(userGroupRest, headers);
 
             StringBuffer location = new StringBuffer();
-            location.append(env.getProperty("lms.baseURL")).append("/restful/customer/userGroup");
+            location.append(env.getProperty("lms.baseURL")).append("restful/customer/Usergroup");
             
             //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
             ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
@@ -94,6 +95,6 @@ public class UserGroupRestEndPoint {
         
        
         
-        return null;
+        return responseData;
 	}
 }

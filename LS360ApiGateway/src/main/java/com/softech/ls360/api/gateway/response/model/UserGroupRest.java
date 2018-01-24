@@ -1,15 +1,25 @@
 package com.softech.ls360.api.gateway.response.model;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserGroupRest {
-	Long Id;
+	Long guid;
 	String name;
+	String userCount;
 	
-	public Long getId() {
-		return Id;
+	@JsonProperty("users")
+	List<UserRest> users;
+	
+	
+	public Long getGuid() {
+		return guid;
 	}
-	public void setId(Long id) {
-		Id = id;
+	public void setGuid(Long guid) {
+		this.guid = guid;
 	}
+	
 	public String getName() {
 		return name;
 	}
@@ -17,5 +27,18 @@ public class UserGroupRest {
 		this.name = name;
 	}
 	
+	@JsonProperty("users")
+	public List<UserRest> getUsers() {
+		return users;
+	}
+	public void setUsers(List<UserRest> users) {
+		this.users = users;
+	}
+	public String getUserCount() {
+		return userCount;
+	}
+	public void setUserCount(String userCount) {
+		this.userCount = userCount;
+	}
 	
 }
