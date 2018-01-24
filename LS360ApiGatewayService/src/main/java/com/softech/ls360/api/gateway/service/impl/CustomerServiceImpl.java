@@ -46,4 +46,8 @@ public class CustomerServiceImpl implements CustomerService {
 			return null;
 	}
 
+	public List<Object[]> findEntitlementByCustomer(Long customerId){
+		List<Object[]> objCE = customerRepository.findEntitlementByCustomer(customerId);
+		return objCE;
+	}
 }
