@@ -1,5 +1,7 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +13,8 @@ import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Distributor;
 import com.softech.ls360.lms.repository.entities.Learner;
+import com.softech.ls360.lms.repository.projection.VU360UserProjection;
+import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
 
 
@@ -20,6 +24,9 @@ public class LearnerServiceImpl implements LearnerService {
 
 	@Inject
 	private LearnerRepository learnerRepository;
+	
+	@Inject
+	private LearnerGroupMemberRepository learnerGroupMemberRepository;
 	
 	@Override
 	@Transactional
@@ -52,4 +59,8 @@ public class LearnerServiceImpl implements LearnerService {
 		return storeID;		
 	}
 
+	public List<VU360UserProjection> findByLearnerGroupId(Long learnerGroupId){
+		List<VU360UserProjection> lrnGroupMemberList = learnerGroupMemberRepository.findByLearnerGroupId(learnerGroupId);
+		return lrnGroupMemberList;
+	}
 }
