@@ -114,16 +114,22 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			enrollmentIds	 = learnerCourseStatisticsRepository.getRecentActivityCourse(userName,"Active",request.getLatestCount());
 		}
 		
-		List<Object[]> courseTimeSpent	 = learnerCourseStatisticsRepository.getCourseTimeSpentDateWise( enrollmentIds,startDate,endDate);
-		HashSet<Long> uniqueEnrollmentIds =  getUniqueValue(courseTimeSpent,1); 
-		
-		for(Long enrollmentId : uniqueEnrollmentIds){
-			CourseTimeSpentResponse courseTimeSpentResponse = new CourseTimeSpentResponse();
-			courseTimeSpentResponse.setEnrollmentId(enrollmentId);
-			courseTimeSpentResponse.setTimeSpent(getEnrollmentTimeSpent(courseTimeSpent,enrollmentId));
-			lstCourseTimeSpent.add(courseTimeSpentResponse);
+		if(enrollmentIds.size()>0){
+			List<Object[]> courseDetails = learnerCourseStatisticsRepository.getCourseByEnrollmentId(userName,"Active",enrollmentIds);
+			
+			List<Object[]> courseTimeSpent	 = learnerCourseStatisticsRepository.getCourseTimeSpentDateWise( enrollmentIds,startDate,endDate);
+			HashSet<Long> uniqueEnrollmentIds =  getUniqueValue(courseTimeSpent,1); 
+			
+			for(Long enrollmentId : uniqueEnrollmentIds){
+				CourseTimeSpentResponse courseTimeSpentResponse = new CourseTimeSpentResponse();
+				courseTimeSpentResponse.setEnrollmentId(enrollmentId);
+				//getCourseAttributeValue
+				courseTimeSpentResponse.setCourseName(getCourseAttributeValue(enrollmentId,courseDetails,2));
+				courseTimeSpentResponse.setCourseType(getCourseAttributeValue(enrollmentId,courseDetails,1));
+				courseTimeSpentResponse.setTimeSpent(getEnrollmentTimeSpent(courseTimeSpent,enrollmentId));
+				lstCourseTimeSpent.add(courseTimeSpentResponse);
+			}
 		}
-		
 /*
 		if(request.getEnrollmentId().size() > 0 ){
 			List<Object[]> courseTimeSpent	 = learnerCourseStatisticsRepository.getCourseTimeSpentDateWise( request.getEnrollmentId(),startDate,endDate);
@@ -164,6 +170,18 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			
 		}
 		return timeSpent;
+	}
+	private String getCourseAttributeValue (Long Id,List<Object[]> records,int index){
+		
+		for (Object[] record : records) {
+			if(Long.parseLong(record[0].toString()) == Id)
+				//timeSpent.put(record[0].toString(), Long.parseLong(record[3].toString()));
+				return record[index].toString();
+			
+		}
+		
+		return null;
+		
 	}
 	
 	@Override

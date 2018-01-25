@@ -54,15 +54,15 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 	List<Long> getRecentActivityCourse(@Param("userName") String userName,@Param("enrollmentStatus") String enrollmentStatus,@Param("recordCount") Long recordCount);
 
 	
-	@Query(value="select le.id ,c.COURSETYPE,lcs.lastaccessdate,c.guid From learnercoursestatistics lcs " +
+	@Query(value="select le.id ,c.COURSETYPE,c.Name From learnercoursestatistics lcs " +
 			"inner join learnerenrollment le on le.id = lcs.learnerenrollment_id " +
 			"inner join course c on c.id = le.course_id " +
 			"inner join learner l on l.id = le.learner_id " +
 			"inner join vu360user u on u.id = l.vu360user_id " +
-			"where u.username = :userName and le.enrollmentStatus = :enrollmentStatus " +
-			"c.guid in (:guids)",
+			"where u.username = ?1 and le.enrollmentStatus = ?2 and " +
+			"le.id in (?3)",
 	nativeQuery=true)
-	List<Object[]> getCourseByGuids(@Param("userName") String userName,@Param("enrollmentStatus") String enrollmentStatus,@Param("guids") String guids);
+	List<Object[]> getCourseByEnrollmentId(@Param("userName") String userName,@Param("enrollmentStatus") String enrollmentStatus,@Param("enrollmentIds") List<Long> enrollmentIds);
 
 	@Query(value="select  CAST(starttime AS date) SessionDate,ls.enrollment_id, " +
 			"ls.coursecode,SUM(ISNULL(DATEDIFF(minute,starttime,endtime), 0)) Minutes  " +
