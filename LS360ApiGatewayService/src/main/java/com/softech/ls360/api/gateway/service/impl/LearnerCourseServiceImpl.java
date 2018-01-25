@@ -33,6 +33,7 @@ import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
 import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerEnrollmentStatistics;
+import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
 import com.softech.ls360.lcms.api.service.LockedCourseService;
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.ArrayOfLockedCourseStatus;
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.GetCourseLockedStatusResponse;
@@ -514,16 +515,6 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			
 		}
 		
-		/************ Subscription ******************/
-		List<Subscription> subscriptions = subscriptionRepository.findByVu360User_usernameAndSubscriptionStatus(userName, "Active");
-		List<String> lstsubscription = new ArrayList<String>();
-		
-		for(Subscription subscription : subscriptions){
-			lstsubscription.add(subscription.getSubscriptionName());
-		}
-		
-		learnerCourseResponse.setSubscriptions(lstsubscription);
-		
 		learnerCourseResponse.setLearnerEnrollments(learnerEnrollments);
 		learnerCourseResponse.setPageNumber(page.getNumber()+1);
 		learnerCourseResponse.setPageSize(page.getSize());
@@ -531,6 +522,21 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		
 		}
 		
+		/************ Subscription ******************/
+		List<Subscription> subscriptions = subscriptionRepository.findByVu360User_usernameAndSubscriptionStatus(userName, "Active");
+		List<LearnerSubscription> lstsubscription = new ArrayList<LearnerSubscription>();
+		
+		for(Subscription subscription : subscriptions){
+			LearnerSubscription learnerSubscription = new LearnerSubscription();
+			
+			learnerSubscription.setGuid(subscription.getSubscriptionName());
+			learnerSubscription.setCode(subscription.getSubscriptionCode());
+			learnerSubscription.setType("subscription");
+			
+			lstsubscription.add(learnerSubscription);
+		}
+		
+		learnerCourseResponse.setSubscriptions(lstsubscription);
 		return learnerCourseResponse;
 	}
 	

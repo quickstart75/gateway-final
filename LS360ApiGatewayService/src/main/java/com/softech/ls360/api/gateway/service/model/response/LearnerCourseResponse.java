@@ -9,7 +9,7 @@ public class LearnerCourseResponse {
 	private int pageSize;
 	private int totalPages;
 	private List<LearnerEnrollmentStatistics> learnerEnrollments = new ArrayList<LearnerEnrollmentStatistics>();
-	private List<String> subscriptions = new ArrayList<String>();
+	private List<LearnerSubscription> subscriptions = new ArrayList<LearnerSubscription>();
 	
 	public int getPageNumber() {
 		return pageNumber;
@@ -36,10 +36,10 @@ public class LearnerCourseResponse {
 			List<LearnerEnrollmentStatistics> learnerEnrollments) {
 		this.learnerEnrollments = learnerEnrollments;
 	}
-	public List<String> getSubscriptions() {
+	public List<LearnerSubscription> getSubscriptions() {
 		return subscriptions;
 	}
-	public void setSubscriptions(List<String> subscriptions) {
+	public void setSubscriptions(List<LearnerSubscription> subscriptions) {
 		this.subscriptions = subscriptions;
 	}
 
