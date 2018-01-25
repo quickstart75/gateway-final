@@ -54,6 +54,7 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 	List<Long> getRecentActivityCourse(@Param("userName") String userName,@Param("enrollmentStatus") String enrollmentStatus,@Param("recordCount") Long recordCount);
 
 	
+	
 	@Query(value="select le.id ,c.COURSETYPE,c.Name From learnercoursestatistics lcs " +
 			"inner join learnerenrollment le on le.id = lcs.learnerenrollment_id " +
 			"inner join course c on c.id = le.course_id " +
@@ -74,6 +75,7 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 	nativeQuery=true)
 	List<Object[]> getCourseTimeSpentDateWise(@Param("enrollmentId") List<Long> enrollmentId,@Param("startDate") String startDate,@Param("endDate")  String endDate);
 
+	//List<Object[]> getCourseTimeSpentDateWise(@Param("enrollmentId") String enrollmentId,@Param("startDate") String startDate,@Param("endDate")  String endDate);
 	//List<Object[]> getCourseTimeSpentDateWise(@Param("enrollmentId") String enrollmentId,@Param("startDate") String startDate,@Param("endDate")  String endDate);
 	
     //@EntityGraph(value = "LearnerCourseStatistics.LearnerEnrollments", type = EntityGraphType.LOAD)

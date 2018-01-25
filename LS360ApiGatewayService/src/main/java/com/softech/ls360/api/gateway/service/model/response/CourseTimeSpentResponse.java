@@ -9,8 +9,7 @@ public class CourseTimeSpentResponse {
 	private String courseType;
 	private HashMap<String , Long> timeSpent = new HashMap<String , Long>();
 	
-	
-	
+	//test	
 	public String getCourseName() {
 		return courseName;
 	}
