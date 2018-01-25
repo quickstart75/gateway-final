@@ -8,5 +8,5 @@ public interface LearnerService {
 	
 	int getStoreId(String userName);
 	List<VU360UserProjection> findByLearnerGroupId(Long learnerGroupId);
-
+	Long countByCustomerId(Long customerId);
 }

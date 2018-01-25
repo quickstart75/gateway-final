@@ -13,6 +13,25 @@ public class UserGroupRest {
 	List<UserRest> users;
 	
 	
+	public UserGroupRest() {
+		super();
+	}
+	
+	public UserGroupRest(Long guid, String name) {
+		super();
+		this.guid = guid;
+		this.name = name;
+	}
+	
+	
+	public UserGroupRest(Long guid, String name, String userCount, List<UserRest> users) {
+		super();
+		this.guid = guid;
+		this.name = name;
+		this.userCount = userCount;
+		this.users = users;
+	}
+
 	public Long getGuid() {
 		return guid;
 	}

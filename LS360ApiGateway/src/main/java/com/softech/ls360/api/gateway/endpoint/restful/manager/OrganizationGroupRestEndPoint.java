@@ -13,17 +13,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
+import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.request.OrganizationRequest;
 import com.softech.ls360.api.gateway.response.OrganizationResponse;
 import com.softech.ls360.api.gateway.response.model.EntitlementRest;
@@ -81,7 +85,7 @@ public class OrganizationGroupRestEndPoint {
         	
         	if(lstLearnerGroupMember!=null){
         		rg.setUserCount(lstLearnerGroupMember.size() + "");
-        		userCount = userCount + lstLearnerGroupMember.size();
+        		//userCount = userCount + lstLearnerGroupMember.size();
         	}else
         		rg.setUserCount("0");
         	
@@ -106,19 +110,19 @@ public class OrganizationGroupRestEndPoint {
         	try{
 	        	EntitlementRest er = new EntitlementRest();
 	        	er.setName(objCE[0].toString());
-	        	er.setCode("001");
-	        	er.setGuid("002");
 	        	er.setType(objCE[1].toString());
 	        	er.setTotalSeats(objCE[2].toString());
 	        	er.setAvailableSeats(	Integer.parseInt(objCE[2].toString()) - Integer.parseInt(objCE[3].toString()) + "");
 	        	er.setStartDate(objCE[4].toString());
 	        	er.setEndDate(objCE[5].toString());
+	        	er.setGuid(objCE[6].toString());
+	        	er.setCode(objCE[7].toString());
 	        	lstEntitlementRest.add(er);
         	}catch(Exception ex){
         		logger.error(">>> Exception occurs while send the organizationgroupdetail >>>: " + ex);
         	}
         }
-        
+        userCount = learnerService.countByCustomerId(customer.getId());
         return new OrganizationResponse(customer.getName(),lstRestUserGroup, userCount + "", lstRestUserGroup.size()+"", lstEntitlementRest);
 	}
 	
@@ -150,5 +154,14 @@ public class OrganizationGroupRestEndPoint {
 	            responseData.put("status", Boolean.FALSE);
 	        }
 	        return responseData;
+	}
+	
+	@ExceptionHandler(Exception.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	public GeneralExceptionResponse handleException(Exception e) {
+		logger.error("\n\n LOG info of ***********  handleException() ** start **");
+		logger.error(e.getMessage() + "\n" + e.getStackTrace() +"\n\n");
+		return new GeneralExceptionResponse("ERROR", e.getMessage());
 	}
 }

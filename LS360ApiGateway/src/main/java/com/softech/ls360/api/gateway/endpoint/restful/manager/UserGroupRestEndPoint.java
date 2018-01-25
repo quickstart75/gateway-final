@@ -7,22 +7,28 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
+import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.response.OrganizationResponse;
 import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 import com.softech.ls360.api.gateway.service.CustomerService;
@@ -34,6 +40,8 @@ import com.softech.ls360.lms.repository.entities.LearnerGroup;
 @RequestMapping(value="/lms/customer")
 public class UserGroupRestEndPoint {
 	
+	private static final Logger logger = LogManager.getLogger();
+	
 	@Inject
 	private CustomerService customerService;
 	
@@ -43,7 +51,7 @@ public class UserGroupRestEndPoint {
 	@Autowired
     Environment env;
 	
-	@RequestMapping(value = "usergroups", method = RequestMethod.GET)
+	@RequestMapping(value = "usergroup", method = RequestMethod.GET)
 	@ResponseBody
 	public OrganizationResponse getUsergroupByCustomer() throws Exception {
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -64,37 +72,37 @@ public class UserGroupRestEndPoint {
         
 	}
 	
-	@RequestMapping(value = "usergroups", method = RequestMethod.POST)
+	@RequestMapping(value = "usergroup", method = RequestMethod.POST)
 	@ResponseBody
-	public  Map<String, Boolean> getCreateUsergroups(@RequestHeader("Authorization") String authorization, @RequestBody UserGroupRest userGroupRest) throws Exception {
-		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+	public  UserGroupRest getCreateUsergroups(@RequestHeader("Authorization") String authorization, @RequestBody UserGroupRest userGroupRest) throws Exception {
+		//String userName = SecurityContextHolder.getContext().getAuthentication().getName();
 		Map<String, Boolean> responseData = null;
-		try {
-            RestTemplate lmsTemplate = new RestTemplate();
+		
+        RestTemplate lmsTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        String tokenString = authorization.substring("Bearer".length()).trim();
+        headers.add("token", tokenString);
+        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
 
-            HttpHeaders headers = new HttpHeaders();
-            String tokenString = authorization.substring("Bearer".length()).trim();
-            headers.add("token", tokenString);
-            headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+        //String inpurJson = JsonUtil.convertObjectToJson(org);
+        HttpEntity requestData = new HttpEntity(userGroupRest, headers);
 
-            //String inpurJson = JsonUtil.convertObjectToJson(org);
-            HttpEntity requestData = new HttpEntity(userGroupRest, headers);
-
-            StringBuffer location = new StringBuffer();
-            location.append(env.getProperty("lms.baseURL")).append("restful/customer/Usergroup");
-            
-            //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
-            ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
-            responseData = returnedData.getBody();
-        }catch(Exception e){
-          
-            responseData = new HashMap<>();
-            responseData.put("status", Boolean.FALSE);
-        }
+        StringBuffer location = new StringBuffer();
+        location.append(env.getProperty("lms.baseURL")).append("restful/customer/usergroup");
         
-        
+        //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
+        ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
+        Map userGroupRest2 = returnedData.getBody();
        
-        
-        return responseData;
+        return new UserGroupRest(Long.valueOf(userGroupRest2.get("guid").toString()),  userGroupRest2.get("name").toString());
+	}
+	
+	@ExceptionHandler(Exception.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	public GeneralExceptionResponse handleException(Exception e) {
+		logger.error("\n\n LOG info of ***********  handleException() ** start **");
+		logger.error(e.getMessage() + "\n" + e.getStackTrace() +"\n\n");
+		return new GeneralExceptionResponse("ERROR", e.getMessage());
 	}
 }
