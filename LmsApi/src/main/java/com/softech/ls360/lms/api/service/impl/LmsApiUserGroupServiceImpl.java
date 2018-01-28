@@ -1,5 +1,6 @@
 package com.softech.ls360.lms.api.service.impl;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +22,28 @@ public class LmsApiUserGroupServiceImpl implements LmsApiUserGroupServics{
     Environment env;
 	
 	public Map assignUsergroups(String authorization, AssignUserGroupRequest assignUserGroupRequest) {
-		RestTemplate lmsTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        String tokenString = authorization.substring("Bearer".length()).trim();
-        headers.add("token", tokenString);
-        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+		
+		 Map<String, String> responseData = new HashMap<String, String>();
+		try{
+			RestTemplate lmsTemplate = new RestTemplate();
+	        HttpHeaders headers = new HttpHeaders();
+	        String tokenString = authorization.substring("Bearer".length()).trim();
+	        headers.add("token", tokenString);
+	        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
 
-        HttpEntity requestData = new HttpEntity(assignUserGroupRequest, headers);
-        StringBuffer location = new StringBuffer();
-        location.append(env.getProperty("lms.baseURL")).append("restful/customer/usergroup/assign");
-        ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
-		return returnedData.getBody();
+	        HttpEntity requestData = new HttpEntity(assignUserGroupRequest, headers);
+	        StringBuffer location = new StringBuffer();
+	        location.append(env.getProperty("lms.baseURL")).append("restful/customer/usergroup/assign");
+	        ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
+			return returnedData.getBody();
+		 }catch(Exception e){
+	          
+	        	//return 
+	        	 responseData.put("status", Boolean.FALSE.toString());
+	        	 return responseData;
+	        }
+	        
+		
+
 	}
 }

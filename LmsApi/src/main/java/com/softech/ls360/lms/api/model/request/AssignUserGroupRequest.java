@@ -1,10 +1,11 @@
 package com.softech.ls360.lms.api.model.request;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AssignUserGroupRequest {
-	List<Long> usergroups;
-	List<String> users;
+	List<Long> usergroups = new ArrayList<Long>();
+	List<String> users= new ArrayList<String>();
 	String organizationGroup;
 	
 	

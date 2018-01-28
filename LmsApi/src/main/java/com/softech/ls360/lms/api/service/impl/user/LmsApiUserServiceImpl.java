@@ -1,12 +1,22 @@
 package com.softech.ls360.lms.api.service.impl.user;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.lms.api.service.orggroup.LmsApiOrganizationalGroupService;
 import com.softech.ls360.lms.api.service.user.LmsApiAddUserService;
@@ -26,6 +36,12 @@ import com.softech.vu360.lms.webservice.message.lmsapi.types.user.User;
 public class LmsApiUserServiceImpl implements LmsApiUserService {
 
 	@Inject
+	private Environment env;
+	
+//	@Inject
+//	private RestTemplate restTemplate;
+	
+	@Inject
 	private LmsApiOrganizationalGroupService lmsApiOrganizationalGroupService;
 	
 	@Inject
@@ -36,6 +52,8 @@ public class LmsApiUserServiceImpl implements LmsApiUserService {
 	
 	@Inject
 	private OrganizationalGroupRepository organizationalGroupRepository;
+	
+	
 	
 	@Override
 	public AddUserResponse createUser(User user, Long customerId, String customerCode, String apiKey) throws Exception {
@@ -100,6 +118,49 @@ public class LmsApiUserServiceImpl implements LmsApiUserService {
 		
 		return rootOrgGroupName;
 		
+	}
+
+	@Override
+	public Map<String, String> createUser(User user,Long customerId,String token) throws Exception {
+		
+		String rootOrgGroupName = getRootOrgGroupName(customerId);
+		OrganizationalGroups newOrganizationalGroups = lmsApiOrganizationalGroupService.getOrganizationalGroups(rootOrgGroupName);
+		user.setOrganizationalGroups(newOrganizationalGroups);
+		
+		List<User> users = new ArrayList<User>();
+		users.add(user);
+		
+	//	user.getOrganizationalGroups().getOrgGroupHierarchy().add(rootOrgGroupName);
+	//	user.setOrganizationalGroups(newOrganizationalGroups);
+		
+	    Map<String, String> responseData = new HashMap<String, String>();
+        try {
+        	RestTemplate restTemplate = new RestTemplate();
+        	HttpHeaders headers = new HttpHeaders();
+            headers.add("token", token);
+            headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+
+            HttpEntity requestData = new HttpEntity(users, headers);
+
+            StringBuffer location = new StringBuffer();
+            location.append(env.getProperty("lmsapi.rest.manager.uri").trim()).append(env.getProperty("lmsapi.rest.manager.user.add.uri").trim());
+            
+            //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
+            String returnedData = restTemplate.postForEntity(location.toString(), requestData,String.class).toString();
+            String s;
+            s ="ss";
+            
+//            ResponseEntity<AddUserResponse> returnedData = restTemplate.postForEntity(location.toString(), requestData,AddUserResponse.class);
+          //  responseData = returnedData.getBody();
+        }catch(Exception e){
+          
+           responseData.put("status", Boolean.FALSE.toString());
+           return responseData;
+        }
+        responseData.put("status", Boolean.TRUE.toString());
+        return responseData;
+	    
+		//return null;
 	}
 
 }
