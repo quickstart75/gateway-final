@@ -33,7 +33,7 @@ public class LmsApiUserGroupServiceImpl implements LmsApiUserGroupServics{
 
 	        HttpEntity requestData = new HttpEntity(assignUserGroupRequest, headers);
 	        StringBuffer location = new StringBuffer();
-	        location.append(env.getProperty("lms.baseURL")).append("restful/customer/usergroup/assign");
+	        location.append(env.getProperty("lms.baseURL")).append("rest/customer/usergroup/assign");
 	        ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
 			return returnedData.getBody();
 		 }catch(Exception e){

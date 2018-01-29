@@ -89,7 +89,7 @@ public class UserGroupRestEndPoint {
         HttpEntity requestData = new HttpEntity(userGroupRest, headers);
 
         StringBuffer location = new StringBuffer();
-        location.append(env.getProperty("lms.baseURL")).append("restful/customer/usergroup");
+        location.append(env.getProperty("lms.baseURL")).append("rest/customer/usergroup");
         
         //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
         ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
