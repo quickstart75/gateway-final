@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public class InviteUserRestEndPoint {
 	
 	@RequestMapping(value = "InviteUser", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Boolean> InviteUser(@RequestHeader("Authorization") String authorization, @RequestBody InviteUserRestRequest inviteUserRestRequest ) throws Exception {
+	public Map<String, String> InviteUser(@RequestHeader("Authorization") String authorization, @RequestBody InviteUserRestRequest inviteUserRestRequest ) throws Exception {
 		
 		
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -73,6 +74,9 @@ public class InviteUserRestEndPoint {
 		user.setUserName(inviteUserRestRequest.getUserName());
 		user.setPassword(inviteUserRestRequest.getPassword());
 		
+		Map<String, String> returnResponse = new HashMap<String, String>();
+		
+		
 		Map<String, String> APIResponse = lmsApiUserService.createUser(user, customer.getId(), token);
 		
 		String status = APIResponse.get("status");
@@ -86,33 +90,25 @@ public class InviteUserRestEndPoint {
 			enrollmentRestRequest.setEnrollmentStartDate(dtf.format(LocalDateTime.now()));
 			if (inviteUserRestRequest.getLicense().getType().equalsIgnoreCase("Course")){
 				enrollmentRestRequest.getCourses().add(inviteUserRestRequest.getLicense().getGuid());
-				enrollmentRestRequest.setEnrollmentStartDate(dtf.format(LocalDateTime.now().plusYears(5)));
+				enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(4)));
 			}else if(inviteUserRestRequest.getLicense().getType().equalsIgnoreCase("subscription")){
 				enrollmentRestRequest.getSubscription().add(inviteUserRestRequest.getLicense().getGuid());
-				enrollmentRestRequest.setEnrollmentStartDate(dtf.format(LocalDateTime.now().plusYears(99)));
+				enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(99)));
 			} 
 			APIResponse = lmsApiLearnerCoursesEnrollService.processEnrollments(enrollmentRestRequest, token);
-			
-	//		if(status.equalsIgnoreCase(Boolean.TRUE.toString())){
-				
-				AssignUserGroupRequest assignUserGroupRequest = new AssignUserGroupRequest();
-		//		List<String> users = new ArrayList<String>();
-		//		List<Long> userGroups = new ArrayList<Long>();
-	//			users.add(inviteUserRestRequest.getUserName());
-	//			userGroups.add(Long.parseLong(inviteUserRestRequest.getTeamGuid()));
-	//			assignUserGroupRequest.setUsers(users);
-				
-	//			assignUserGroupRequest.setUsergroups(userGroups);
-				
-				assignUserGroupRequest.getUsers().add(inviteUserRestRequest.getUserName());
-				assignUserGroupRequest.getUsergroups().add(Long.parseLong(inviteUserRestRequest.getTeamGuid()));
-				assignUserGroupRequest.setOrganizationGroup("New Company");
-				
-				APIResponse = lmsApiUserGroupServics.assignUsergroups(authorization, assignUserGroupRequest);
-	//		}
+
+			AssignUserGroupRequest assignUserGroupRequest = new AssignUserGroupRequest();
+			assignUserGroupRequest.getUsers().add(inviteUserRestRequest.getUserName());
+			assignUserGroupRequest.getUsergroups().add(Long.parseLong(inviteUserRestRequest.getTeamGuid()));
+			assignUserGroupRequest.setOrganizationGroup("New Company");
+			APIResponse = lmsApiUserGroupServics.assignUsergroups(authorization, assignUserGroupRequest);
+
 			
 		}
-		return null;
+		returnResponse.put("status", "success");
+		returnResponse.put("message", "");
+		
+		return returnResponse;
 	}
 
 		

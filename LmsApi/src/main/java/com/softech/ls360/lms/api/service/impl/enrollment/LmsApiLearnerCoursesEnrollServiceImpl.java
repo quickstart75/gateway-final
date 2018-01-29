@@ -166,11 +166,11 @@ public class LmsApiLearnerCoursesEnrollServiceImpl implements LmsApiLearnerCours
             location.append(env.getProperty("lmsapi.rest.manager.uri")).append(env.getProperty("lmsapi.rest.manager.enrollments"));
             
             //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
-            String returnedData = restTemplate.postForEntity(location.toString(), requestData,String.class).toString();
-            String s;
-            s = returnedData;
-            //ResponseEntity<BulkEnrollmentResponse> returnedData = restTemplate.postForEntity(location.toString(), requestData,BulkEnrollmentResponse.class);
-          //  responseData = returnedData.getBody();
+       //     String returnedData = restTemplate.postForEntity(location.toString(), requestData,String.class).toString();
+       //     String s;
+       //     s = returnedData;
+            ResponseEntity<BulkEnrollmentResponse> returnedData = restTemplate.postForEntity(location.toString(), requestData,BulkEnrollmentResponse.class);
+            String s = returnedData.getBody().toString();
         }catch(Exception e){
           
         	//return 

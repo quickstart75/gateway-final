@@ -146,12 +146,13 @@ public class LmsApiUserServiceImpl implements LmsApiUserService {
             location.append(env.getProperty("lmsapi.rest.manager.uri").trim()).append(env.getProperty("lmsapi.rest.manager.user.add.uri").trim());
             
             //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
-            String returnedData = restTemplate.postForEntity(location.toString(), requestData,String.class).toString();
-            String s;
-            s ="ss";
+      
+           // String returnedData = restTemplate.postForEntity(location.toString(), requestData,String.class).toString();
+          //  String s;
+          //  s ="ss";
             
-//            ResponseEntity<AddUserResponse> returnedData = restTemplate.postForEntity(location.toString(), requestData,AddUserResponse.class);
-          //  responseData = returnedData.getBody();
+            ResponseEntity<AddUserResponse> returnedData = restTemplate.postForEntity(location.toString(), requestData,AddUserResponse.class);
+            String s = returnedData.getBody().toString();
         }catch(Exception e){
           
            responseData.put("status", Boolean.FALSE.toString());
