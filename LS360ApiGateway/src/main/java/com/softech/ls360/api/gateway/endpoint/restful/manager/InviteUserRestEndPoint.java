@@ -41,6 +41,7 @@ import com.softech.vu360.lms.webservice.message.lmsapi.types.user.User;
 @RequestMapping(value="/lms/customer")
 public class InviteUserRestEndPoint {
 
+		
 	private static final Logger logger = LogManager.getLogger();
 	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
@@ -61,10 +62,23 @@ public class InviteUserRestEndPoint {
 	@ResponseBody
 	public Map<String, String> InviteUser(@RequestHeader("Authorization") String authorization, @RequestBody InviteUserRestRequest inviteUserRestRequest ) throws Exception {
 		
+		logger.info("---Pay load Request ::  user >>>>>>>>>>>>>>>>>>>>>0" + inviteUserRestRequest.getFirstName());
+		logger.info("---Pay load Request ::  user >>>>>>>>>>>>>>>>>>>>>1" + inviteUserRestRequest.getLastName());
+		logger.info("---Pay load Request ::  user >>>>>>>>>>>>>>>>>>>>>2" + inviteUserRestRequest.getEmail());
+		logger.info("---Pay load Request ::  user >>>>>>>>>>>>>>>>>>>>>3" + inviteUserRestRequest.getUserName());
+		logger.info("---Pay load Request ::  user >>>>>>>>>>>>>>>>>>>>>4" + inviteUserRestRequest.getPassword());
+		logger.info("---Pay load Request ::  user >>>>>>>>>>>>>>>>>>>>>5" + inviteUserRestRequest.getTeamGuid());
 		
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		logger.info("---Invite User Rest Controller :: token user >>>>>>>>>>>>>>>>>>>>>0" + userName);
+		
 		Customer customer = customerService.findByUsername(userName);
+		
+		logger.info("---Invite User Rest Controller :: token user >>>>>>>>>>>>>>>>>>>>>0" + customer.getName());
+		
 		String token = authorization.substring("Bearer".length()).trim();
+		
+		
 		
 		User user = new User();
 		
@@ -82,7 +96,7 @@ public class InviteUserRestEndPoint {
 		String status = APIResponse.get("status");
 
 		
-		if(status.equalsIgnoreCase(Boolean.TRUE.toString())){
+		if(status.equalsIgnoreCase("success")){
 			EnrollmentRestRequest enrollmentRestRequest = new EnrollmentRestRequest();
 			enrollmentRestRequest.getUserName().add(inviteUserRestRequest.getUserName());
 			enrollmentRestRequest.setNotifyLearnersByEmail(Boolean.FALSE);  
@@ -102,11 +116,14 @@ public class InviteUserRestEndPoint {
 			assignUserGroupRequest.getUsergroups().add(Long.parseLong(inviteUserRestRequest.getTeamGuid()));
 			assignUserGroupRequest.setOrganizationGroup("New Company");
 			APIResponse = lmsApiUserGroupServics.assignUsergroups(authorization, assignUserGroupRequest);
-
+			returnResponse.put("status", "success");
+			returnResponse.put("message", "");
 			
+		}else{
+			returnResponse.put("status", "error");
+			returnResponse.put("message",  APIResponse.get("status"));
 		}
-		returnResponse.put("status", "success");
-		returnResponse.put("message", "");
+		
 		
 		return returnResponse;
 	}

@@ -1,5 +1,7 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +31,8 @@ import com.softech.ls360.lms.repository.repositories.VU360UserRepository;
 @Service
 public class LmsUserDetailsServiceImpl implements LmsUserDetailsService {
 
+	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	
 	@Inject
 	private MessageService messageService;
 	
@@ -47,6 +51,8 @@ public class LmsUserDetailsServiceImpl implements LmsUserDetailsService {
 		if (user == null) {
 			throw new UsernameNotFoundException(messageService.getLocalizeMessage("error.username.password"));
 		}
+		
+		vu360UserRepository.updateLoginDate(user.getUsername(), dtf.format(LocalDateTime.now()));
 		
 		Set<String> userRoles = getUserRoles(user);
 		if (!CollectionUtils.isEmpty(userRoles)) {

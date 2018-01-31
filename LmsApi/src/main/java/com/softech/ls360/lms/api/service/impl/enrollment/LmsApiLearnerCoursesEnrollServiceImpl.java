@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
@@ -35,6 +37,8 @@ import com.softech.vu360.lms.webservice.message.lmsapi.types.enrollment.LearnerE
 @Service
 public class LmsApiLearnerCoursesEnrollServiceImpl implements LmsApiLearnerCoursesEnrollService {
 
+	private static final Logger logger = LogManager.getLogger();
+	
 	@Autowired
 	private Environment env;
 	
@@ -165,14 +169,16 @@ public class LmsApiLearnerCoursesEnrollServiceImpl implements LmsApiLearnerCours
             StringBuffer location = new StringBuffer();
             location.append(env.getProperty("lmsapi.rest.manager.uri")).append(env.getProperty("lmsapi.rest.manager.enrollments"));
             
-            //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
-       //     String returnedData = restTemplate.postForEntity(location.toString(), requestData,String.class).toString();
-       //     String s;
-       //     s = returnedData;
+            logger.info("---URL LMS Enrollment>>>>>>>>>>>>>>>>>>>>>0" + location.toString());
+            
+            logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>1");
             ResponseEntity<BulkEnrollmentResponse> returnedData = restTemplate.postForEntity(location.toString(), requestData,BulkEnrollmentResponse.class);
+            logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>2"); 
             String s = returnedData.getBody().toString();
+            logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>3"+ s); 
         }catch(Exception e){
-          
+        	logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>4"+ e.getMessage()); 
+        	logger.info(e.getMessage());
         	//return 
         	 responseData.put("status", Boolean.FALSE.toString());
         	 return responseData;

@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
@@ -35,6 +37,8 @@ import com.softech.vu360.lms.webservice.message.lmsapi.types.user.User;
 @Service
 public class LmsApiUserServiceImpl implements LmsApiUserService {
 
+	private static final Logger logger = LogManager.getLogger();
+	
 	@Inject
 	private Environment env;
 	
@@ -123,15 +127,15 @@ public class LmsApiUserServiceImpl implements LmsApiUserService {
 	@Override
 	public Map<String, String> createUser(User user,Long customerId,String token) throws Exception {
 		
+		logger.info("---Customer ID >>>>>>>>>>>>>>>>>>>>>0" + customerId.toString());
+		
 		String rootOrgGroupName = getRootOrgGroupName(customerId);
 		OrganizationalGroups newOrganizationalGroups = lmsApiOrganizationalGroupService.getOrganizationalGroups(rootOrgGroupName);
 		user.setOrganizationalGroups(newOrganizationalGroups);
+		logger.info("---Root Org Group >>>>>>>>>>>>>>>>>>>>>0" + rootOrgGroupName);
 		
 		List<User> users = new ArrayList<User>();
 		users.add(user);
-		
-	//	user.getOrganizationalGroups().getOrgGroupHierarchy().add(rootOrgGroupName);
-	//	user.setOrganizationalGroups(newOrganizationalGroups);
 		
 	    Map<String, String> responseData = new HashMap<String, String>();
         try {
@@ -145,20 +149,25 @@ public class LmsApiUserServiceImpl implements LmsApiUserService {
             StringBuffer location = new StringBuffer();
             location.append(env.getProperty("lmsapi.rest.manager.uri").trim()).append(env.getProperty("lmsapi.rest.manager.user.add.uri").trim());
             
-            //String location = "http://localhost:8080/lms/restful/customer/organizationgroup";
-      
-           // String returnedData = restTemplate.postForEntity(location.toString(), requestData,String.class).toString();
-          //  String s;
-          //  s ="ss";
-            
+            logger.info("---User End Point >>>>>>>>>>>>>>>>>>>>>0" + location.toString());
+           
             ResponseEntity<AddUserResponse> returnedData = restTemplate.postForEntity(location.toString(), requestData,AddUserResponse.class);
+            AddUserResponse userResponse = returnedData.getBody();
+            if(!userResponse.getRegisterUsers().getRegisterUser().get(0).getErrorCode().equalsIgnoreCase("0")){
+            	responseData.put("status", "error");
+            	responseData.put("message", userResponse.getRegisterUsers().getRegisterUser().get(0).getErrorMessage());
+            	return responseData;
+            }
+            
             String s = returnedData.getBody().toString();
+            logger.info("---after End point call >>>>>>>>>>>>>>>>>>>>>0" + s);
         }catch(Exception e){
-          
-           responseData.put("status", Boolean.FALSE.toString());
+        	 logger.info("---User API exception >>>>>>>>>>>>>>>>>>>>>0" + e.getMessage());
+           responseData.put("status", "error");
+           responseData.put("message", e.getMessage());
            return responseData;
         }
-        responseData.put("status", Boolean.TRUE.toString());
+        responseData.put("status", "success");
         return responseData;
 	    
 		//return null;
