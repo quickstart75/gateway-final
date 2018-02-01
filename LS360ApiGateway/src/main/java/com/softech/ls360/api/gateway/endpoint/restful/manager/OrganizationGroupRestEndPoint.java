@@ -2,8 +2,10 @@ package com.softech.ls360.api.gateway.endpoint.restful.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -71,21 +73,19 @@ public class OrganizationGroupRestEndPoint {
 	public OrganizationResponse getOrganizationgroupDetailByCustomer() throws Exception {
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
 		Customer customer = customerService.findByUsername(userName);
-        List<LearnerGroup> lstUserGroup = userGroupServiceImpl.findByCustomer(customer.getId());
-        
+        Set<String> lstallemails = new HashSet<String>();
+		List<LearnerGroup> lstUserGroup = userGroupServiceImpl.findByCustomer(customer.getId());
+		List<VU360UserProjection> lstLearnerGroupMember=null;
         List<UserGroupRest> lstRestUserGroup = new ArrayList<UserGroupRest>();
-        long userCount=0;
+        
         for(LearnerGroup objLearnerGroup : lstUserGroup){
-        	
-        	List<VU360UserProjection> lstLearnerGroupMember = learnerService.findByLearnerGroupId(objLearnerGroup.getId());
-        	
+        	 lstLearnerGroupMember = learnerService.findByLearnerGroupId(objLearnerGroup.getId());
         	UserGroupRest rg = new UserGroupRest();
         	rg.setGuid(objLearnerGroup.getId());
         	rg.setName(objLearnerGroup.getName());
         	
         	if(lstLearnerGroupMember!=null){
         		rg.setUserCount(lstLearnerGroupMember.size() + "");
-        		//userCount = userCount + lstLearnerGroupMember.size();
         	}else
         		rg.setUserCount("0");
         	
@@ -93,9 +93,10 @@ public class OrganizationGroupRestEndPoint {
         	
         	for(VU360UserProjection userprojected : lstLearnerGroupMember){
         		UserRest objUser = new UserRest();
+        		lstallemails.add(userprojected.getUsername());
         		objUser.setGuid(userprojected.getId().toString());
-        		objUser.setFirstName(userprojected.getFirstName());
-        		objUser.setLastName(userprojected.getLastName());
+        		objUser.setFirstName(userprojected.getFirstname());
+        		objUser.setLastName(userprojected.getLastname());
         		objUser.setUserName(userprojected.getUsername());
         		objUser.setEmail(userprojected.getEmail());
         		lstUser.add(objUser);
@@ -103,6 +104,34 @@ public class OrganizationGroupRestEndPoint {
         	rg.setUsers(lstUser);
         	lstRestUserGroup.add(rg);
         }
+        
+        
+        	List<VU360UserProjection> lstLearnerGroupMember2 = learnerService.findByCustomer(customer.getId());
+        	
+        	UserGroupRest rg = new UserGroupRest();
+        	rg.setGuid(0l);
+        	rg.setName("default");
+        	
+        	if(lstLearnerGroupMember2!=null){
+        		rg.setUserCount(lstLearnerGroupMember2.size() + "");
+        	}else
+        		rg.setUserCount("0");
+        	
+        	List<UserRest> lstUser = new ArrayList<UserRest>();
+        	
+        	for(VU360UserProjection userprojected : lstLearnerGroupMember2){
+        		UserRest objUser = new UserRest();
+        		lstallemails.add(userprojected.getUsername());
+        		objUser.setGuid(userprojected.getId().toString());
+        		objUser.setFirstName(userprojected.getFirstname());
+        		objUser.setLastName(userprojected.getLastname());
+        		objUser.setUserName(userprojected.getUsername());
+        		objUser.setEmail(userprojected.getEmail());
+        		lstUser.add(objUser);
+        	}
+        	rg.setUsers(lstUser);
+        	lstRestUserGroup.add(rg);
+        
         
         List<Object[]> lstCE = customerService.findEntitlementByCustomer(customer.getId());
         List<EntitlementRest> lstEntitlementRest = new ArrayList<EntitlementRest>(); 
@@ -122,8 +151,9 @@ public class OrganizationGroupRestEndPoint {
         		logger.error(">>> Exception occurs while send the organizationgroupdetail >>>: " + ex);
         	}
         }
-        userCount = learnerService.countByCustomerId(customer.getId());
-        return new OrganizationResponse(customer.getName(),lstRestUserGroup, userCount + "", lstRestUserGroup.size()+"", lstEntitlementRest);
+        
+       // return new OrganizationResponse(customer.getName(),lstRestUserGroup, userCount + "", lstRestUserGroup.size()+"", lstEntitlementRest);
+        return new OrganizationResponse(customer.getName(),lstRestUserGroup, lstallemails.size() + "", lstRestUserGroup.size() + "", lstEntitlementRest);
 	}
 	
 	@RequestMapping(value = "/customer/organizationgroup", method = RequestMethod.PUT)
