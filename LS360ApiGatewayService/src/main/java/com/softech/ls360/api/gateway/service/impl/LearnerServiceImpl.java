@@ -64,6 +64,11 @@ public class LearnerServiceImpl implements LearnerService {
 		return lrnGroupMemberList;
 	}
 	
+	public List<VU360UserProjection> findByCustomer(Long learnerGroupId){
+		List<VU360UserProjection> lrnGroupMemberList = learnerGroupMemberRepository.findByCustomer(learnerGroupId);
+		return lrnGroupMemberList;
+	}
+	
 	public Long countByCustomerId(Long customerId){
 		Long count = learnerRepository.countByCustomerId(customerId);
 		if(count==null)
