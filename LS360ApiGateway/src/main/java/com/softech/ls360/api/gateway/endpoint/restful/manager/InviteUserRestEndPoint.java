@@ -97,25 +97,32 @@ public class InviteUserRestEndPoint {
 
 		
 		if(status.equalsIgnoreCase("success")){
-			EnrollmentRestRequest enrollmentRestRequest = new EnrollmentRestRequest();
-			enrollmentRestRequest.getUserName().add(inviteUserRestRequest.getUserName());
-			enrollmentRestRequest.setNotifyLearnersByEmail(Boolean.FALSE);  
-			enrollmentRestRequest.setDuplicatesEnrollment("update");
-			enrollmentRestRequest.setEnrollmentStartDate(dtf.format(LocalDateTime.now()));
-			if (inviteUserRestRequest.getLicense().getType().equalsIgnoreCase("Course")){
-				enrollmentRestRequest.getCourses().add(inviteUserRestRequest.getLicense().getGuid());
-				enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(4)));
-			}else if(inviteUserRestRequest.getLicense().getType().equalsIgnoreCase("subscription")){
-				enrollmentRestRequest.getSubscription().add(inviteUserRestRequest.getLicense().getGuid());
-				enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(99)));
-			} 
-			APIResponse = lmsApiLearnerCoursesEnrollService.processEnrollments(enrollmentRestRequest, token);
+			
+			if(inviteUserRestRequest.getLicense() != null){
+				EnrollmentRestRequest enrollmentRestRequest = new EnrollmentRestRequest();
+				enrollmentRestRequest.getUserName().add(inviteUserRestRequest.getUserName());
+				enrollmentRestRequest.setNotifyLearnersByEmail(Boolean.FALSE);  
+				enrollmentRestRequest.setDuplicatesEnrollment("update");
+				enrollmentRestRequest.setEnrollmentStartDate(dtf.format(LocalDateTime.now()));
+				if (inviteUserRestRequest.getLicense().getType().equalsIgnoreCase("Course")){
+					enrollmentRestRequest.getCourses().add(inviteUserRestRequest.getLicense().getGuid());
+					enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(4)));
+				}else if(inviteUserRestRequest.getLicense().getType().equalsIgnoreCase("subscription")){
+					enrollmentRestRequest.getSubscription().add(inviteUserRestRequest.getLicense().getGuid());
+					enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(99)));
+				} 
+				APIResponse = lmsApiLearnerCoursesEnrollService.processEnrollments(enrollmentRestRequest, token);
+			}
 
-			AssignUserGroupRequest assignUserGroupRequest = new AssignUserGroupRequest();
-			assignUserGroupRequest.getUsers().add(inviteUserRestRequest.getUserName());
-			assignUserGroupRequest.getUsergroups().add(Long.parseLong(inviteUserRestRequest.getTeamGuid()));
-			assignUserGroupRequest.setOrganizationGroup("New Company");
-			APIResponse = lmsApiUserGroupServics.assignUsergroups(authorization, assignUserGroupRequest);
+
+			if (!inviteUserRestRequest.getTeamGuid().trim().isEmpty()){
+				AssignUserGroupRequest assignUserGroupRequest = new AssignUserGroupRequest();
+				assignUserGroupRequest.getUsers().add(inviteUserRestRequest.getUserName());
+				assignUserGroupRequest.getUsergroups().add(Long.parseLong(inviteUserRestRequest.getTeamGuid()));
+				assignUserGroupRequest.setOrganizationGroup("New Company");
+				APIResponse = lmsApiUserGroupServics.assignUsergroups(authorization, assignUserGroupRequest);
+			}
+		
 			returnResponse.put("status", "success");
 			returnResponse.put("message", "");
 			
