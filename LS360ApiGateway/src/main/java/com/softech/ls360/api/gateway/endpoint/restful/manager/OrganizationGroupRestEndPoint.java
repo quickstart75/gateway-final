@@ -110,7 +110,7 @@ public class OrganizationGroupRestEndPoint {
         	
         	UserGroupRest rg = new UserGroupRest();
         	rg.setGuid(0l);
-        	rg.setName("default");
+        	rg.setName("__default");
         	
         	if(lstLearnerGroupMember2!=null){
         		rg.setUserCount(lstLearnerGroupMember2.size() + "");
@@ -153,7 +153,7 @@ public class OrganizationGroupRestEndPoint {
         }
         
        // return new OrganizationResponse(customer.getName(),lstRestUserGroup, userCount + "", lstRestUserGroup.size()+"", lstEntitlementRest);
-        return new OrganizationResponse(customer.getName(),lstRestUserGroup, lstallemails.size() + "", lstRestUserGroup.size() + "", lstEntitlementRest);
+        return new OrganizationResponse(customer.getName(), lstRestUserGroup, lstallemails.size() + "", lstUserGroup.size() + "", lstEntitlementRest);
 	}
 	
 	@RequestMapping(value = "/customer/organizationgroup", method = RequestMethod.PUT)

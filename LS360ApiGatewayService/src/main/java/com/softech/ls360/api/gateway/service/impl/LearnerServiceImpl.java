@@ -13,6 +13,8 @@ import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Distributor;
 import com.softech.ls360.lms.repository.entities.Learner;
+import com.softech.ls360.lms.repository.entities.LearnerGroupMember;
+import com.softech.ls360.lms.repository.projection.UserCourseAnalytics;
 import com.softech.ls360.lms.repository.projection.VU360UserProjection;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
@@ -69,6 +71,14 @@ public class LearnerServiceImpl implements LearnerService {
 		return lrnGroupMemberList;
 	}
 	
+	public List<LearnerGroupMember> findLearnerGroupByUsername(String username){
+		return learnerGroupMemberRepository.findByLearner_Vu360User_Username(username);
+	}
+	
+	public List<Object[]> findUserCourseAnalyticsByUserName(String username){
+		List<Object[]> courseAnalytics = learnerRepository.findUserCourseAnalyticsByUserName(username);
+		return courseAnalytics;
+	}
 	public Long countByCustomerId(Long customerId){
 		Long count = learnerRepository.countByCustomerId(customerId);
 		if(count==null)

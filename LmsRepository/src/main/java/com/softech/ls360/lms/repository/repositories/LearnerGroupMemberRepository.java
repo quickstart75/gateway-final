@@ -33,6 +33,8 @@ public interface LearnerGroupMemberRepository extends CrudRepository<LearnerGrou
 	public List<VU360UserProjection> findByCustomer(@Param("customerId") Long customerId);
 	
 	
+	public List<LearnerGroupMember> findByLearner_Vu360User_Username(String username);
+	
 	@Modifying
 	@Transactional
 	public void deleteByLearnerId(Long id);
