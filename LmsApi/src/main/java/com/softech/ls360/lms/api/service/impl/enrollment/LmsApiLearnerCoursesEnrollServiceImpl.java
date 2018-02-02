@@ -167,7 +167,7 @@ public class LmsApiLearnerCoursesEnrollServiceImpl implements LmsApiLearnerCours
             HttpEntity requestData = new HttpEntity(enrollmentRestRequest, headers);
 
             StringBuffer location = new StringBuffer();
-            location.append(env.getProperty("lmsapi.rest.manager.uri")).append(env.getProperty("lmsapi.rest.manager.enrollments"));
+            location.append(env.getProperty("lmsapi.rest.manager.uri").trim()).append(env.getProperty("lmsapi.rest.manager.enrollments").trim());
             
             logger.info("---URL LMS Enrollment>>>>>>>>>>>>>>>>>>>>>0" + location.toString());
             
