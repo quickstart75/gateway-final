@@ -2,7 +2,7 @@ package com.softech.ls360.api.gateway.service;
 
 import java.util.List;
 
-import com.softech.ls360.lms.repository.entities.LearnerGroupMember;
+import com.softech.ls360.lms.repository.entities.LearnerGroup;
 import com.softech.ls360.lms.repository.projection.VU360UserProjection;
 
 public interface LearnerService {
@@ -12,5 +12,6 @@ public interface LearnerService {
 	Long countByCustomerId(Long customerId);
 	List<VU360UserProjection> findByCustomer(Long learnerGroupId);
 	List<Object[]> findUserCourseAnalyticsByUserName(String username);
-	public List<LearnerGroupMember> findLearnerGroupByUsername(String username);
+	String findLearnerGroupByUsername(String username);
+	List<Object[]> findSubscriptionNameByUsername(String username);
 }
