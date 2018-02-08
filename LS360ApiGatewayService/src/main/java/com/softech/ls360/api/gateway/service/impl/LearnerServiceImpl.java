@@ -13,9 +13,9 @@ import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Distributor;
 import com.softech.ls360.lms.repository.entities.Learner;
-import com.softech.ls360.lms.repository.entities.LearnerGroup;
 import com.softech.ls360.lms.repository.entities.LearnerGroupMember;
 import com.softech.ls360.lms.repository.projection.VU360UserProjection;
+import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
@@ -65,13 +65,13 @@ public class LearnerServiceImpl implements LearnerService {
 		return storeID;		
 	}
 
-	public List<VU360UserProjection> findByLearnerGroupId(Long learnerGroupId){
-		List<VU360UserProjection> lrnGroupMemberList = learnerGroupMemberRepository.findByLearnerGroupId(learnerGroupId);
+	public List<VU360UserDetailProjection> findByLearnerGroupId(Long learnerGroupId){
+		List<VU360UserDetailProjection> lrnGroupMemberList = learnerGroupMemberRepository.findByLearnerGroupId(learnerGroupId);
 		return lrnGroupMemberList;
 	}
 	
-	public List<VU360UserProjection> findByCustomer(Long learnerGroupId){
-		List<VU360UserProjection> lrnGroupMemberList = learnerGroupMemberRepository.findByCustomer(learnerGroupId);
+	public List<VU360UserDetailProjection> findByCustomer(Long learnerGroupId){
+		List<VU360UserDetailProjection> lrnGroupMemberList = learnerGroupMemberRepository.findByCustomer(learnerGroupId);
 		return lrnGroupMemberList;
 	}
 	

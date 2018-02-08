@@ -1,14 +1,13 @@
 package com.softech.ls360.api.gateway.endpoint.restful.manager;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.inject.Inject;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
-
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.request.OrganizationRequest;
@@ -40,7 +38,7 @@ import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.impl.UserGroupServiceImpl;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
-import com.softech.ls360.lms.repository.projection.VU360UserProjection;
+import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
 
 @RestEndpoint
 @RequestMapping(value="/lms")
@@ -71,11 +69,12 @@ public class OrganizationGroupRestEndPoint {
 	@RequestMapping(value = "/customer/organizationgroupdetail", method = RequestMethod.GET)
 	@ResponseBody
 	public OrganizationResponse getOrganizationgroupDetailByCustomer() throws Exception {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-DD-yyyy hh:mm a");
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
 		Customer customer = customerService.findByUsername(userName);
         Set<String> lstallemails = new HashSet<String>();
 		List<LearnerGroup> lstUserGroup = userGroupServiceImpl.findByCustomer(customer.getId());
-		List<VU360UserProjection> lstLearnerGroupMember=null;
+		List<VU360UserDetailProjection> lstLearnerGroupMember=null;
         List<UserGroupRest> lstRestUserGroup = new ArrayList<UserGroupRest>();
         
         for(LearnerGroup objLearnerGroup : lstUserGroup){
@@ -91,7 +90,7 @@ public class OrganizationGroupRestEndPoint {
         	
         	List<UserRest> lstUser = new ArrayList<UserRest>();
         	
-        	for(VU360UserProjection userprojected : lstLearnerGroupMember){
+        	for(VU360UserDetailProjection userprojected : lstLearnerGroupMember){
         		UserRest objUser = new UserRest();
         		lstallemails.add(userprojected.getUsername());
         		objUser.setGuid(userprojected.getId().toString());
@@ -99,6 +98,11 @@ public class OrganizationGroupRestEndPoint {
         		objUser.setLastName(userprojected.getLastname());
         		objUser.setUserName(userprojected.getUsername());
         		objUser.setEmail(userprojected.getEmail());
+        		if(userprojected.getLastLogOnDate()!=null){
+        			userprojected.getLastLogOnDate().format(formatter);
+        			objUser.setLastLogin(userprojected.getLastLogOnDate().format(formatter));
+        		}
+        		objUser.setStartedCourses(userprojected.getStartedCourses());
         		lstUser.add(objUser);
         	}
         	rg.setUsers(lstUser);
@@ -106,7 +110,7 @@ public class OrganizationGroupRestEndPoint {
         }
         
         
-        	List<VU360UserProjection> lstLearnerGroupMember2 = learnerService.findByCustomer(customer.getId());
+        	List<VU360UserDetailProjection> lstLearnerGroupMember2 = learnerService.findByCustomer(customer.getId());
         	
         	UserGroupRest rg = new UserGroupRest();
         	rg.setGuid(0l);
@@ -119,7 +123,7 @@ public class OrganizationGroupRestEndPoint {
         	
         	List<UserRest> lstUser = new ArrayList<UserRest>();
         	
-        	for(VU360UserProjection userprojected : lstLearnerGroupMember2){
+        	for(VU360UserDetailProjection userprojected : lstLearnerGroupMember2){
         		UserRest objUser = new UserRest();
         		lstallemails.add(userprojected.getUsername());
         		objUser.setGuid(userprojected.getId().toString());
@@ -127,6 +131,11 @@ public class OrganizationGroupRestEndPoint {
         		objUser.setLastName(userprojected.getLastname());
         		objUser.setUserName(userprojected.getUsername());
         		objUser.setEmail(userprojected.getEmail());
+        		if(userprojected.getLastLogOnDate()!=null){
+        			userprojected.getLastLogOnDate().format(formatter);
+        			objUser.setLastLogin(userprojected.getLastLogOnDate().format(formatter));
+        		}
+        		objUser.setStartedCourses(userprojected.getStartedCourses());
         		lstUser.add(objUser);
         	}
         	rg.setUsers(lstUser);
@@ -148,7 +157,7 @@ public class OrganizationGroupRestEndPoint {
 	        	er.setCode(objCE[7].toString());
 	        	lstEntitlementRest.add(er);
         	}catch(Exception ex){
-        		logger.error(">>> Exception occurs while send the organizationgroupdetail >>>: " + ex);
+        		logger.error(">>> Exception occurs while send the organizationgroupdetail >>>: findEntitlementByCustomer(customer.getId()) >> " + ex);
         	}
         }
         

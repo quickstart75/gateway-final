@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,11 +26,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
+
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.response.OrganizationResponse;
 import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 import com.softech.ls360.api.gateway.service.CustomerService;
-import com.softech.ls360.api.gateway.service.impl.UserGroupServiceImpl;
+import com.softech.ls360.api.gateway.service.UserGroupService;
 import com.softech.ls360.lms.api.service.LmsApiUserGroupServics;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
@@ -44,7 +46,7 @@ public class UserGroupRestEndPoint {
 	private CustomerService customerService;
 	
 	@Inject
-	private UserGroupServiceImpl userGroupServiceImpl;
+	private UserGroupService userGroupService;
 	
 	@Inject
 	private LmsApiUserGroupServics lmsApiUserGroupServics;
@@ -57,7 +59,7 @@ public class UserGroupRestEndPoint {
 	public OrganizationResponse getUsergroupByCustomer() throws Exception {
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = customerService.findByUsername(userName);
-        List<LearnerGroup> lstUserGroup = userGroupServiceImpl.findByCustomer(customer.getId());
+        List<LearnerGroup> lstUserGroup = userGroupService.findByCustomer(customer.getId());
         
         List<UserGroupRest> lstRestUserGroup = new ArrayList<UserGroupRest>();
         
@@ -71,6 +73,21 @@ public class UserGroupRestEndPoint {
         
         return new OrganizationResponse(customer.getName(),lstRestUserGroup, "","", null);
         
+	}
+	
+	@RequestMapping(value = "/usergroup/user", method=RequestMethod.DELETE)
+	@ResponseBody
+	public  Map<Object, Object> deleteUsergroups(@RequestBody UserGroupRest userGroupRest) {
+		
+		Long learnerIdArray[] = new Long[1];
+		learnerIdArray[0] = Long.valueOf(userGroupRest.getUsers().get(0).getGuid());
+		userGroupService.deleteLearnersFromLearnerGroup(learnerIdArray, userGroupRest.getGuid());
+
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		 map.put("status", Boolean.TRUE);
+		 map.put("message", "User removed from user group.");
+	     map.put("result", null);
+		 return map;
 	}
 	
 	@RequestMapping(value = "usergroup", method = RequestMethod.POST)
@@ -101,22 +118,10 @@ public class UserGroupRestEndPoint {
 	@RequestMapping(value = "usergroup/assign", method = RequestMethod.POST)
 	@ResponseBody
 	public  Map<String, String> assignUsergroups(@RequestHeader("Authorization") String authorization, @RequestBody com.softech.ls360.lms.api.model.request.AssignUserGroupRequest assignUserGroupRequest) throws Exception {
-//		RestTemplate lmsTemplate = new RestTemplate();
-//        HttpHeaders headers = new HttpHeaders();
-//        String tokenString = authorization.substring("Bearer".length()).trim();
-//        headers.add("token", tokenString);
-//        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
-//
-//        HttpEntity requestData = new HttpEntity(assignUserGroupRequest, headers);
-//        StringBuffer location = new StringBuffer();
-//        location.append(env.getProperty("lms.baseURL")).append("restful/customer/usergroup/assign");
-//        
-//        ResponseEntity<Map> returnedData = lmsTemplate.postForEntity(location.toString(), requestData, Map.class);
-//		Map userGroupRest2 = returnedData.getBody();
-
 		com.softech.ls360.lms.api.model.request.AssignUserGroupRequest lmsAssignUserGroupRequest = new com.softech.ls360.lms.api.model.request.AssignUserGroupRequest();
         return lmsApiUserGroupServics.assignUsergroups(authorization, assignUserGroupRequest);
 	}
+	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
