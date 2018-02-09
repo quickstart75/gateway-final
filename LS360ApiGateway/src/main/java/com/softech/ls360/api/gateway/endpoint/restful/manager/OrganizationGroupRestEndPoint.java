@@ -69,7 +69,9 @@ public class OrganizationGroupRestEndPoint {
 	@RequestMapping(value = "/customer/organizationgroupdetail", method = RequestMethod.GET)
 	@ResponseBody
 	public OrganizationResponse getOrganizationgroupDetailByCustomer() throws Exception {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-DD-yyyy hh:mm a");
+		//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh.mm.ss");
+		DateTimeFormatter fullDTWithTicks2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+				
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
 		Customer customer = customerService.findByUsername(userName);
         Set<String> lstallemails = new HashSet<String>();
@@ -99,8 +101,7 @@ public class OrganizationGroupRestEndPoint {
         		objUser.setUserName(userprojected.getUsername());
         		objUser.setEmail(userprojected.getEmail());
         		if(userprojected.getLastLogOnDate()!=null){
-        			userprojected.getLastLogOnDate().format(formatter);
-        			objUser.setLastLogin(userprojected.getLastLogOnDate().format(formatter));
+        			objUser.setLastLogin(userprojected.getLastLogOnDate().format(fullDTWithTicks2));
         		}
         		objUser.setStartedCourses(userprojected.getStartedCourses());
         		lstUser.add(objUser);
@@ -132,8 +133,7 @@ public class OrganizationGroupRestEndPoint {
         		objUser.setUserName(userprojected.getUsername());
         		objUser.setEmail(userprojected.getEmail());
         		if(userprojected.getLastLogOnDate()!=null){
-        			userprojected.getLastLogOnDate().format(formatter);
-        			objUser.setLastLogin(userprojected.getLastLogOnDate().format(formatter));
+        			objUser.setLastLogin(userprojected.getLastLogOnDate().format(fullDTWithTicks2));
         		}
         		objUser.setStartedCourses(userprojected.getStartedCourses());
         		lstUser.add(objUser);

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+	"averageViewTimeByWeek",
 	"totalViewTime",
     "activeDays",
     "lastLogin",
@@ -44,13 +45,15 @@ public class UserCourseAnalyticsResponse {
 	@JsonProperty("completeCourse")
 	List completeCourse;
 	
+	@JsonProperty("averageViewTimeByWeek")
+	Long averageViewTimeByWeek;
 	
 	public UserCourseAnalyticsResponse() {
 		super();
 	}
 	
 	public UserCourseAnalyticsResponse(Long totalViewTime, Long activeDays, String lastLogin, String startDate,
-			String teamName, List subscriptions, List courses, List completeCourse) {
+			String teamName, List subscriptions, List courses, List completeCourse, Long averageViewTimeByWeek) {
 		super();
 		this.totalViewTime = totalViewTime;
 		this.activeDays = activeDays;
@@ -60,6 +63,7 @@ public class UserCourseAnalyticsResponse {
 		this.subscriptions = subscriptions;
 		this.courses = courses;
 		this.completeCourse = completeCourse;
+		this.averageViewTimeByWeek = averageViewTimeByWeek;
 	}
 	public Long getTotalViewTime() {
 		return totalViewTime;
@@ -109,8 +113,12 @@ public class UserCourseAnalyticsResponse {
 	public void setCompleteCourse(List completeCourse) {
 		this.completeCourse = completeCourse;
 	}
-	
-	
-	
-	
+
+	public Long getAverageViewTimeByWeek() {
+		return averageViewTimeByWeek;
+	}
+
+	public void setAverageViewTimeByWeek(Long averageViewTimeByWeek) {
+		this.averageViewTimeByWeek = averageViewTimeByWeek;
+	}
 }

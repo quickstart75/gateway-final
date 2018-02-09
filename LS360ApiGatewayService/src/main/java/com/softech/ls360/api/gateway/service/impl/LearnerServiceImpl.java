@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.api.gateway.service.LearnerService;
+import com.softech.ls360.api.gateway.service.UserGroupService;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Distributor;
 import com.softech.ls360.lms.repository.entities.Learner;
@@ -33,6 +34,15 @@ public class LearnerServiceImpl implements LearnerService {
 	
 	@Inject
 	private SubscriptionRepository subscriptionRepository;
+	
+	@Inject
+	private UserGroupService userGroupService;
+	
+	
+	@Override
+	public Learner findByVu360UserUsername(String userName){
+		return learnerRepository.findByVu360UserUsername(userName);
+	}
 	
 	@Override
 	@Transactional
@@ -82,6 +92,13 @@ public class LearnerServiceImpl implements LearnerService {
 			return lstLGM.get(0).getLearnerGroup().getName();
 		else
 			return null;
+	}
+	
+	@Transactional
+	public void deleteLearnerFromLearnerGroup(String username){
+		List<LearnerGroupMember> lstLGM = learnerGroupMemberRepository.findFirstByLearner_Vu360User_Username(username);
+		for (LearnerGroupMember lg : lstLGM) 
+			learnerGroupMemberRepository.delete(lg);
 	}
 	
 	public List<Object[]> findUserCourseAnalyticsByUserName(String username){

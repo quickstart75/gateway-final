@@ -28,14 +28,12 @@ public class UserRestEndPoint {
 	@RequestMapping(value = "/useranalytics", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<Object, Object> getUserAnalytics(@RequestBody UserRequest userRequest) throws Exception {
-		
 		Long totalViewTime = 0L;
     	Long activeDays=0L;
     	String lastLogin =null;
     	String startDate = null;
-    	List subscriptions = new ArrayList();
-    	List courses = new ArrayList();
-    	List completeCourse =new ArrayList();;
+    	List<String> courses = new ArrayList<String>();
+    	List<String> completeCourse =new ArrayList<String>();;
     	UserCourseAnalyticsResponse objuca = new UserCourseAnalyticsResponse();
 		Map<Object, Object> map = new HashMap<Object, Object>();
 		
@@ -98,7 +96,7 @@ public class UserRestEndPoint {
         	}catch(Exception ex){}
         }
         objuca.setSubscriptions(subname);
-        
+        objuca.setAverageViewTimeByWeek(0L);
         map.put("status", Boolean.TRUE);
         map.put("result", objuca);
 		return map;

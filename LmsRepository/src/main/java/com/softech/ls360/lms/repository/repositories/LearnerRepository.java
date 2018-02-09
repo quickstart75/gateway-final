@@ -24,7 +24,7 @@ public interface LearnerRepository extends CrudRepository<Learner, Long> {
 //			+" where u.username=:usename "
 //			+" group by LCS.TOTALTIMEINSECONDS , LCS.LAUNCHESACCRUED, u.LASTLOGONDATE , u.CREATEDDATE ,   c.name , lcs.completed ", nativeQuery = true)
 	
-	@Query(value=" SELECT  LCS.TOTALTIMEINSECONDS as totalviewtime , count(CONVERT(date, starttime)) as activedays, u.LASTLOGONDATE as lastlogin, u.CREATEDDATE as startdate,   c.name as coursename, lcs.completed as completed "
+	@Query(value=" SELECT  LCS.TOTALTIMEINSECONDS as totalviewtime , count(distinct CONVERT(date, starttime)) as activedays, u.LASTLOGONDATE as lastlogin, u.CREATEDDATE as startdate,   c.name as coursename, lcs.completed as completed "
 			+" FROM vu360user u "
 			+" inner join Learner l on l.vu360user_id=u.id "
 			+" left outer join LEARNERENROLLMENT le on le.LEARNER_ID=l.id "
