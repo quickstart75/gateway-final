@@ -78,4 +78,11 @@ public class StatisticsServiceImpl implements StatisticsService{
 		return lcsResponse;
 	}
 
+	public Long getAverageViewTimeByWeekByUserName(String username){
+		Long averageTime = learnerCourseStatisticsRepository.getAverageViewTimeByWeekByUserName(username);
+		if(averageTime == null)
+			averageTime = 0L;
+		
+		return averageTime;
+	}
 }

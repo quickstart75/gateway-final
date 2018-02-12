@@ -5,12 +5,11 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import com.softech.ls360.lms.repository.entities.CustomerEntitlement;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 
 public interface LearnerCourseStatisticsRepository extends CrudRepository<LearnerCourseStatistics, Long> {
@@ -94,4 +93,14 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     Page<LearnerCourseStatistics> findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatusAndLearnerEnrollment_subscriptionNotNull(String userName, String enrollmentStatus, Pageable pageable);
 
     List<LearnerCourseStatistics> findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollmentIdIn(String userName, List<Long> learnerEnrollmentIdList);
+    
+    @Query(value=" SELECT  sum(DATEDIFF(MINUTE, ls.STARTTIME, ls.ENDTIME)) " +
+			" FROM vu360user u " +
+			" inner join Learner l on l.vu360user_id=u.id " +
+			" inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id " +
+			" inner join LEARNINGSESSION ls on ls.ENROLLMENT_id = le.id " +
+			" where u.username=:username  " ,
+	nativeQuery=true)
+	Long getAverageViewTimeByWeekByUserName(@Param("username") String username);
+
 }

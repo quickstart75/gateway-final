@@ -102,7 +102,7 @@ public class UserGroupRestEndPoint {
 	}
 	
 	/**
-	 * @Desc :: This end point use for [delete user existing Learner group and add in new]
+	 * @Desc :: This end point use for move user in given Learner group [delete user existing Learner group and add in new]
 	 */
 	@RequestMapping(value = "/usergroup/user", method=RequestMethod.PUT)
 	@ResponseBody

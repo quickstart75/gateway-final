@@ -87,18 +87,19 @@ public class LearnerServiceImpl implements LearnerService {
 	
 	@Transactional
 	public String findLearnerGroupByUsername(String username){
-		List<LearnerGroupMember> lstLGM = learnerGroupMemberRepository.findFirstByLearner_Vu360User_Username(username);
-		if(lstLGM.size()>0)
-			return lstLGM.get(0).getLearnerGroup().getName();
+		LearnerGroupMember lstLGM = learnerGroupMemberRepository.findFirstByLearner_Vu360User_Username(username);
+		if(lstLGM!=null)
+			return lstLGM.getLearnerGroup().getName();
 		else
 			return null;
 	}
 	
 	@Transactional
 	public void deleteLearnerFromLearnerGroup(String username){
-		List<LearnerGroupMember> lstLGM = learnerGroupMemberRepository.findFirstByLearner_Vu360User_Username(username);
-		for (LearnerGroupMember lg : lstLGM) 
-			learnerGroupMemberRepository.delete(lg);
+		LearnerGroupMember lstLGM = learnerGroupMemberRepository.findFirstByLearner_Vu360User_Username(username);
+		//for (LearnerGroupMember lg : lstLGM)
+		if(lstLGM!=null)
+			learnerGroupMemberRepository.delete(lstLGM);
 	}
 	
 	public List<Object[]> findUserCourseAnalyticsByUserName(String username){

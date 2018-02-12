@@ -39,7 +39,7 @@ public interface LearnerGroupMemberRepository extends CrudRepository<LearnerGrou
 	public List<VU360UserDetailProjection> findByCustomer(@Param("customerId") Long customerId);
 	
 	
-	public List<LearnerGroupMember> findFirstByLearner_Vu360User_Username(String username);
+	public LearnerGroupMember findFirstByLearner_Vu360User_Username(String username);
 	
 	public List<LearnerGroupMember> findByLearnerGroupIdAndLearnerIdIn(Long learnerGroupId , Long[] learnerId);
 	@Modifying

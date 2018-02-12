@@ -16,6 +16,7 @@ import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.request.UserRequest;
 import com.softech.ls360.api.gateway.response.UserCourseAnalyticsResponse;
 import com.softech.ls360.api.gateway.service.LearnerService;
+import com.softech.ls360.api.gateway.service.StatisticsService;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
 
 @RestEndpoint
@@ -24,6 +25,9 @@ public class UserRestEndPoint {
 
 	@Inject
 	private LearnerService learnerService;
+	
+	@Inject
+	private StatisticsService statsService;
 	
 	@RequestMapping(value = "/useranalytics", method = RequestMethod.POST)
 	@ResponseBody
@@ -96,7 +100,9 @@ public class UserRestEndPoint {
         	}catch(Exception ex){}
         }
         objuca.setSubscriptions(subname);
-        objuca.setAverageViewTimeByWeek(0L);
+        
+        Long AverageViewTime = statsService.getAverageViewTimeByWeekByUserName(userRequest.getUsername());
+        objuca.setAverageViewTimeByWeek(AverageViewTime);
         map.put("status", Boolean.TRUE);
         map.put("result", objuca);
 		return map;

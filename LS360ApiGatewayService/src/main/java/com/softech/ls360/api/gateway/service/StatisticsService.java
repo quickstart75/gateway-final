@@ -7,5 +7,5 @@ import com.softech.ls360.api.gateway.service.model.response.LearnerCourseStatist
 public interface StatisticsService {
 	
 	List<LearnerCourseStatisticsResponse> getLearnerCourseStatistics(List<Long> learnerEnrollmentIdList);
-
+	Long getAverageViewTimeByWeekByUserName(String username);
 }
