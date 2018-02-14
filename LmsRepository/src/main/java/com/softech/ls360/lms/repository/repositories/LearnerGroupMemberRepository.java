@@ -16,18 +16,18 @@ import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
 
 public interface LearnerGroupMemberRepository extends CrudRepository<LearnerGroupMember, LearnerGroupMemberPK> {
 	
-	@Query(" select new com.softech.ls360.lms.repository.projection.VU360UserDetailProjection( vu.id as id, vu.firstName as firstname, vu.lastName as lastname, vu.emailAddress as email, vu.username as username, vu.lastLogOnDate as lastLogOnDate,"
-			+ " (select count(lcs.id) from LearnerCourseStatistics lcs join LearnerEnrollment le  on lcs.learnerEnrollment.id = le.id where le.learner.id=l.id and lcs.completed!=1) as startedCourses) "
+	@Query(" select new com.softech.ls360.lms.repository.projection.VU360UserDetailProjection( vu.id as id, vu.firstName as firstname, vu.lastName as lastname, vu.emailAddress as email, vu.username as username, vu.lastLogOnDate as lastLogOnDate, vu.accountNonLockedTf as locked, vu.enabledTf as enabled "
+			+ " , (select count(lcs.id) from LearnerCourseStatistics lcs join LearnerEnrollment le  on lcs.learnerEnrollment.id = le.id where le.learner.id=l.id and lcs.completed!=1) as startedCourses) "
 			+" from LearnerGroupMember lp "
 			+" join Learner l on l.id = lp.learner.id "
 			+" join VU360User vu on vu.id = l.vu360User.id "
 			+" where lp.learnerGroup.id = :learnerGroupId "
-			+" group by vu.id, vu.firstName, vu.lastName, vu.emailAddress, vu.username, vu.lastLogOnDate, l.id ")
+			+" group by vu.id, vu.firstName, vu.lastName, vu.emailAddress, vu.username, vu.lastLogOnDate, l.id, vu.accountNonLockedTf , vu.enabledTf  ")
 	public List<VU360UserDetailProjection> findByLearnerGroupId(@Param("learnerGroupId") Long learnerGroupId);
 	
 	
 	
-	@Query(" select new com.softech.ls360.lms.repository.projection.VU360UserDetailProjection(vu.id as id, vu.firstName as firstname, vu.lastName as lastname, vu.emailAddress as email, vu.username as username, vu.lastLogOnDate as lastLogOnDate, lg.id as learnergroupid, lg.name as learnergroupname "
+	@Query(" select new com.softech.ls360.lms.repository.projection.VU360UserDetailProjection(vu.id as id, vu.firstName as firstname, vu.lastName as lastname, vu.emailAddress as email, vu.username as username, vu.lastLogOnDate as lastLogOnDate, lg.id as learnergroupid, lg.name as learnergroupname , vu.accountNonLockedTf as locked, vu.enabledTf as enabled "
 			+ ", (select count(lcs.id) from LearnerCourseStatistics lcs join LearnerEnrollment le  on lcs.learnerEnrollment.id = le.id where le.learner.id=l.id and lcs.completed!=1) as startedCourses) "
 			+" from Learner l "
 			+" join VU360User vu on vu.id = l.vu360User.id "

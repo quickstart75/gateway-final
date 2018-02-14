@@ -10,6 +10,8 @@ public class UserRest {
 	String email;
 	String lastLogin;
 	Long startedCourses;
+	Boolean locked;
+	Boolean enabled;
 	
 	public String getUserName() {
 		return userName;
@@ -52,6 +54,18 @@ public class UserRest {
 	}
 	public void setStartedCourses(Long startedCourses) {
 		this.startedCourses = startedCourses;
+	}
+	public Boolean getLocked() {
+		return locked;
+	}
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+	public Boolean getEnabled() {
+		return enabled;
+	}
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
 	}
 	
 	

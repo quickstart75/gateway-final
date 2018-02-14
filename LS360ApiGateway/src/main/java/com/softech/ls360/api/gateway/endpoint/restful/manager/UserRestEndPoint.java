@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,8 +16,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.request.UserRequest;
 import com.softech.ls360.api.gateway.response.UserCourseAnalyticsResponse;
+import com.softech.ls360.api.gateway.response.model.UserGroupRest;
+import com.softech.ls360.api.gateway.response.model.UserRest;
 import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.StatisticsService;
+import com.softech.ls360.api.gateway.service.UserService;
+import com.softech.ls360.api.gateway.service.model.vo.VU360UserVO;
+import com.softech.ls360.lms.api.model.request.AssignUserGroupRequest;
+import com.softech.ls360.lms.api.model.request.UserPermissionRequest;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
 
 @RestEndpoint
@@ -25,6 +32,9 @@ public class UserRestEndPoint {
 
 	@Inject
 	private LearnerService learnerService;
+	
+	@Inject
+	private UserService userService;
 	
 	@Inject
 	private StatisticsService statsService;
@@ -106,5 +116,28 @@ public class UserRestEndPoint {
         map.put("status", Boolean.TRUE);
         map.put("result", objuca);
 		return map;
+	}
+
+
+	/**
+	 * @Desc :: This end point use update User statuses like locked/unlocked and/or disabled/enable
+	 */
+	@RequestMapping(value = "/user/permission", method=RequestMethod.PUT)
+	@ResponseBody
+	public  Map<Object, Object> changePermission(@RequestBody UserPermissionRequest ObjUserPermissionReq) {
+		 List<VU360UserVO> vU360UserVO =new ArrayList<VU360UserVO>();
+		 for(String username : ObjUserPermissionReq.getUserName()){
+			 VU360UserVO objuser = new VU360UserVO();
+			 objuser.setUsername(username);
+			 objuser.setEnabled(ObjUserPermissionReq.getEnabled());
+			 objuser.setLocked(ObjUserPermissionReq.getLocked());
+			 vU360UserVO.add(objuser);
+		 }
+		 
+		 userService.changePermission(vU360UserVO);
+		 Map<Object, Object> map = new HashMap<Object, Object>();
+		 map.put("status", Boolean.TRUE);
+		 map.put("message", "User Status changed");
+		 return map;
 	}
 }

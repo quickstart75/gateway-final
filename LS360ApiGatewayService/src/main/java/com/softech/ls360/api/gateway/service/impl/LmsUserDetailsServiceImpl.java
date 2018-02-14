@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,8 +52,11 @@ public class LmsUserDetailsServiceImpl implements LmsUserDetailsService {
 		
 		if (user == null) {
 			throw new UsernameNotFoundException(messageService.getLocalizeMessage("error.username.password"));
+		}else if(!user.getEnabledTf()){
+			throw new DisabledException("user is Deleted");
+		}else if(!user.getAccountNonLockedTf()){
+			throw new LockedException("user is Locked");
 		}
-		
 		vu360UserRepository.updateLoginDate(user.getUsername(), dtf.format(LocalDateTime.now()));
 		
 		Set<String> userRoles = getUserRoles(user);

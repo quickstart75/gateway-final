@@ -94,12 +94,13 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 
     List<LearnerCourseStatistics> findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollmentIdIn(String userName, List<Long> learnerEnrollmentIdList);
     
-    @Query(value=" SELECT  sum(DATEDIFF(MINUTE, ls.STARTTIME, ls.ENDTIME)) " +
+    @Query(value=" SELECT  sum(DATEDIFF(SECOND, ls.STARTTIME, ls.ENDTIME)) " +
 			" FROM vu360user u " +
 			" inner join Learner l on l.vu360user_id=u.id " +
 			" inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id " +
 			" inner join LEARNINGSESSION ls on ls.ENROLLMENT_id = le.id " +
-			" where u.username=:username  " ,
+			" where u.username=:username " + 
+			" and ls.STARTTIME>=DATEADD(DD, DATEDIFF(DY, 0, GETDATE()), -6) " ,
 	nativeQuery=true)
 	Long getAverageViewTimeByWeekByUserName(@Param("username") String username);
 

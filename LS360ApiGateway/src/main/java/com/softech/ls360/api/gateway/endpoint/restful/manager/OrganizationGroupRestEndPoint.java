@@ -105,7 +105,8 @@ public class OrganizationGroupRestEndPoint {
         		}else{
         			objUser.setLastLogin("");
         		}
-        		
+        		objUser.setEnabled(userprojected.getEnabled());
+        		objUser.setLocked(userprojected.getLocked());
         		objUser.setStartedCourses(userprojected.getStartedCourses());
         		lstUser.add(objUser);
         	}
@@ -135,12 +136,15 @@ public class OrganizationGroupRestEndPoint {
         		objUser.setLastName(userprojected.getLastname());
         		objUser.setUserName(userprojected.getUsername());
         		objUser.setEmail(userprojected.getEmail());
+        		
         		if(userprojected.getLastLogOnDate()!=null){
         			objUser.setLastLogin(userprojected.getLastLogOnDate().format(fullDTWithTicks2));
         		}else{
         			objUser.setLastLogin("");
         		}
         		
+        		objUser.setEnabled(userprojected.getEnabled());
+        		objUser.setLocked(userprojected.getLocked());
         		objUser.setStartedCourses(userprojected.getStartedCourses());
         		lstUser.add(objUser);
         	}

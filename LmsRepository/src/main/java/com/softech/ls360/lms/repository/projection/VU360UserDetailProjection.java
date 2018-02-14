@@ -12,12 +12,15 @@ public class VU360UserDetailProjection {
 	Long startedCourses;
 	String learnergroupname;
 	Long learnergroupid;
+	Boolean locked;
+	Boolean enabled;
+	
 	public VU360UserDetailProjection() {
 		super();
 	}
-								
+	
 	public VU360UserDetailProjection(Long id, String firstname, String lastname, String email, String username,
-			LocalDateTime lastLogOnDate, Long startedCourses) {
+			LocalDateTime lastLogOnDate, Boolean locked, Boolean enabled,Long startedCourses) {
 		super();
 		this.id = id;
 		this.firstname = firstname;
@@ -26,10 +29,12 @@ public class VU360UserDetailProjection {
 		this.username = username;
 		this.lastLogOnDate = lastLogOnDate;
 		this.startedCourses = startedCourses;
+		this.locked =locked;
+		this.enabled=enabled;
 	}
 	
 	public VU360UserDetailProjection(Long id, String firstname, String lastname, String email, String username,
-			LocalDateTime lastLogOnDate, Long learnergroupid, String learnergroupname, Long startedCourses) {
+			LocalDateTime lastLogOnDate, Long learnergroupid, String learnergroupname, Boolean locked, Boolean enabled, Long startedCourses) {
 		super();
 		this.id = id;
 		this.firstname = firstname;
@@ -40,8 +45,11 @@ public class VU360UserDetailProjection {
 		this.learnergroupname = learnergroupname;
 		this.learnergroupid = learnergroupid;
 		this.startedCourses = startedCourses;
+		this.locked =locked;
+		this.enabled=enabled;
 	}
 
+	
 	public Long getId() {
 		return id;
 	}
@@ -85,6 +93,38 @@ public class VU360UserDetailProjection {
 
 	public void setStartedCourses(Long startedCourses) {
 		this.startedCourses = startedCourses;
+	}
+
+	public String getLearnergroupname() {
+		return learnergroupname;
+	}
+
+	public void setLearnergroupname(String learnergroupname) {
+		this.learnergroupname = learnergroupname;
+	}
+
+	public Long getLearnergroupid() {
+		return learnergroupid;
+	}
+
+	public void setLearnergroupid(Long learnergroupid) {
+		this.learnergroupid = learnergroupid;
+	}
+
+	public Boolean getLocked() {
+		return locked;
+	}
+
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+
+	public Boolean getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
 	}
 	
 	
