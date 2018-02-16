@@ -52,10 +52,10 @@ public class LmsUserDetailsServiceImpl implements LmsUserDetailsService {
 		
 		if (user == null) {
 			throw new UsernameNotFoundException(messageService.getLocalizeMessage("error.username.password"));
-		}else if(!user.getEnabledTf()){
-			throw new DisabledException("user is Deleted");
-		}else if(!user.getAccountNonLockedTf()){
-			throw new LockedException("user is Locked");
+		}else if(user.getEnabledTf()!= null && !user.getEnabledTf()){
+			throw new DisabledException("disabled");
+		}else if(user.getAccountNonLockedTf()!=null && !user.getAccountNonLockedTf()){
+			throw new LockedException("locked");
 		}
 		vu360UserRepository.updateLoginDate(user.getUsername(), dtf.format(LocalDateTime.now()));
 		

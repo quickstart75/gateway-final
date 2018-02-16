@@ -129,8 +129,11 @@ public class UserRestEndPoint {
 		 for(String username : ObjUserPermissionReq.getUserName()){
 			 VU360UserVO objuser = new VU360UserVO();
 			 objuser.setUsername(username);
-			 objuser.setEnabled(ObjUserPermissionReq.getEnabled());
-			 objuser.setLocked(ObjUserPermissionReq.getLocked());
+			 if(ObjUserPermissionReq.getEnabled()!=null)
+				 objuser.setEnabled(ObjUserPermissionReq.getEnabled());
+			 
+			 if(ObjUserPermissionReq.getLocked()!=null)
+				 objuser.setLocked(!ObjUserPermissionReq.getLocked());
 			 vU360UserVO.add(objuser);
 		 }
 		 

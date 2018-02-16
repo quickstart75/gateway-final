@@ -106,7 +106,10 @@ public class OrganizationGroupRestEndPoint {
         			objUser.setLastLogin("");
         		}
         		objUser.setEnabled(userprojected.getEnabled());
-        		objUser.setLocked(userprojected.getLocked());
+        		
+        		if(userprojected.getLocked()!=null)
+        			objUser.setLocked(!userprojected.getLocked());
+        		
         		objUser.setStartedCourses(userprojected.getStartedCourses());
         		lstUser.add(objUser);
         	}
