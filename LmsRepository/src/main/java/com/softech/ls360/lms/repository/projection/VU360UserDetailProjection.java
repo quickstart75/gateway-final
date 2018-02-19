@@ -112,6 +112,9 @@ public class VU360UserDetailProjection {
 	}
 
 	public Boolean getLocked() {
+		if(locked==null){
+			locked=false;
+		}
 		return locked;
 	}
 
@@ -120,6 +123,9 @@ public class VU360UserDetailProjection {
 	}
 
 	public Boolean getEnabled() {
+		if(enabled==null){
+			enabled=true;
+		}
 		return enabled;
 	}
 

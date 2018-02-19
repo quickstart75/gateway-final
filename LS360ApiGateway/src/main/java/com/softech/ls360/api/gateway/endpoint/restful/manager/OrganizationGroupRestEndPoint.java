@@ -147,7 +147,7 @@ public class OrganizationGroupRestEndPoint {
         		}
         		
         		objUser.setEnabled(userprojected.getEnabled());
-        		objUser.setLocked(userprojected.getLocked());
+        		objUser.setLocked(!userprojected.getLocked());
         		objUser.setStartedCourses(userprojected.getStartedCourses());
         		lstUser.add(objUser);
         	}
