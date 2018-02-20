@@ -53,7 +53,7 @@ public class LearnerProfileRestEndpointTest extends
 			String response2 = getResponse(
 					restEndPoint,
 					inputJSON,
-					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDE3LTA0LTA4VDA1OjA2OjE4LjMyOCIsInVzZXJfbmFtZSI6ImZhaGFkX2F1dGhvciIsImF1dGhvcml0aWVzIjpbIlJPTEVfTEVBUk5FUiIsIlJPTEVfVFJBSU5JTkdBRE1JTklTVFJBVE9SIl0sImNsaWVudF9pZCI6IlRlc3RDbGllbnQiLCJzY29wZSI6WyJSRUFEIiwiVFJVU1QiLCJXUklURSJdfQ.5yCZbBf7VBBvsOFtqFQkCGuT1UlNgNAR7ScjYCvWjLQ");
+					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDE3LTA2LTAxVDAxOjMzOjM2LjcyOSIsInVzZXJfbmFtZSI6ImFkbWluIiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9MRUFSTkVSIiwiUk9MRV9UUkFJTklOR0FETUlOSVNUUkFUT1IiLCJST0xFX0lOU1RSVUNUT1IiLCJST0xFX1JFR1VMQVRPUllBTkFMWVNUIiwiUk9MRV9MTVNBRE1JTklTVFJBVE9SIl0sImNsaWVudF9pZCI6IlRlc3RDbGllbnQiLCJzY29wZSI6WyJSRUFEIiwiVFJVU1QiLCJXUklURSJdfQ.yxH6Zt2D4JO_CFdFbyMMyfuJrb4oUK-GvN06igcL95s");
 			
 			System.out.println(JsonUtil.convertObjectToJson(response2));
 		} catch (Exception e) {
@@ -61,17 +61,17 @@ public class LearnerProfileRestEndpointTest extends
 		}
 	}
 	
-	@Test
+	//@Test
 	public void changePassword(){
 		String inputJSON = getRequestJson();
-		String restEndPoint = LOCAL_URL + "profile/updatePassword?username=admin&updatedValue=admin123";
+		String restEndPoint = LOCAL_URL + "profile/updatePassword?username=5april2@mailinator.com&updatedValue=test123";
 		logger.info("calling URL :: " + restEndPoint);
 		
 		try {
 			String response2 = getResponse(
 					restEndPoint,
 					"",
-					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDE3LTA0LTA4VDA4OjU5OjM3LjI2NSIsInVzZXJfbmFtZSI6ImZhaGFkLmF1dGhvciIsImF1dGhvcml0aWVzIjpbIlJPTEVfTEVBUk5FUiIsIlJPTEVfVFJBSU5JTkdBRE1JTklTVFJBVE9SIl0sImNsaWVudF9pZCI6IlRlc3RDbGllbnQiLCJzY29wZSI6WyJSRUFEIiwiVFJVU1QiLCJXUklURSJdfQ.x4Lq-WJqVV9pu5DWBzAV_nE_c2oIWfOvQyxrGC9ePpk");
+					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIyMDE3LTA0LTExVDA1OjM5OjE3LjI0NCIsInVzZXJfbmFtZSI6ImZhaGFkX2F1dGhvciIsImF1dGhvcml0aWVzIjpbIlJPTEVfTEVBUk5FUiIsIlJPTEVfVFJBSU5JTkdBRE1JTklTVFJBVE9SIl0sImNsaWVudF9pZCI6IlRlc3RDbGllbnQiLCJzY29wZSI6WyJSRUFEIiwiVFJVU1QiLCJXUklURSJdfQ.DlB0q66br9dXQoxS-f8N54VddWIRD4q8Ofo59s9auDc");
 			
 			System.out.println(JsonUtil.convertObjectToJson(response2));
 		} catch (Exception e) {

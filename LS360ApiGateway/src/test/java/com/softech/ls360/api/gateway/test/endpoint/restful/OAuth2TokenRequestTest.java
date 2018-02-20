@@ -26,7 +26,7 @@ public class OAuth2TokenRequestTest extends LS360ApiGatewayAbstractTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void addUser() {
 	
 		//String userRestEndPoint = "http://localhost:8080/LS360Api/oauth/token?username=admin&password=admin123&grant_type=password";

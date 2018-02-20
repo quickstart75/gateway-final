@@ -26,7 +26,7 @@ public class LearnerClassroomRestEndpointTest extends
 
 	}
 
-	@Test
+	//@Test
 	public void getLearnerCourseCount() {
 
 		String restEndPoint = LOCAL_URL + "learner/classroom/details/972551";

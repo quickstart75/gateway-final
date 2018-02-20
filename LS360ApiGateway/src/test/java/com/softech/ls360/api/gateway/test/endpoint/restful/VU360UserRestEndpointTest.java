@@ -27,7 +27,7 @@ public class VU360UserRestEndpointTest extends LS360ApiGatewayAbstractTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void addUser() {
 	
 		String userRestEndPoint = LOCAL_URL + "customer/user/add";

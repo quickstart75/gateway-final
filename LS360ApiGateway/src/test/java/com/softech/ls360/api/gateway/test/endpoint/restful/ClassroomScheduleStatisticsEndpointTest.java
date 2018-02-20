@@ -15,7 +15,7 @@ import java.util.Map;
 public class ClassroomScheduleStatisticsEndpointTest extends LS360ApiGatewayAbstractTest {
 
 
-    @Test
+    //@Test
     public void testScheduleEndpoint(){
         RestTemplate mockRestTemplate = new RestTemplate();
         Map<String, String> requestData = new HashMap<>();

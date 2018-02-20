@@ -22,7 +22,7 @@ public class SubscriptionRestEndpointTest extends
 
 	}
 
-	@Test
+	//@Test
 	public void getSubscriptionActivityMonitorDetails() {
 
 		String restEndPoint = LOCAL_URL + "learner/subscription/activityMonitor";
