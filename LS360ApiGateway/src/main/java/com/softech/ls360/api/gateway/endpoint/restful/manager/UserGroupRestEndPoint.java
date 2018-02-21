@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
+import com.softech.ls360.api.gateway.request.OrganizationRequest;
 import com.softech.ls360.api.gateway.response.OrganizationResponse;
 import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 import com.softech.ls360.api.gateway.response.model.UserRest;
@@ -60,6 +62,9 @@ public class UserGroupRestEndPoint {
 	@Autowired
     Environment env;
 	
+	/**
+	 * @Desc :: This end point get the list of All learner group of a customer organization
+	 */
 	@RequestMapping(value = "usergroup", method = RequestMethod.GET)
 	@ResponseBody
 	public OrganizationResponse getUsergroupByCustomer() throws Exception {
@@ -132,6 +137,9 @@ public class UserGroupRestEndPoint {
 		 return map;
 	}
 	
+	/**
+	 * @Desc :: This end point use for [Create new Learner group and assign it to customer]
+	 */
 	@RequestMapping(value = "usergroup", method = RequestMethod.POST)
 	@ResponseBody
 	public  UserGroupRest saveUsergroups(@RequestHeader("Authorization") String authorization, @RequestBody UserGroupRest userGroupRest) throws Exception {
@@ -153,6 +161,36 @@ public class UserGroupRestEndPoint {
         return new UserGroupRest(Long.valueOf(userGroupRest2.get("guid").toString()),  userGroupRest2.get("name").toString());
 	}
 	
+	
+	/**
+	 * @Desc :: This end point use for [update LearnerGroup name only]
+	 */
+	@RequestMapping(value = "usergroup", method = RequestMethod.PUT)
+	@ResponseBody
+	public  Map<Object, Object> updateUsergroups(@RequestHeader("Authorization") String authorization, @RequestBody OrganizationRequest organizationRequest) throws Exception {
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		
+        RestTemplate lmsTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        String tokenString = authorization.substring("Bearer".length()).trim();
+        headers.add("token", tokenString);
+        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+        HttpEntity requestData = new HttpEntity(organizationRequest, headers);
+
+        StringBuffer location = new StringBuffer();
+        location.append(env.getProperty("lms.baseURL")).append("rest/customer/usergroup");
+        
+        ResponseEntity<String> returnedData = (ResponseEntity<String>) lmsTemplate.exchange(
+        		location.toString(),
+    		 	HttpMethod.PUT, 
+    		 	requestData, 
+    	        String.class);
+        Object o = returnedData.getBody();
+        
+        map.put("status", Boolean.TRUE);
+        map.put("message", "Team name updated");
+        return map;
+	}
 	@RequestMapping(value = "usergroup/assign", method = RequestMethod.POST)
 	@ResponseBody
 	public  Map<String, String> assignUsergroups(@RequestHeader("Authorization") String authorization, @RequestBody com.softech.ls360.lms.api.model.request.AssignUserGroupRequest assignUserGroupRequest) throws Exception {
