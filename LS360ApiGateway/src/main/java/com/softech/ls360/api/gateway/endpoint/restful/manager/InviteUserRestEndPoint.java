@@ -136,7 +136,24 @@ public class InviteUserRestEndPoint {
 	}
 
 		
-	
+	@RequestMapping(value = "assignLicenses", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, String> assignLicenses(@RequestHeader("Authorization") String authorization, @RequestBody EnrollmentRestRequest enrollmentRestRequest) throws Exception {
+		Map<String, String> returnResponse = new HashMap<String, String>();
+		String token = authorization.substring("Bearer".length()).trim();
+
+		enrollmentRestRequest.setNotifyLearnersByEmail(Boolean.FALSE);  
+		enrollmentRestRequest.setDuplicatesEnrollment("update");
+		enrollmentRestRequest.setEnrollmentStartDate(dtf.format(LocalDateTime.now()));
+		enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(4)));
+		
+		Map<String, String> APIResponse = lmsApiLearnerCoursesEnrollService.processEnrollments(enrollmentRestRequest, token);
+		returnResponse.put("status", "success");
+		returnResponse.put("message", "");
+		return returnResponse;
+	}
+
+		
 	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody

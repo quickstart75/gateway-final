@@ -191,6 +191,38 @@ public class UserGroupRestEndPoint {
         map.put("message", "Team name updated");
         return map;
 	}
+	
+	
+	/**
+	 * @Desc :: This end point use for [delete Learner group name]
+	 */
+	@RequestMapping(value = "usergroup", method = RequestMethod.DELETE)
+	@ResponseBody
+	public  Map<Object, Object> deleteUsergroups(@RequestHeader("Authorization") String authorization, @RequestBody OrganizationRequest organizationRequest) throws Exception {
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		
+        RestTemplate lmsTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        String tokenString = authorization.substring("Bearer".length()).trim();
+        headers.add("token", tokenString);
+        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+        HttpEntity requestData = new HttpEntity(organizationRequest, headers);
+
+        StringBuffer location = new StringBuffer();
+        location.append(env.getProperty("lms.baseURL")).append("rest/customer/usergroup");
+        
+        ResponseEntity<String> returnedData = (ResponseEntity<String>) lmsTemplate.exchange(
+        		location.toString(),
+    		 	HttpMethod.DELETE, 
+    		 	requestData, 
+    	        String.class);
+        Object o = returnedData.getBody();
+        
+        map.put("status", Boolean.TRUE);
+        map.put("message", "Team deleted");
+        return map;
+	}
+	
 	@RequestMapping(value = "usergroup/assign", method = RequestMethod.POST)
 	@ResponseBody
 	public  Map<String, String> assignUsergroups(@RequestHeader("Authorization") String authorization, @RequestBody com.softech.ls360.lms.api.model.request.AssignUserGroupRequest assignUserGroupRequest) throws Exception {
