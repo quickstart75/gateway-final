@@ -18,4 +18,7 @@ public interface CourseRepository extends CrudRepository<Course, Long> {
 	
 	@Query(value = "select c.courseGuid, c.topicsCovered from com.softech.ls360.lms.repository.entities.Course c where c.courseGuid in ( :guids )")
 	List<Object[]> findCourseOutlineByGuids( @Param("guids") List<String> guids);
+	
+	@Query(value = "select isNull(c.ceus, 0) from Course c where c.Guid in (:guids)", nativeQuery = true)
+	List<Object> findByCourseGuid(@Param("guids") List<String> guids);
 }

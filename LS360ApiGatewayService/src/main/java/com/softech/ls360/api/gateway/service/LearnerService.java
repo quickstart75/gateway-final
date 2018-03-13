@@ -13,6 +13,7 @@ public interface LearnerService {
 	Long countByCustomerId(Long customerId);
 	List<VU360UserDetailProjection> findByCustomer(Long learnerGroupId);
 	List<Object[]> findUserCourseAnalyticsByUserName(String username);
+	List<Object[]> findUserCourseAnalyticsByUserNameByCourseGUIDs(String username, List<String> guids);
 	String findLearnerGroupByUsername(String username);
 	List<Object[]> findSubscriptionNameByUsername(String username);
 	void deleteLearnerFromLearnerGroup(String username);

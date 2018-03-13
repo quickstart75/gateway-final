@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.softech.ls360.api.gateway.service.CourseService;
+import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.repositories.CourseRepository;
 
 @Service
@@ -38,5 +39,10 @@ public class CourseServiceImpl implements CourseService{
 			logger.error(ex.getMessage());
 		}
 		return lstCourseOutlines;
+	}
+	
+	public List<Object> getCourseByGUIDs(List<String> guids){
+		List<Object> arrCourse = courseRepository.findByCourseGuid(guids);
+		return arrCourse;
 	}
 }

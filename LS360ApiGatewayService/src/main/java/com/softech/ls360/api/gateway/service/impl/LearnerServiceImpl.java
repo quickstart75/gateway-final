@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +105,11 @@ public class LearnerServiceImpl implements LearnerService {
 	
 	public List<Object[]> findUserCourseAnalyticsByUserName(String username){
 		List<Object[]> courseAnalytics = learnerRepository.findUserCourseAnalyticsByUserName(username);
+		return courseAnalytics;
+	}
+	
+	public List<Object[]> findUserCourseAnalyticsByUserNameByCourseGUIDs(String username, List<String> guids){
+		List<Object[]> courseAnalytics = learnerRepository.findUserCourseAnalyticsByUserNameByCourseGUIDs(username, guids);
 		return courseAnalytics;
 	}
 	
