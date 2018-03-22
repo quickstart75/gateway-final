@@ -153,10 +153,10 @@ public class LmsApiLearnerCoursesEnrollServiceImpl implements LmsApiLearnerCours
     }
 
 	@Override
-	public Map<String, String> processEnrollments(EnrollmentRestRequest enrollmentRestRequest, String token)
+	public Map<Object, Object> processEnrollments(EnrollmentRestRequest enrollmentRestRequest, String token)
 			throws Exception {
 		// TODO Auto-generated method stub
-		 Map<String, String> responseData = new HashMap<String, String>();
+		 Map<Object, Object> responseData = new HashMap<Object, Object>();
         try {
         	RestTemplate restTemplate = new RestTemplate();
         	
@@ -173,8 +173,9 @@ public class LmsApiLearnerCoursesEnrollServiceImpl implements LmsApiLearnerCours
             
             logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>1");
             ResponseEntity<BulkEnrollmentResponse> returnedData = restTemplate.postForEntity(location.toString(), requestData,BulkEnrollmentResponse.class);
-            logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>2"); 
+           
             String s = returnedData.getBody().toString();
+            responseData.put("result", returnedData);
             logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>3"+ s); 
         }catch(Exception e){
         	logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>4"+ e.getMessage()); 

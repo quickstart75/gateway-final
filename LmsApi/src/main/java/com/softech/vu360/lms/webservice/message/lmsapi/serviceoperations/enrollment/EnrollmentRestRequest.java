@@ -7,7 +7,7 @@ public class EnrollmentRestRequest {
 
 	private List<String> userName = new ArrayList<String>();
 	private List<String> courses = new ArrayList<String>();
-	private List<String> subscription = new ArrayList<String>();;
+	private List<String> subscription = new ArrayList<String>();
 	private List<String> userGroups = new ArrayList<String>();
 	private List<String> orgGroups = new ArrayList<String>();
 	private Boolean notifyLearnersByEmail;

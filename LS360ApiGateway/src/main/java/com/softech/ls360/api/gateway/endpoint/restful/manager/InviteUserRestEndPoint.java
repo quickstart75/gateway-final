@@ -1,13 +1,8 @@
 package com.softech.ls360.api.gateway.endpoint.restful.manager;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -16,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +30,9 @@ import com.softech.ls360.lms.api.service.LmsApiUserGroupServics;
 import com.softech.ls360.lms.api.service.enrollment.LmsApiLearnerCoursesEnrollService;
 import com.softech.ls360.lms.api.service.user.LmsApiUserService;
 import com.softech.ls360.lms.repository.entities.Customer;
+import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.BulkEnrollmentResponse;
 import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.EnrollmentRestRequest;
+import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.user.AddUserResponse;
 import com.softech.vu360.lms.webservice.message.lmsapi.types.user.User;
 
 @RestEndpoint
@@ -60,7 +58,7 @@ public class InviteUserRestEndPoint {
 	
 	@RequestMapping(value = "InviteUser", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, String> InviteUser(@RequestHeader("Authorization") String authorization, @RequestBody InviteUserRestRequest inviteUserRestRequest ) throws Exception {
+	public Map<Object, Object> InviteUser(@RequestHeader("Authorization") String authorization, @RequestBody InviteUserRestRequest inviteUserRestRequest ) throws Exception {
 		
 		logger.info("---Pay load Request ::  user >>>>>>>>>>>>>>>>>>>>>0" + inviteUserRestRequest.getFirstName());
 		logger.info("---Pay load Request ::  user >>>>>>>>>>>>>>>>>>>>>1" + inviteUserRestRequest.getLastName());
@@ -88,7 +86,7 @@ public class InviteUserRestEndPoint {
 		user.setUserName(inviteUserRestRequest.getUserName());
 		user.setPassword(inviteUserRestRequest.getPassword());
 		
-		Map<String, String> returnResponse = new HashMap<String, String>();
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		
 		
 		Map<String, String> APIResponse = lmsApiUserService.createUser(user, customer.getId(), token);
@@ -108,10 +106,10 @@ public class InviteUserRestEndPoint {
 					enrollmentRestRequest.getCourses().add(inviteUserRestRequest.getLicense().getGuid());
 					enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(4)));
 				}else if(inviteUserRestRequest.getLicense().getType().equalsIgnoreCase("subscription")){
-					enrollmentRestRequest.getSubscription().add(inviteUserRestRequest.getLicense().getGuid());
+					enrollmentRestRequest.getSubscription().add(inviteUserRestRequest.getLicense().getCode());
 					enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(99)));
 				} 
-				APIResponse = lmsApiLearnerCoursesEnrollService.processEnrollments(enrollmentRestRequest, token);
+				returnResponse = lmsApiLearnerCoursesEnrollService.processEnrollments(enrollmentRestRequest, token);
 			}
 
 
@@ -123,11 +121,16 @@ public class InviteUserRestEndPoint {
 				APIResponse = lmsApiUserGroupServics.assignUsergroups(authorization, assignUserGroupRequest);
 			}
 		
-			returnResponse.put("status", "success");
+			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "");
 			
+			if(returnResponse.get("result")!=null){
+				ResponseEntity returnedData =  (ResponseEntity) returnResponse.get("result");
+				returnResponse.put("result", returnedData.getBody());
+			}
+			
 		}else{
-			returnResponse.put("status", "error");
+			returnResponse.put("status", Boolean.FALSE);
 			returnResponse.put("message",  APIResponse.get("status"));
 		}
 		
@@ -138,8 +141,8 @@ public class InviteUserRestEndPoint {
 		
 	@RequestMapping(value = "assignLicenses", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, String> assignLicenses(@RequestHeader("Authorization") String authorization, @RequestBody EnrollmentRestRequest enrollmentRestRequest) throws Exception {
-		Map<String, String> returnResponse = new HashMap<String, String>();
+	public Map<Object, Object> assignLicenses(@RequestHeader("Authorization") String authorization, @RequestBody EnrollmentRestRequest enrollmentRestRequest) throws Exception {
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		String token = authorization.substring("Bearer".length()).trim();
 
 		enrollmentRestRequest.setNotifyLearnersByEmail(Boolean.FALSE);  
@@ -147,9 +150,14 @@ public class InviteUserRestEndPoint {
 		enrollmentRestRequest.setEnrollmentStartDate(dtf.format(LocalDateTime.now()));
 		enrollmentRestRequest.setEnrollmentEndDate(dtf.format(LocalDateTime.now().plusYears(4)));
 		
-		Map<String, String> APIResponse = lmsApiLearnerCoursesEnrollService.processEnrollments(enrollmentRestRequest, token);
-		returnResponse.put("status", "success");
+		Map<Object, Object> APIResponse = lmsApiLearnerCoursesEnrollService.processEnrollments(enrollmentRestRequest, token);
+		returnResponse.put("status", Boolean.TRUE);
 		returnResponse.put("message", "");
+		
+		if(APIResponse.get("result")!=null){
+			ResponseEntity returnedData =  (ResponseEntity) APIResponse.get("result");
+			returnResponse.put("result", returnedData.getBody());
+		}
 		return returnResponse;
 	}
 

@@ -20,6 +20,6 @@ public interface LmsApiLearnerCoursesEnrollService {
 	LearnerCoursesEnrollResponse processEnrollments(String userName, LearnerEnrollCourses learnerEnrollCourses, DuplicatesEnrollment duplicatesEnrollment, String customerCode, String apiKey) throws Exception;
 	String getUserNameFromLearnerCoursesEnrollResponse(LearnerCoursesEnrollResponse learnerCoursesEnrollResponse) throws Exception;
 	Map<Boolean, List<LearnerEnrolledCourses>> getLearnerEnrolledCoursesResultMap(LearnerCoursesEnrollResponse learnerCoursesEnrollResponse) throws Exception;
-	Map<String, String> processEnrollments(EnrollmentRestRequest enrollmentRestRequest, String token) throws Exception;	
+	Map<Object, Object> processEnrollments(EnrollmentRestRequest enrollmentRestRequest, String token) throws Exception;	
 	
 }
