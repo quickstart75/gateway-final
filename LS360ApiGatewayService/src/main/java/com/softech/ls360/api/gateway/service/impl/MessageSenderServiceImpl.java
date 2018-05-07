@@ -30,6 +30,7 @@ public class MessageSenderServiceImpl implements MessageSenderService{
 	                @Override
 	                public Message createMessage(Session session) throws JMSException{
 	                	MapMessage message = session.createMapMessage();
+	                	message.setString("customerEmail", product.getCustomerEmail());
 	    				message.setString("file", product.getFilePath());
 	    				message.setString("action", product.getAction());
 	    				message.setStringProperty("objectType", "batchInfo");
