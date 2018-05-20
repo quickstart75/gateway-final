@@ -46,6 +46,7 @@ public class VU360UserRestEndpoint {
 	public ResponseEntity<AddUserResponse> addUser(@RequestBody @Valid UserRequest user,
 			@AuthenticationPrincipal OAuth2Authentication authentication) throws Exception {
 	
+		
 		logger.info("Request received at " + getClass().getName() + " for add user");
 	
 		Authentication userAuthentication = authentication.getUserAuthentication();
