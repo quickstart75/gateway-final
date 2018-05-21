@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.endpoint.restful;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,10 +22,12 @@ import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
 import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
+import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
 import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerClassroomDetailResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
+import com.softech.ls360.api.gateway.service.model.response.LearnersEnrollmentResponse;
 import com.softech.ls360.lms.api.model.request.LearnerEnrollmentsRequest;
 import com.softech.ls360.lms.api.model.response.LearnerEnrollmentsResponse;
 import com.softech.ls360.lms.api.service.enrollment.LmsApiEnrollmentService;
@@ -99,6 +102,24 @@ public class EnrollmentRestEndpoint {
 		logger.info("Request received at " + getClass().getName() + " for learner enrolled courses");
 		
 		return learnerCourseCountService.getLearnerCourses(user);
+			
+	}
+	
+	
+	@RequestMapping(value = "/admin/vilt/enrollments", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> learnerEnrollment(@RequestBody LearnersEnrollmentRequest user
+			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
+		
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		logger.info("Request received at " + getClass().getName() + " /admin/vilt/enrollments");
+		
+		LearnersEnrollmentResponse objResponse = learnerCourseCountService.getLearnersEnrollment(user);
+		
+		map.put("status", Boolean.TRUE);
+		map.put("message", "success");
+		map.put("result", objResponse);
+		return map;
 			
 	}
 	

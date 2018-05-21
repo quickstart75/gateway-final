@@ -5,9 +5,11 @@ import java.util.Map;
 
 import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
+import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
 import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
+import com.softech.ls360.api.gateway.service.model.response.LearnersEnrollmentResponse;
 
 public interface LearnerCourseService {
 	
@@ -17,4 +19,5 @@ public interface LearnerCourseService {
 	
 	List<CourseTimeSpentResponse> getCourseTimeSpent(CourseTimeSpentRequest request, String userName);
 
+	LearnersEnrollmentResponse getLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest);
 }

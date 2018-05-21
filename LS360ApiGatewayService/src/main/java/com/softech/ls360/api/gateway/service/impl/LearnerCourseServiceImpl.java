@@ -1,7 +1,5 @@
 package com.softech.ls360.api.gateway.service.impl;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -28,18 +26,21 @@ import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
 import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
+import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
+import com.softech.ls360.api.gateway.service.model.response.ClassInfo;
 import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
 import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
+import com.softech.ls360.api.gateway.service.model.response.EnrollmentInfo;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerEnrollmentStatistics;
 import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
+import com.softech.ls360.api.gateway.service.model.response.LearnersEnrollmentResponse;
 import com.softech.ls360.lcms.api.service.LockedCourseService;
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.ArrayOfLockedCourseStatus;
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.GetCourseLockedStatusResponse;
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.LockedCourseStatus;
 import com.softech.ls360.lms.repository.entities.AssessmentConfigurationProjection;
-import com.softech.ls360.lms.repository.entities.CourseGroup;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
 import com.softech.ls360.lms.repository.entities.Subscription;
@@ -47,13 +48,11 @@ import com.softech.ls360.lms.repository.repositories.AssessmentConfigurationRepo
 import com.softech.ls360.lms.repository.repositories.CourseGroupRepository;
 import com.softech.ls360.lms.repository.repositories.DistributorRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
+import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
-import com.softech.ls360.storefront.api.model.response.productsummary.ProductSummary;
-import com.softech.ls360.storefront.api.model.response.subscriptioncount.SubscriptionCourseCountResponse;
 import com.softech.ls360.storefront.api.service.ProductSummaryService;
 import com.softech.ls360.storefront.api.service.SubscriptionCourseCountService;
 import com.softech.ls360.util.datetime.TimeConverter;
-import com.softech.ls360.util.json.JsonUtil;
 
 @Service
 public class LearnerCourseServiceImpl implements LearnerCourseService {
@@ -86,6 +85,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	
 	@Inject
 	protected DistributorRepository distributorRepository;
+	
+	@Inject
+	LearnerEnrollmentRepository learnerEnrollmentRepository;
 	
 	@Value("${lcms.viewAssessment.url}")
 	private String viewAssessmentURL;
@@ -538,6 +540,91 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		
 		learnerCourseResponse.setSubscriptions(lstsubscription);
 		return learnerCourseResponse;
+	}
+	
+	
+	
+
+	@Override
+	@Transactional
+	public LearnersEnrollmentResponse getLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest) {
+		
+		int pageNumber = userCoursesRequest.getPageNumber()-1;
+		int pageSize = userCoursesRequest.getPageSize();
+		//String searchText = "";
+		//if(userCoursesRequest.getSearchText()!=null)
+		//	searchText = userCoursesRequest.getSearchText();
+		
+		//String filter = "";
+		
+		//if(userCoursesRequest.getFilter()!=null)
+		//	filter = userCoursesRequest.getFilter();
+		
+		String sortDirection = "ASC";
+		if(userCoursesRequest.getSortDirection().equalsIgnoreCase("DESC"))
+			sortDirection = userCoursesRequest.getSortDirection();
+		
+		
+		
+		PageRequest request = new PageRequest(pageNumber, pageSize);//, sortDirection, "learnerEnrollment.course.name");
+		Map<String, String> userCoursesmap = new HashMap<String, String>();
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateFrom()!=null)
+			userCoursesmap.put("dateFrom", userCoursesRequest.getFilter().getDateFrom());
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateTo()!=null)
+			userCoursesmap.put("dateTo", userCoursesRequest.getFilter().getDateTo());
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getCourseName()!=null)
+			userCoursesmap.put("courseName", userCoursesRequest.getFilter().getCourseName());
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getEmail()!=null)
+			userCoursesmap.put("email", userCoursesRequest.getFilter().getEmail());
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getTimeZone()!=null)
+			userCoursesmap.put("timeZone", userCoursesRequest.getFilter().getTimeZone());
+		
+		if(userCoursesRequest.getSortBy()!=null){
+			userCoursesmap.put("sortBy", userCoursesRequest.getSortBy());
+			userCoursesmap.put("sortDirection", sortDirection);
+		}
+		
+		Page<LearnerEnrollment> page = learnerEnrollmentRepository.getLearnersEnrollment(request, userCoursesmap);
+		List<LearnerEnrollment> learnerCoursesList = new ArrayList<LearnerEnrollment>();
+		if(page != null)
+			learnerCoursesList = page.getContent();
+		
+		LearnersEnrollmentResponse objLER = new LearnersEnrollmentResponse();
+		List<EnrollmentInfo> lstEnrollment = new ArrayList<EnrollmentInfo>();
+		Map<String, ClassInfo> classes = new HashMap<String, ClassInfo>();
+		
+		for(LearnerEnrollment enrollment : learnerCoursesList ){
+			EnrollmentInfo objE = new EnrollmentInfo();
+			if(enrollment.getSynchronousClass()!=null){
+				objE.setClassId( "classId_" + enrollment.getSynchronousClass().getId());
+			}
+			objE.setEnrollmentId("enrollmentId_" + enrollment.getId());
+			objE.setEmail(enrollment.getLearner().getVu360User().getUsername());
+			objE.setUsername(enrollment.getLearner().getVu360User().getFirstName() + " " +enrollment.getLearner().getVu360User().getLastName());
+			lstEnrollment.add(objE);
+			
+			ClassInfo classInfo = new ClassInfo();
+			classInfo.setCourseName(enrollment.getCourse().getName());
+			
+			if(enrollment.getSynchronousClass()!=null){
+				classInfo.setStartDate(enrollment.getSynchronousClass().getClassStartDate());
+				classInfo.setEndDate(enrollment.getSynchronousClass().getClassEndDate());
+				classInfo.setTimeZone(enrollment.getSynchronousClass().getTimeZone().getCode());
+			}
+			classes.put( "classId_" + enrollment.getSynchronousClass().getId() , classInfo);
+		}
+		
+		objLER.setEnrollmentInfo(lstEnrollment);
+		objLER.setClasses(classes);
+		objLER.setPageNumber(page.getNumber()+1);
+		objLER.setPageSize(page.getSize());
+		objLER.setTotalPages(page.getTotalPages());
+		return objLER;
 	}
 	
 	//Reterive Store ID for the Learner.
