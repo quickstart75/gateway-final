@@ -7,10 +7,10 @@ public class LearnersEnrollmentResponse {
 	private int pageNumber;
 	private int pageSize;
 	private int totalPages;
-	
+	private long totalEnrollments;
 	
 	Map<String, ClassInfo> classes;
-	List<EnrollmentInfo> enrollmentInfo;
+	List<EnrollmentInfo> enrollments;
 	public int getPageNumber() {
 		return pageNumber;
 	}
@@ -35,13 +35,16 @@ public class LearnersEnrollmentResponse {
 	public void setClasses(Map<String, ClassInfo> classes) {
 		this.classes = classes;
 	}
-	public List<EnrollmentInfo> getEnrollmentInfo() {
-		return enrollmentInfo;
+	public List<EnrollmentInfo> getEnrollments() {
+		return enrollments;
 	}
-	public void setEnrollmentInfo(List<EnrollmentInfo> enrollmentInfo) {
-		this.enrollmentInfo = enrollmentInfo;
+	public void setEnrollments(List<EnrollmentInfo> enrollments) {
+		this.enrollments = enrollments;
 	}
-	
-	
-
+	public long getTotalEnrollments() {
+		return totalEnrollments;
+	}
+	public void setTotalEnrollments(long totalEnrollments) {
+		this.totalEnrollments = totalEnrollments;
+	}
 }

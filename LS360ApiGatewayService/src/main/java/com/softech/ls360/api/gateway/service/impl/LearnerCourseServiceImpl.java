@@ -7,9 +7,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,10 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
+import com.softech.ls360.api.gateway.service.VILTAttendanceService;
 import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
+import com.softech.ls360.api.gateway.service.model.response.Attendance;
 import com.softech.ls360.api.gateway.service.model.response.ClassInfo;
 import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
 import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
@@ -88,6 +92,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	
 	@Inject
 	LearnerEnrollmentRepository learnerEnrollmentRepository;
+	
+	@Inject
+	VILTAttendanceService vILTAttendanceService;
 	
 	@Value("${lcms.viewAssessment.url}")
 	private String viewAssessmentURL;
@@ -551,48 +558,52 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		
 		int pageNumber = userCoursesRequest.getPageNumber()-1;
 		int pageSize = userCoursesRequest.getPageSize();
-		//String searchText = "";
-		//if(userCoursesRequest.getSearchText()!=null)
-		//	searchText = userCoursesRequest.getSearchText();
-		
-		//String filter = "";
-		
-		//if(userCoursesRequest.getFilter()!=null)
-		//	filter = userCoursesRequest.getFilter();
 		
 		String sortDirection = "ASC";
-		if(userCoursesRequest.getSortDirection().equalsIgnoreCase("DESC"))
+		if(userCoursesRequest.getSortDirection()!=null && StringUtils.isNotBlank(userCoursesRequest.getSortDirection()) 
+				&& userCoursesRequest.getSortDirection().equalsIgnoreCase("DESC")){
 			sortDirection = userCoursesRequest.getSortDirection();
-		
+		}
 		
 		
 		PageRequest request = new PageRequest(pageNumber, pageSize);//, sortDirection, "learnerEnrollment.course.name");
 		Map<String, String> userCoursesmap = new HashMap<String, String>();
 		
-		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateFrom()!=null)
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateFrom()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateFrom()))
 			userCoursesmap.put("dateFrom", userCoursesRequest.getFilter().getDateFrom());
 		
-		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateTo()!=null)
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateTo()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateTo()))
 			userCoursesmap.put("dateTo", userCoursesRequest.getFilter().getDateTo());
 		
-		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getCourseName()!=null)
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getCourseName()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getCourseName()))
 			userCoursesmap.put("courseName", userCoursesRequest.getFilter().getCourseName());
 		
-		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getEmail()!=null)
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getEmail()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getEmail()))
 			userCoursesmap.put("email", userCoursesRequest.getFilter().getEmail());
 		
-		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getTimeZone()!=null)
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getTimeZone()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getTimeZone()))
 			userCoursesmap.put("timeZone", userCoursesRequest.getFilter().getTimeZone());
 		
-		if(userCoursesRequest.getSortBy()!=null){
+		if(userCoursesRequest.getSortBy()!=null && StringUtils.isNotBlank(userCoursesRequest.getSortBy())){
 			userCoursesmap.put("sortBy", userCoursesRequest.getSortBy());
-			userCoursesmap.put("sortDirection", sortDirection);
+			//userCoursesmap.put("sortDirection", sortDirection);
 		}
+		
+		
 		
 		Page<LearnerEnrollment> page = learnerEnrollmentRepository.getLearnersEnrollment(request, userCoursesmap);
 		List<LearnerEnrollment> learnerCoursesList = new ArrayList<LearnerEnrollment>();
 		if(page != null)
 			learnerCoursesList = page.getContent();
+		
+		//List<Long> enrollmentids = new ArrayList<Long>();
+		//for(LearnerEnrollment enrollmentforAttendance : learnerCoursesList ){
+		//	enrollmentids.add(enrollmentforAttendance.getId());
+		//}
+		
+		//if(enrollmentids.size()>0){
+		//	List<Object[]> lstattendance = vILTAttendanceService.findByEnrollmentIds( enrollmentids);
+		//}
 		
 		LearnersEnrollmentResponse objLER = new LearnersEnrollmentResponse();
 		List<EnrollmentInfo> lstEnrollment = new ArrayList<EnrollmentInfo>();
@@ -605,7 +616,30 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			}
 			objE.setEnrollmentId("enrollmentId_" + enrollment.getId());
 			objE.setEmail(enrollment.getLearner().getVu360User().getUsername());
-			objE.setUsername(enrollment.getLearner().getVu360User().getFirstName() + " " +enrollment.getLearner().getVu360User().getLastName());
+			objE.setName(enrollment.getLearner().getVu360User().getFirstName() + " " +enrollment.getLearner().getVu360User().getLastName());
+			
+			Attendance objAttendance = new Attendance();
+			objAttendance.setPercentage(0L);
+			try{
+				List<Object[]> lstattendance = vILTAttendanceService.findByEnrollmentIds( enrollment.getId());
+				
+				if(lstattendance.size()>0){
+					List date = new ArrayList();
+					for(Object[] objarr : lstattendance){
+						date.add(objarr[1]);
+					}
+					objAttendance.setDate(date);
+					if(enrollment.getSynchronousClass().getClassStartDate() != null && enrollment.getSynchronousClass().getClassEndDate()!=null){
+						long diff = enrollment.getSynchronousClass().getClassEndDate().getTime() - enrollment.getSynchronousClass().getClassStartDate().getTime();
+						long diff2 = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
+						
+						objAttendance.setPercentage( date.size() * 100 /diff2 );
+					}
+				}
+				objE.setAttendance(objAttendance);
+			}catch(Exception ex){
+				logger.error(ex);
+			}
 			lstEnrollment.add(objE);
 			
 			ClassInfo classInfo = new ClassInfo();
@@ -619,11 +653,12 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			classes.put( "classId_" + enrollment.getSynchronousClass().getId() , classInfo);
 		}
 		
-		objLER.setEnrollmentInfo(lstEnrollment);
+		objLER.setEnrollments(lstEnrollment);
 		objLER.setClasses(classes);
 		objLER.setPageNumber(page.getNumber()+1);
 		objLER.setPageSize(page.getSize());
 		objLER.setTotalPages(page.getTotalPages());
+		objLER.setTotalEnrollments(page.getTotalElements());
 		return objLER;
 	}
 	

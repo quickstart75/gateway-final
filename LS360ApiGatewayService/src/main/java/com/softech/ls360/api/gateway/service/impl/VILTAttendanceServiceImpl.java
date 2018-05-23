@@ -1,5 +1,7 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
@@ -16,5 +18,10 @@ public class VILTAttendanceServiceImpl implements VILTAttendanceService {
 	
 	public void addVILTAttendance(VILTAttendance viltAttendance){
 		//viltAttendanceRepository.sa
+	}
+	
+	public List<Object[]> findByEnrollmentIds( Long ids){
+		List<Object[]> lst = viltAttendanceRepository.findByEnrollmentIds(ids);
+		return lst;
 	}
 }

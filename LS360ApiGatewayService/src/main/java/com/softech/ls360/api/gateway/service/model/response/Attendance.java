@@ -5,7 +5,7 @@ import java.util.List;
 public class Attendance {
 
 	List date;
-	int percentage;
+	Long percentage;
 	
 	public List getDate() {
 		return date;
@@ -13,10 +13,10 @@ public class Attendance {
 	public void setDate(List date) {
 		this.date = date;
 	}
-	public int getPercentage() {
+	public Long getPercentage() {
 		return percentage;
 	}
-	public void setPercentage(int percentage) {
+	public void setPercentage(Long percentage) {
 		this.percentage = percentage;
 	}
 
