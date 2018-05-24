@@ -14,17 +14,16 @@ import javax.persistence.Table;
 @Table(name = "VILT_Attendance")
 public class VILTAttendance extends BaseEntity implements Serializable {
 	private static final long serialVersionUID = -8147590863224265540L;
-	private LearnerEnrollment learnerEnrollment;
+	private Long learnerEnrollmentId;
 	private Date attendanceDate;
 	
-	@OneToOne(fetch=FetchType.LAZY, optional=false)
-	@JoinColumn(name="LEARNERENROLLMENT_ID")
-	public LearnerEnrollment getLearnerEnrollment() {
-		return learnerEnrollment;
-	}
 	
-	public void setLearnerEnrollment(LearnerEnrollment learnerEnrollment) {
-		this.learnerEnrollment = learnerEnrollment;
+	@JoinColumn(name="LEARNERENROLLMENT_ID")
+	public Long getLearnerEnrollmentId() {
+		return learnerEnrollmentId;
+	}
+	public void setLearnerEnrollmentId(Long learnerEnrollmentId) {
+		this.learnerEnrollmentId = learnerEnrollmentId;
 	}
 	
 	@Column(name = "ATTENDANCE_DATE")
