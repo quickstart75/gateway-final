@@ -67,7 +67,8 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 
 	public Page<LearnerEnrollment> getLearnersEnrollment(Pageable pageable, Map<String, String> userCoursesRequest){
 		
-		StringBuilder queryString = new StringBuilder("SELECT le FROM LearnerEnrollment le JOIN le.course c JOIN le.learner l JOIN l.vu360User u JOIN  le.synchronousClass sc where le.synchronousClass IS NOT NULL "); 
+		StringBuilder queryString = new StringBuilder("SELECT le FROM LearnerEnrollment le JOIN le.course c "
+				+ "JOIN le.learner l JOIN l.vu360User u JOIN  le.synchronousClass sc Join sc.timeZone tz where le.synchronousClass IS NOT NULL "); 
 				
 		if(userCoursesRequest.get("dateFrom")!=null && StringUtils.isNotBlank( userCoursesRequest.get("dateFrom")))
 				queryString.append( " and sc.classStartDate>='" +userCoursesRequest.get("dateFrom")+ "' ");
@@ -78,24 +79,39 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 		if(userCoursesRequest.get("courseName")!=null && StringUtils.isNotBlank( userCoursesRequest.get("courseName")))
 			queryString.append( " and c.name like '%"+ userCoursesRequest.get("courseName")+"%' ");
 			
-		if(userCoursesRequest.get("email")!=null)
-			queryString.append( " and u.username ='" +userCoursesRequest.get("email")+ "' " );
+		if(StringUtils.isNotBlank( userCoursesRequest.get("email")))
+			queryString.append( " and u.username like '%" +userCoursesRequest.get("email")+"%' ");
+		
+		if(StringUtils.isNotBlank( userCoursesRequest.get("userName")))
+			queryString.append( " and u.firstName + u.lastName like '%"+ StringUtils.replace( userCoursesRequest.get("userName"), " ", "%") +"%' ");
+		
+		if(StringUtils.isNotBlank( userCoursesRequest.get("timeZone")))
+			queryString.append( " and tz.zone like '%"+userCoursesRequest.get("timeZone")+"%' ");
 		
 		
-		
-		if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("email"))
+		if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("username"))
+			queryString.append(" order by u.firstName ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("email"))
 			queryString.append(" order by u.username ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("courseName"))
+			queryString.append(" order by c.name ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("courseDuration"))
+			queryString.append(" order by sc.classStartDate ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("timeZone"))
+			queryString.append(" order by tz.zone ");
 		else
 			queryString.append(" order by le.id ");
 		
+		queryString.append(userCoursesRequest.get("sortDirection"));
+		
 		//if(userCoursesRequest.get("sortDirection")!=null)
 		//	queryString.append( " " + userCoursesRequest.get("sortDirection"));
-				/*
-				List<LearnerEnrollment> enrollments = entityManager.createQuery(queryString.toString(), LearnerEnrollment.class)
-				  .setMaxResults(pageable.getPageSize())
-				  .setFirstResult(pageable.getOffset())
-				  .getResultList();
-				*/
+		/*
+		List<LearnerEnrollment> enrollments = entityManager.createQuery(queryString.toString(), LearnerEnrollment.class)
+		  .setMaxResults(pageable.getPageSize())
+		  .setFirstResult(pageable.getOffset())
+		  .getResultList();
+		*/
 				TypedQuery<LearnerEnrollment> enrollments = entityManager.createQuery(queryString.toString(), LearnerEnrollment.class);
 				int total = enrollments.getResultList().size();
 				enrollments.setMaxResults(pageable.getPageSize());

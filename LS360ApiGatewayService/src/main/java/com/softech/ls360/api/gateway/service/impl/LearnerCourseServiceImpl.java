@@ -559,22 +559,15 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		int pageNumber = userCoursesRequest.getPageNumber()-1;
 		int pageSize = userCoursesRequest.getPageSize();
 		
-		String sortDirection = "ASC";
-		if(userCoursesRequest.getSortDirection()!=null && StringUtils.isNotBlank(userCoursesRequest.getSortDirection()) 
-				&& userCoursesRequest.getSortDirection().equalsIgnoreCase("DESC")){
-			sortDirection = userCoursesRequest.getSortDirection();
-		}
-		
-		
 		PageRequest request = new PageRequest(pageNumber, pageSize);//, sortDirection, "learnerEnrollment.course.name");
 		Map<String, String> userCoursesmap = new HashMap<String, String>();
 		
 		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateFrom()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateFrom()))
-			userCoursesmap.put("dateFrom", userCoursesRequest.getFilter().getDateFrom());
+			userCoursesmap.put("dateFrom", userCoursesRequest.getFilter().getDateFrom() + " 00:00:00");
 		
-		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateTo()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateTo()))
-			userCoursesmap.put("dateTo", userCoursesRequest.getFilter().getDateTo());
-		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateTo()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateTo())){
+			userCoursesmap.put("dateTo", userCoursesRequest.getFilter().getDateTo() + " 23:59:59");
+		}
 		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getCourseName()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getCourseName()))
 			userCoursesmap.put("courseName", userCoursesRequest.getFilter().getCourseName());
 		
@@ -584,12 +577,20 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getTimeZone()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getTimeZone()))
 			userCoursesmap.put("timeZone", userCoursesRequest.getFilter().getTimeZone());
 		
-		if(userCoursesRequest.getSortBy()!=null && StringUtils.isNotBlank(userCoursesRequest.getSortBy())){
-			userCoursesmap.put("sortBy", userCoursesRequest.getSortBy());
-			//userCoursesmap.put("sortDirection", sortDirection);
+		if(StringUtils.isNotBlank(userCoursesRequest.getFilter().getUserName()))
+			userCoursesmap.put("userName", userCoursesRequest.getFilter().getUserName());
+		
+		
+		String sortDirection = "Asc";
+		if(StringUtils.isNotBlank(userCoursesRequest.getSortDirection()) && userCoursesRequest.getSortDirection().equalsIgnoreCase("Desc")){
+			sortDirection = "Desc";
 		}
 		
+		if(StringUtils.isNotBlank(userCoursesRequest.getSortBy())){
+			userCoursesmap.put("sortBy", userCoursesRequest.getSortBy());
+		}
 		
+		userCoursesmap.put("sortDirection", sortDirection);
 		
 		Page<LearnerEnrollment> page = learnerEnrollmentRepository.getLearnersEnrollment(request, userCoursesmap);
 		List<LearnerEnrollment> learnerCoursesList = new ArrayList<LearnerEnrollment>();
@@ -648,7 +649,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			if(enrollment.getSynchronousClass()!=null){
 				classInfo.setStartDate(enrollment.getSynchronousClass().getClassStartDate());
 				classInfo.setEndDate(enrollment.getSynchronousClass().getClassEndDate());
-				classInfo.setTimeZone(enrollment.getSynchronousClass().getTimeZone().getCode());
+				classInfo.setTimeZone(enrollment.getSynchronousClass().getTimeZone().getZone());
 			}
 			classes.put( "classId_" + enrollment.getSynchronousClass().getId() , classInfo);
 		}

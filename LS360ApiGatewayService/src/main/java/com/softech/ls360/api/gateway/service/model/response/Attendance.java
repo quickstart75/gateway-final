@@ -1,10 +1,11 @@
 package com.softech.ls360.api.gateway.service.model.response;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Attendance {
 
-	List date;
+	List date =new ArrayList();
 	Long percentage;
 	
 	public List getDate() {
