@@ -2,6 +2,7 @@ package com.softech.ls360.api.gateway.service.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.softech.ls360.api.gateway.service.VILTAttendanceService;
 import com.softech.ls360.lms.repository.entities.VILTAttendance;
+import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.VILTAttendanceRepository;
 
 @Service
@@ -22,8 +24,12 @@ public class VILTAttendanceServiceImpl implements VILTAttendanceService {
 
 	@Inject
 	private VILTAttendanceRepository viltAttendanceRepository;
+	
+	@Inject
+	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
 	//private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
+	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	public void addVILTAttendance(HashMap<Long,List<String>> attendance){
 	
@@ -49,6 +55,8 @@ public class VILTAttendanceServiceImpl implements VILTAttendanceService {
 	    }
 		viltAttendanceRepository.deleteByEnrollmentIdIn(deleteAttendance);
 		viltAttendanceRepository.save(lstVILTAttendance);
+		learnerCourseStatisticsRepository.markCompletion(deleteAttendance, dtf.format(LocalDateTime.now()));
+		
 		
 	}
 	

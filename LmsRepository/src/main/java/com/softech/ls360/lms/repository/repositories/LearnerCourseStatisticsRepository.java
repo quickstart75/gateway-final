@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 
@@ -103,5 +105,11 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 			" and ls.STARTTIME>=DATEADD(DD, DATEDIFF(DY, 0, GETDATE()), -6) " ,
 	nativeQuery=true)
 	Long getAverageViewTimeByWeekByUserName(@Param("username") String username);
+    
+    @Modifying
+	@Transactional
+	@Query(value="update LearnerCourseStatistics set COMPLETIONDATE=:completionDate,COMPLETED = 1,STATUS = 'completed' where LEARNERENROLLMENT_ID in :enrollmentIds", nativeQuery = true )
+	void markCompletion(@Param("enrollmentIds") List<Long> enrollmentIds,@Param("completionDate") String completionDate);
+
 
 }
