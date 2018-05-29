@@ -90,7 +90,7 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 		
 		
 		if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("username"))
-			queryString.append(" order by u.firstName, u.lastName ");
+			queryString.append(" order by u.firstName ");
 		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("email"))
 			queryString.append(" order by u.username ");
 		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("courseName"))
