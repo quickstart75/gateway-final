@@ -99,7 +99,7 @@ public class Course extends AuditedEntity implements Serializable {
 	private LocalDateTime courseExpiration;
 	private LocalDateTime lastPublishedDate;
 	private String durationUnit;
-	
+	private String supplementCourseId;
 	//@OneToOne
 //	@Fetch(FetchMode.JOIN)
 	
@@ -608,6 +608,15 @@ public class Course extends AuditedEntity implements Serializable {
 
 	public void setDurationUnit(String durationUnit) {
 		this.durationUnit = durationUnit;
+	}
+
+	@Column(name = "SUPPLEMENT_COURSE_ID")
+	public String getSupplementCourseId() {
+		return supplementCourseId;
+	}
+
+	public void setSupplementCourseId(String supplementCourseId) {
+		this.supplementCourseId = supplementCourseId;
 	}
 
 	/**/

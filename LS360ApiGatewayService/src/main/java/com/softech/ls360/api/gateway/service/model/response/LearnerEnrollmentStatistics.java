@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class LearnerEnrollmentStatistics   {
   
   private String certificateURI = null;
+  private String recordedClassLaunchURI=null;
   private LocalDateTime completionDate = null;
   private String courseGUID = null;
   private String courseImage = null;
@@ -57,7 +58,15 @@ public class LearnerEnrollmentStatistics   {
   }
 
 
-  /**
+  public String getRecordedClassLaunchURI() {
+	return recordedClassLaunchURI;
+}
+
+public void setRecordedClassLaunchURI(String recordedClassLaunchURI) {
+	this.recordedClassLaunchURI = recordedClassLaunchURI;
+}
+
+/**
    * Date on which course was completed.
    **/
   public LearnerEnrollmentStatistics completionDate(LocalDateTime completionDate) {

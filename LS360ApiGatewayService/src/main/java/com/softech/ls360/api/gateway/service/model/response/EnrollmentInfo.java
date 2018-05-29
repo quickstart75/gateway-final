@@ -2,16 +2,16 @@ package com.softech.ls360.api.gateway.service.model.response;
 
 public class EnrollmentInfo {
 	
-	 private String enrollmentId;
+	 private Long enrollmentId;
 	 private String classId;
 	 private String name;
 	 private String email;
 	 private Attendance attendance;
 	 
-	public String getEnrollmentId() {
+	public Long getEnrollmentId() {
 		return enrollmentId;
 	}
-	public void setEnrollmentId(String enrollmentId) {
+	public void setEnrollmentId(Long enrollmentId) {
 		this.enrollmentId = enrollmentId;
 	}
 	public String getClassId() {

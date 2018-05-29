@@ -1,8 +1,14 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.text.DateFormat;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,7 +66,8 @@ import com.softech.ls360.util.datetime.TimeConverter;
 
 @Service
 public class LearnerCourseServiceImpl implements LearnerCourseService {
-
+	
+	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	private static final Logger logger = LogManager.getLogger();
 
 	@Inject
@@ -96,6 +103,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	@Inject
 	VILTAttendanceService vILTAttendanceService;
 	
+	@Inject
+	VILTAttendanceService VILTAttendanceService;
+	
 	@Value("${lcms.viewAssessment.url}")
 	private String viewAssessmentURL;
 	
@@ -104,6 +114,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	
 	@Value("${lms.launch.course.url}")
 	private String launchCourseURL;
+	
+	@Value("${lms.recordedClassLaunchURI.url}")
+	private String recordedClassLaunchURI;
 	
 	@Value("${lab.password}")
 	private String labPassword;
@@ -379,6 +392,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			else
 				learnerCourse.setCertificateURI("");
 			
+			
 			learnerCourse.setCompletionDate(lcs.getCompletionDate());
 			learnerCourse.setCourseGUID(lcs.getLearnerEnrollment().getCourse().getCourseGuid());
 			
@@ -422,6 +436,15 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				com.softech.ls360.lms.repository.entities.Course crs = lcs.getLearnerEnrollment().getCourse();
 				ClassroomStatistics classroomStatistics = classroomCourseService.getClassroomStatistics(classId,crs);
 				learnerCourse.setClassroomStatistics(classroomStatistics);
+				
+				// set the recorded Class Launch URI link for vilt course
+				Calendar cal = Calendar.getInstance();
+				List<Object[]> attendance = vILTAttendanceService.findByEnrollmentIds(lcs.getLearnerEnrollment().getId());
+				Date classEndDate = lcs.getLearnerEnrollment().getSynchronousClass().getClassEndDate();
+					if(attendance.size()>0 && classEndDate!=null && cal.getTime().after(classEndDate) 
+							&& StringUtils.isNotBlank(lcs.getLearnerEnrollment().getCourse().getSupplementCourseId())){
+						learnerCourse.setRecordedClassLaunchURI( MessageFormat.format(recordedClassLaunchURI, lcs.getLearnerEnrollment().getCourse().getSupplementCourseId()));
+					}
 				}
 				
 			}
@@ -615,7 +638,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			if(enrollment.getSynchronousClass()!=null){
 				objE.setClassId( "classId_" + enrollment.getSynchronousClass().getId());
 			}
-			objE.setEnrollmentId("enrollmentId_" + enrollment.getId());
+			objE.setEnrollmentId(enrollment.getId());
 			objE.setEmail(enrollment.getLearner().getVu360User().getUsername());
 			objE.setName(enrollment.getLearner().getVu360User().getFirstName() + " " +enrollment.getLearner().getVu360User().getLastName());
 			
@@ -627,9 +650,13 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				if(lstattendance.size()>0){
 					List date = new ArrayList();
 					for(Object[] objarr : lstattendance){
-						date.add(objarr[1]);
+						try{
+							date.add(dateFormat.format(objarr[1]));
+						}catch(Exception ex){logger.error(" error in parsing date for attendance" + ex.getMessage());}
 					}
-					objAttendance.setDate(date);
+					objAttendance.setDate( date);
+					
+					
 					if(enrollment.getSynchronousClass().getClassStartDate() != null && enrollment.getSynchronousClass().getClassEndDate()!=null){
 						long diff = enrollment.getSynchronousClass().getClassEndDate().getTime() - enrollment.getSynchronousClass().getClassStartDate().getTime();
 						long diff2 = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
@@ -647,8 +674,20 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			classInfo.setCourseName(enrollment.getCourse().getName());
 			
 			if(enrollment.getSynchronousClass()!=null){
-				classInfo.setStartDate(enrollment.getSynchronousClass().getClassStartDate());
-				classInfo.setEndDate(enrollment.getSynchronousClass().getClassEndDate());
+				try {
+					if(enrollment.getSynchronousClass().getClassStartDate()!=null)
+						classInfo.setStartDate(dateFormat.format(enrollment.getSynchronousClass().getClassStartDate()));
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+				}
+				
+				try {
+					if(enrollment.getSynchronousClass().getClassEndDate()!=null)
+						classInfo.setEndDate(dateFormat.format(enrollment.getSynchronousClass().getClassEndDate()));
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+				}
+				
 				classInfo.setTimeZone(enrollment.getSynchronousClass().getTimeZone().getZone());
 			}
 			classes.put( "classId_" + enrollment.getSynchronousClass().getId() , classInfo);

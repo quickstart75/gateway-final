@@ -4,8 +4,8 @@ import java.util.Date;
 
 public class ClassInfo {
 	String courseName;
-	Date startDate;
-	Date endDate;
+	String startDate;
+	String endDate;
 	String timeZone;
 	public String getCourseName() {
 		return courseName;
@@ -13,16 +13,16 @@ public class ClassInfo {
 	public void setCourseName(String courseName) {
 		this.courseName = courseName;
 	}
-	public Date getStartDate() {
+	public String getStartDate() {
 		return startDate;
 	}
-	public void setStartDate(Date startDate) {
+	public void setStartDate(String startDate) {
 		this.startDate = startDate;
 	}
-	public Date getEndDate() {
+	public String getEndDate() {
 		return endDate;
 	}
-	public void setEndDate(Date endDate) {
+	public void setEndDate(String endDate) {
 		this.endDate = endDate;
 	}
 	public String getTimeZone() {
