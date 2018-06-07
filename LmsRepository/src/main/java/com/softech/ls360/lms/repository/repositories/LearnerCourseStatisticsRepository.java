@@ -106,10 +106,19 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 	nativeQuery=true)
 	Long getAverageViewTimeByWeekByUserName(@Param("username") String username);
     
+    /*
     @Modifying
 	@Transactional
 	@Query(value="update LearnerCourseStatistics set COMPLETIONDATE=:completionDate,COMPLETED = 1,STATUS = 'completed' where LEARNERENROLLMENT_ID in :enrollmentIds", nativeQuery = true )
 	void markCompletion(@Param("enrollmentIds") List<Long> enrollmentIds,@Param("completionDate") String completionDate);
+    */
+    
+    @Modifying
+   	@Transactional
+   	@Query(value="update LearnerCourseStatistics set COMPLETIONDATE=:completionDate, COMPLETED = 1, STATUS = 'completed', TOTALTIMEINSECONDS=:totalTimeSpent where LEARNERENROLLMENT_ID = :enrollmentIds", nativeQuery = true )
+   	void markCompletionAndTotalTimeSpent(@Param("enrollmentIds") Long enrollmentIds, @Param("completionDate") String completionDate, @Param("totalTimeSpent") Long totalTimeSpent);
 
+    
+    
 
 }

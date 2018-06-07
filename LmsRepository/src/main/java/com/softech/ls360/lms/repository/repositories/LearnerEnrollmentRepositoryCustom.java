@@ -19,4 +19,6 @@ public interface LearnerEnrollmentRepositoryCustom {
 	List<Enrollments> findByUserNameAndCoursesGuid(String userName, List<String> coursesGuid) throws Exception;
 	
 	Page<LearnerEnrollment> getLearnersEnrollment(Pageable pageable, Map<String, String> userCoursesRequest);
+	
+	public List<Object[]> getROIAnalytics(long customerId, long distributorId);
 }

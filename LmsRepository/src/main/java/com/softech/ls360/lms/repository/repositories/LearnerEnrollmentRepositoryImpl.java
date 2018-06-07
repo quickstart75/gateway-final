@@ -120,5 +120,74 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 				
 		return page;
 	}
+	
+	public List<Object[]> getROIAnalytics(long customerId, long distributorId){
+		StringBuffer query = new StringBuffer(" select " );
+		query.append(" ( ");
+		query.append(" select isnull(sum(TOTALTIMEINSECONDS),0)  from LEARNERCOURSESTATISTICS lcs ");
+		query.append(" inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID ");
+		query.append(" inner join learner l on l.id = le.learner_id ");
+		query.append(" inner join customer c on c.id = l.customer_id ");
+		query.append(" where c.distributor_id=:distributorId ");
+		query.append(" ) totalSystemTimeSpent ,");
+		
+		query.append(" ( ");
+		query.append(" select isnull(sum(TOTALTIMEINSECONDS),0)  from LEARNERCOURSESTATISTICS lcs ");
+		query.append(" inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID ");
+		query.append(" inner join learner l on l.id = le.learner_id ");
+		query.append(" where l.customer_id=:customerId ");
+		query.append(" ) totalOrgTimeSpent , ");
+		
+		query.append(" ( ");
+		query.append(" select count(le.id) from LEARNERENROLLMENT le ");
+		query.append(" inner join learner l on l.id = le.learner_id ");
+		query.append(" where l.customer_id=:customerId  ");
+		query.append(" ) totalOrgEnrollment, ");
+		
+		query.append(" ( ");
+		query.append(" select count(lcs.id) from LEARNERCOURSESTATISTICS lcs ");
+		query.append(" inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID ");
+		query.append(" inner join learner l on l.id = le.learner_id ");
+		query.append(" where l.customer_id=:customerId ");
+		query.append(" and (lcs.status ='completed')) as totalCompletedcourse, ");
+		
+		query.append(" ( ");
+		query.append(" select count(lcs.id) from LEARNERCOURSESTATISTICS lcs ");
+		query.append(" inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID ");
+		query.append(" inner join learner l on l.id = le.learner_id ");
+		query.append(" where l.customer_id=:customerId  ");
+		query.append(" and (lcs.status ='inprogress' or lcs.status ='notstarted') ");
+		query.append(" ) as totalActivecourses, ");
+		
+		query.append(" ( ");
+		query.append(" select count(l.id) from learner l ");
+		query.append(" inner join customer c on c.id = l.customer_id ");
+		query.append(" where c.distributor_id=:distributorId ");
+		query.append(" ) as totalSystemlearner, ");
+		
+		query.append(" ( ");
+		query.append(" select count(l.id) from learner l where l.customer_id=:customerId ) as totalOrglearner,");
+		
+		query.append(" ( ");
+		query.append(" select count(u.id) from vu360user u ");
+		query.append(" inner join learner l on u.id = l.id where l.customer_id=:customerId ");
+		query.append(" and month(u.createddate)=month(GETDATE ( )) ");
+		query.append(" and year(u.createddate)=year(GETDATE ( )) ");
+		query.append(" ) as totalCurrentMonthLearnerCount, ");
+		
+		query.append(" ( ");
+		query.append(" select count(u.id) from vu360user u ");
+		query.append(" inner join learner l on u.id = l.id ");
+		query.append(" where l.customer_id=:customerId ");
+		query.append(" and DATEPART(m, createddate) = DATEPART(m, DATEADD(m, -1, getdate())) ");
+		query.append(" AND DATEPART(yyyy, createddate) = DATEPART(yyyy, DATEADD(m, -1, getdate())) ");
+		query.append(" ) as totalPreviousMonthLearnerCount ");
+		
+		Query objquery = entityManager.createNativeQuery(query.toString());
+		objquery.setParameter("customerId", customerId);
+		objquery.setParameter("distributorId", distributorId);
+		List<Object[]> ROIAnalytics = objquery.getResultList();
+		return ROIAnalytics;
+	}
 }
 

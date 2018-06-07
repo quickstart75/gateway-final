@@ -57,14 +57,7 @@ public class GlobalBatchImportRestEndPoint {
 		 String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		 logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>>0" );
 		 try {
-	        	
-
-	            
-	            //HttpEntity requestData = new HttpEntity(restRequest, headers);
-	            //StringBuffer location = new StringBuffer();
-	            //location.append(env.getProperty("lmsapi.rest.manager.uri").trim()).append("batchImport");
-	            //restTemplate.postForEntity(location.toString(), requestData, Void.class);
-			   logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 1" +  restRequest.getFilePath());
+			 	logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 1" +  restRequest.getFilePath());
 	            GlobalBatchImportParamSerialized obj =new GlobalBatchImportParamSerialized(username, restRequest.getFilePath(),restRequest.getAction());
 	            messageSenderService.sendMessage(obj);
 	            logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 2" );
@@ -73,14 +66,14 @@ public class GlobalBatchImportRestEndPoint {
 		        return responseData;
 	        
 	        }catch(UncategorizedJmsException e){
-	        	logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 3" );
+	        	logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> UncategorizedJmsException 3" + e.getMessage() );
 	        	BatchimportFailure objBIF = new BatchimportFailure(restRequest.getFilePath(), restRequest.getAction(), username, false);
 	        	messageSenderService.saveBatchimportFailure(objBIF);
 	        	responseData.put("status", Boolean.FALSE.toString());
 	        	responseData.put("message", "ActiveMQ is not working. Record is saved into database");
 	        	return responseData;
 	        }catch(Exception e){
-	        	logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 4" );
+	        	logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 4" + e.getMessage());
 	        	responseData.put("status", Boolean.FALSE.toString());
 	        	return responseData;
 	        }

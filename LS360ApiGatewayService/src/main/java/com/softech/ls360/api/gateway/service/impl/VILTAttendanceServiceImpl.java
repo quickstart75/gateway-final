@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.softech.ls360.api.gateway.service.VILTAttendanceService;
@@ -27,7 +28,9 @@ public class VILTAttendanceServiceImpl implements VILTAttendanceService {
 	
 	@Inject
 	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
-	//private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	
+	@Value( "${clasroomcourse.class.duration}" )
+    private String classDuration;
 	
 	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
@@ -55,8 +58,15 @@ public class VILTAttendanceServiceImpl implements VILTAttendanceService {
 	    }
 		viltAttendanceRepository.deleteByEnrollmentIdIn(deleteAttendance);
 		viltAttendanceRepository.save(lstVILTAttendance);
-		learnerCourseStatisticsRepository.markCompletion(deleteAttendance, dtf.format(LocalDateTime.now()));
+		//learnerCourseStatisticsRepository.markCompletion(deleteAttendance, dtf.format(LocalDateTime.now()));
 		
+		// add new loop here
+		for (Map.Entry<Long,List<String>> entry : attendance.entrySet()) {
+			Long enrollmentId = entry.getKey();
+			List<String> attendanceDate = entry.getValue();
+			Long totalTimeSpent = (long) (attendanceDate.size() * Long.valueOf(classDuration) * 60 * 60) ;
+			learnerCourseStatisticsRepository.markCompletionAndTotalTimeSpent(enrollmentId, dtf.format(LocalDateTime.now()), totalTimeSpent);
+		}
 		
 	}
 	
