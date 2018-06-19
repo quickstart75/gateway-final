@@ -73,4 +73,9 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		
 		return response;
 	}
+	
+	@Override
+	public void updateLearnerEnrollmentStatus(String status, List<Long> enrollmentIds){
+		learnerEnrollmentRepository.updateEnrollmentStatus( status, enrollmentIds);
+	}
 }

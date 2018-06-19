@@ -11,4 +11,6 @@ public interface LearnerEnrollmentService {
 
 	List<Course> getLearnerEnrollmentCourses(Long learnerId, Collection<String> enrollmentStatus, LocalDateTime dateTime) throws Exception;
 	ROIAnalyticsResponse getROIAnalytics(long customerId, long distributorId);
+	void updateLearnerEnrollmentStatus(String status, List<Long> enrollmentIds);
+	
 }
