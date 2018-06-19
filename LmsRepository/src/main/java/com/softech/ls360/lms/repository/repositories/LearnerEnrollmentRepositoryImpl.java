@@ -68,7 +68,7 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 	public Page<LearnerEnrollment> getLearnersEnrollment(Pageable pageable, Map<String, String> userCoursesRequest){
 		
 		StringBuilder queryString = new StringBuilder("SELECT le FROM LearnerEnrollment le JOIN le.course c "
-				+ "JOIN le.learner l JOIN l.vu360User u JOIN  le.synchronousClass sc Join sc.timeZone tz where le.synchronousClass IS NOT NULL "); 
+				+ "JOIN le.learner l JOIN l.vu360User u JOIN  le.synchronousClass sc Join sc.timeZone tz where le.enrollmentStatus='"+LearnerEnrollment.ACTIVE+"' and  le.synchronousClass IS NOT NULL "); 
 				
 		if(userCoursesRequest.get("dateFrom")!=null && StringUtils.isNotBlank( userCoursesRequest.get("dateFrom")))
 				queryString.append( " and sc.classStartDate>='" +userCoursesRequest.get("dateFrom")+ "' ");
@@ -141,14 +141,14 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 		query.append(" ( ");
 		query.append(" select count(le.id) from LEARNERENROLLMENT le ");
 		query.append(" inner join learner l on l.id = le.learner_id ");
-		query.append(" where l.customer_id=:customerId  ");
+		query.append(" where l.customer_id=:customerId and le.enrollmentstatus='Active' ");
 		query.append(" ) totalOrgEnrollment, ");
 		
 		query.append(" ( ");
 		query.append(" select count(lcs.id) from LEARNERCOURSESTATISTICS lcs ");
 		query.append(" inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID ");
 		query.append(" inner join learner l on l.id = le.learner_id ");
-		query.append(" where l.customer_id=:customerId ");
+		query.append(" where l.customer_id=:customerId and le.enrollmentstatus='Active' ");
 		query.append(" and (lcs.status ='completed')) as totalCompletedcourse, ");
 		
 		query.append(" ( ");
@@ -156,7 +156,7 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 		query.append(" inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID ");
 		query.append(" inner join learner l on l.id = le.learner_id ");
 		query.append(" where l.customer_id=:customerId  ");
-		query.append(" and (lcs.status ='inprogress' or lcs.status ='notstarted') ");
+		query.append(" and (lcs.status ='inprogress' or lcs.status ='notstarted') and le.enrollmentstatus='Active' ");
 		query.append(" ) as totalActivecourses, ");
 		
 		query.append(" ( ");

@@ -30,7 +30,7 @@ public class ManagerAnalyticsRestEndPoint {
 	@Value( "${megasite.distributor.id}" )
     private String megasiteDistributorId;
 	
-	@RequestMapping(value = "/roi-analytics", method = RequestMethod.POST)
+	@RequestMapping(value = "/roi-analytics", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<Object, Object> roiAnalytics() throws Exception {
 		Map<Object, Object> map = new HashMap<Object, Object>();

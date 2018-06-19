@@ -1,8 +1,10 @@
 package com.softech.ls360.api.gateway.endpoint.restful;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -20,9 +22,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
+import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
+import com.softech.ls360.api.gateway.service.model.request.UpdateEnrollmentStatusRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
 import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerClassroomDetailResponse;
@@ -46,6 +50,9 @@ public class EnrollmentRestEndpoint {
 	
 	@Inject
 	private ClassroomCourseService classroomCourseService;
+	
+	@Inject
+	private LearnerEnrollmentService learnerEnrollmentService;
 	
 	@RequestMapping(value = "/customer/learner/enroll", method = RequestMethod.POST)
 	@ResponseBody
@@ -108,7 +115,7 @@ public class EnrollmentRestEndpoint {
 	
 	@RequestMapping(value = "/admin/vilt/enrollments", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<Object, Object> learnerEnrollment(@RequestBody LearnersEnrollmentRequest user
+	public Map<Object, Object> getViltLearnerEnrollment(@RequestBody LearnersEnrollmentRequest user
 			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
 		
 		Map<Object, Object> map = new HashMap<Object, Object>();
@@ -123,6 +130,32 @@ public class EnrollmentRestEndpoint {
 			
 	}
 	
+	@RequestMapping(value = "/customer/enrollment/status", method = RequestMethod.PUT)
+	@ResponseBody
+	public Map<Object, Object> updateEnrollmentStatus(@RequestBody UpdateEnrollmentStatusRequest enrolRequest) {
+		
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		logger.info("Request received at " + getClass().getName() + " /customer/enrollment/status ");
+		
+		Map<String, String> enrollStatuses = new HashMap<String, String>();
+		enrollStatuses.put("active", "Active");
+		enrollStatuses.put("dropped", "Dropped");
+		enrollStatuses.put("expired", "Expired");
+		enrollStatuses.put("swapped", "Swapped");
+		
+		if(enrolRequest.getStatus()!=null && enrollStatuses.containsKey(enrolRequest.getStatus().toLowerCase())){
+			learnerEnrollmentService.updateLearnerEnrollmentStatus(enrollStatuses.get(enrolRequest.getStatus().toLowerCase()), enrolRequest.getEnrollmentId());
+			map.put("status", Boolean.TRUE);
+			map.put("message", "success");
+		}else{
+			map.put("status", Boolean.FALSE);
+			map.put("message", "Failure! given status is not correct.");
+		}
+		
+		
+		return map;
+			
+	}
 	@RequestMapping(value = "/learner/classroom/details/{enrollmentId}", method = RequestMethod.GET)
 	@ResponseBody
 	public LearnerClassroomDetailResponse learnerClassroomDetails(@PathVariable("enrollmentId") long enrollmentId) throws Exception {
