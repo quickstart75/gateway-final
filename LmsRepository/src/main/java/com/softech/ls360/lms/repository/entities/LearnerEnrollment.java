@@ -33,7 +33,6 @@ public class LearnerEnrollment extends BaseEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String ACTIVE = "Active";
-	public static final String DROPPED = "Dropped";
 	
 	private LocalDateTime enrollmentDate;
 	private LocalDateTime courseStartDate;

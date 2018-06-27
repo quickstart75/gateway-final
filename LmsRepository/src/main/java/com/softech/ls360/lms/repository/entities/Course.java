@@ -53,7 +53,7 @@ public class Course extends AuditedEntity implements Serializable {
 	private String code;
 	private String description;
 	private String courseGuid;
-	private String courseGuide;
+	//private String courseGuide;
 	private Integer assetId;
 	private String deliveryMethod;
 	private String topicsCovered;
@@ -214,6 +214,7 @@ public class Course extends AuditedEntity implements Serializable {
 		this.courseGuid = courseGuid;
 	}
 
+	/*
 	public String getCourseGuide() {
 		return courseGuide;
 	}
@@ -221,7 +222,7 @@ public class Course extends AuditedEntity implements Serializable {
 	public void setCourseGuide(String courseGuide) {
 		this.courseGuide = courseGuide;
 	}
-
+	 */
 	@Column(name = "ASSET_ID")
 	public Integer getAssetId() {
 		return assetId;

@@ -33,5 +33,12 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
    	@Query(value="update LEARNERENROLLMENT set ENROLLMENTSTATUS=:status  where ID in :ids", nativeQuery = true )
    	void updateEnrollmentStatus(@Param("status") String status, @Param("ids") List<Long> ids);
 
+	@Query(value=" select c.guid from course c   inner join learnerenrollment le on le.course_id = c.id inner join learner l on l.id = le.learner_id where customer_id=:customer_id", nativeQuery = true )
+	List<Object[]> findByLearner_Customer_Id(@Param("customer_id") long customer_id );
 	
+	@Query(value=" select count(le.id) from learnerenrollment le inner join course c " +
+				 " on c.id=le.course_id inner join learner l "+
+			     " on l.id = le.learner_id where customer_id=:customer_id " 
+				 + "and c.guid in :courseguid  ", nativeQuery = true )
+	Long countByCourseGuidByCustomerId(@Param("customer_id") long customer_id, @Param("courseguid") List<String> allGuid);
 }

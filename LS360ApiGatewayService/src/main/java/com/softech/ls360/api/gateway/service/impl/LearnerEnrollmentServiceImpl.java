@@ -1,17 +1,32 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
+import com.softech.ls360.api.gateway.service.model.request.FocusRequest;
+import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsEnrollment;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsLearner;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse;
@@ -22,7 +37,11 @@ import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository
 
 @Service
 public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
-
+	private static final Logger logger = LogManager.getLogger();
+	
+	@Value( "${api.magento.baseURL}" )
+    private String magentoBaseURL;
+	
 	@Inject
 	private LearnerEnrollmentRepository learnerEnrollmentRepository;
 	
@@ -77,5 +96,86 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	@Override
 	public void updateLearnerEnrollmentStatus(String status, List<Long> enrollmentIds){
 		learnerEnrollmentRepository.updateEnrollmentStatus( status, enrollmentIds);
+	}
+	
+	@Override
+	public List<String> getEnrolledCoursesGUIDByCustomer(long customerId){
+		List<String> lstCourseguids = new ArrayList<String>();
+		List<Object[]> lstEnrollment = learnerEnrollmentRepository.findByLearner_Customer_Id(customerId);
+		
+		for (Object objenrollment : lstEnrollment) {
+			lstCourseguids.add(objenrollment.toString());
+		}
+		return lstCourseguids;
+	}
+	
+	@Override
+	public List<FocusResponse> getEnrolledCoursesPercentageByTopicByCustomer(long customerId, List<String> EnrolledCoursesGUID){
+		FocusRequest objRequest = new FocusRequest();
+	    objRequest.setSku(EnrolledCoursesGUID);
+	    
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+      
+        HttpEntity requestData = new HttpEntity(objRequest, headers);
+        StringBuffer location = new StringBuffer();
+        location.append(magentoBaseURL + "rest/default/V1/itskills-manager/focusbasecat");
+        
+        logger.info("---Focus API magento >>>>>>>>>>>>>>>>>>>>> service call .." + location.toString());
+       
+        ResponseEntity<Object> returnedData = restTemplate.postForEntity(location.toString(), requestData ,Object.class);
+      
+        List <Object> magentoAPiResponse = (List <Object>)returnedData.getBody();
+      if(magentoAPiResponse==null)
+    	  return new ArrayList<FocusResponse>();
+    			  
+        LinkedHashMap<String, Object> mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
+        
+        if(mapAPiResponse==null)
+      	  return  new ArrayList<FocusResponse>();;
+        
+        List<FocusResponse> lstFocusResponse = (List<FocusResponse>)mapAPiResponse.get("result");
+        
+        if(lstFocusResponse==null)
+        	  return  new ArrayList<FocusResponse>();;
+        
+        Long totalEnrollment=0l;
+        List<FocusResponse> lstFocusResponse3 = new ArrayList<FocusResponse>();
+        
+         
+        Map<String, Long> mapEnrollmentCounts = new HashMap<String, Long>();
+        for(Object lhm : lstFocusResponse){
+        	LinkedHashMap map= (LinkedHashMap) lhm;
+        	FocusResponse obj = new FocusResponse();
+    		obj.setCategoryName(map.get("categoryName").toString());
+    		ArrayList al1 = new ArrayList();
+            al1 = (ArrayList) map.get("sku");
+    		obj.setSku(al1);
+    		lstFocusResponse3.add(obj);
+    		
+    		Long lstEnrollmentCounts = learnerEnrollmentRepository.countByCourseGuidByCustomerId(customerId, al1);
+    		mapEnrollmentCounts.put(map.get("categoryName").toString(), lstEnrollmentCounts);
+    		totalEnrollment +=lstEnrollmentCounts;
+        }
+		
+       
+		
+		
+		calculatePercentageByTopic(lstFocusResponse3, mapEnrollmentCounts, totalEnrollment);
+		return lstFocusResponse3;
+	}
+
+	void calculatePercentageByTopic(List<FocusResponse> lstFocusResponse, Map<String, Long> mapEnrollmentCounts, Long totalEnrollment){
+		for(FocusResponse focusResponse : lstFocusResponse){
+			
+			float countByCategory=0;
+					countByCategory += mapEnrollmentCounts.get(focusResponse.getCategoryName());
+			if(totalEnrollment <=  0){
+				focusResponse.setPercentage(0);
+			}else{
+				focusResponse.setPercentage(Double.parseDouble (String.format ("%.1f",((countByCategory/totalEnrollment) * 100))));
+			}
+		}
 	}
 }
