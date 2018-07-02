@@ -23,4 +23,6 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
 			" inner join vu360user u on u.id = su.vu360user_id " +
 			" where u.username=?1 ", nativeQuery = true)
 	List<Object[]> findSubscriptionNameByUsername(String username);
+	
+	List<Subscription> findByCustomerEntitlement_Customer_id(Long customerId);
 }

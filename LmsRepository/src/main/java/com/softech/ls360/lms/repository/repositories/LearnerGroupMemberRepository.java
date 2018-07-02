@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.lms.repository.entities.LearnerGroupMember;
 import com.softech.ls360.lms.repository.entities.LearnerGroupMemberPK;
-import com.softech.ls360.lms.repository.projection.VU360UserProjection;
+import com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection;
 import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
 
 
@@ -37,6 +37,32 @@ public interface LearnerGroupMemberRepository extends CrudRepository<LearnerGrou
 			+" where c.id = :customerId "
 			+" and lg.id is null ")
 	public List<VU360UserDetailProjection> findByCustomer(@Param("customerId") Long customerId);
+	
+	
+	
+	@Query(" select new com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection(c.courseGuid, c.name, le.id ) "
+			+" from Learner l  "
+			+" join VU360User vu on vu.id = l.vu360User.id "
+			+" join Customer cus on cus.id = l.customer.id "
+			+" join LearnerEnrollment le on  l.id = le.learner.id "
+			
+			+" join Course c on  c.id = le.course.id "
+			+" where cus.id = :customerId and le.subscription.id is not null and le.enrollmentStatus='Active' "
+			+" order by  c.courseGuid ")
+	public List<EnrollmentCoursesProjection> getEnrollmentCoursesByCustomer (@Param("customerId") Long customerId);
+	
+	
+	@Query(" select new com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection(c.courseGuid, c.name, le.id ) "
+			+" from LearnerGroupMember lp "
+			+" join Learner l on l.id = lp.learner.id "
+			+" join VU360User vu on vu.id = l.vu360User.id "
+			+" join LearnerEnrollment le on  l.id = le.learner.id "
+			
+			+" join Course c on  c.id = le.course.id "
+			+" where lp.learnerGroup.id  in ( :learnerGroupIds ) and le.subscription.id is not null and le.enrollmentStatus='Active' "
+			+" order by  c.courseGuid ")
+	public List<EnrollmentCoursesProjection> getEnrollmentCourses(@Param("learnerGroupIds") List<Long> learnerGroupIds);
+	
 	
 	
 	public LearnerGroupMember findFirstByLearner_Vu360User_Username(String username);

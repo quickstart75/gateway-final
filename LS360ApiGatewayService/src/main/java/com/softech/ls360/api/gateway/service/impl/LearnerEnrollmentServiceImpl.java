@@ -1,6 +1,5 @@
 package com.softech.ls360.api.gateway.service.impl;
 
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,8 +15,10 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,25 @@ import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.request.FocusRequest;
+import com.softech.ls360.api.gateway.service.model.request.SavingRequest;
 import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsEnrollment;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsLearner;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsTimeSpent;
+import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingCourses;
+import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingMagentoCourses;
+import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingMagentoResponse;
+import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
+import com.softech.ls360.api.gateway.service.model.response.UserGroupRest;
 import com.softech.ls360.lms.repository.entities.Course;
+import com.softech.ls360.lms.repository.entities.LearnerGroup;
+import com.softech.ls360.lms.repository.entities.Subscription;
+import com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection;
 import com.softech.ls360.lms.repository.projection.learner.enrollment.LearnerEnrollmentCourses;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
+import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
+import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
 @Service
 public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
@@ -44,6 +56,15 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	
 	@Inject
 	private LearnerEnrollmentRepository learnerEnrollmentRepository;
+	
+	@Inject
+	private SubscriptionRepository subscriptionRepository;
+	
+	@Inject
+	LearnerGroupMemberRepository learnerGroupMemberRepository;
+	
+	@Inject
+	private UserGroupServiceImpl userGroupServiceImpl;
 	
 	@Override
 	public List<Course> getLearnerEnrollmentCourses(Long learnerId, Collection<String> enrollmentStatus, LocalDateTime dateTime) throws Exception {
@@ -159,10 +180,7 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
     		totalEnrollment +=lstEnrollmentCounts;
         }
 		
-       
-		
-		
-		calculatePercentageByTopic(lstFocusResponse3, mapEnrollmentCounts, totalEnrollment);
+       calculatePercentageByTopic(lstFocusResponse3, mapEnrollmentCounts, totalEnrollment);
 		return lstFocusResponse3;
 	}
 
@@ -177,5 +195,136 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 				focusResponse.setPercentage(Double.parseDouble (String.format ("%.1f",((countByCategory/totalEnrollment) * 100))));
 			}
 		}
+	}
+
+	@Override
+	public SubscriptionSavingResponse getSubscriptionSavingStates(Long customerId, List<Long> userGroup) {
+		SavingRequest objRequest = new SavingRequest();
+		List<Long> subscriptionCode = new ArrayList<Long>();
+		List<String> courseGuid = new ArrayList<String>();
+		List<EnrollmentCoursesProjection> lstEnrolledCourses;
+		Map<String, Integer> guidEnrollmentCount = new HashMap<String, Integer>(); 
+		if(userGroup!=null && userGroup.size()>0){
+			 lstEnrolledCourses = learnerGroupMemberRepository.getEnrollmentCourses(userGroup);
+		}else{
+			 lstEnrolledCourses = learnerGroupMemberRepository.getEnrollmentCoursesByCustomer(customerId);
+		}
+		
+		for(EnrollmentCoursesProjection courseguids : lstEnrolledCourses){
+			courseGuid.add(courseguids.getCourseGuid());
+			
+			if(guidEnrollmentCount.get(courseguids.getCourseGuid())!=null)
+				guidEnrollmentCount.put(courseguids.getCourseGuid(), guidEnrollmentCount.get(courseguids.getCourseGuid()) +1);
+			else
+				guidEnrollmentCount.put(courseguids.getCourseGuid(), 1);
+				
+		}
+		objRequest.setCourseGuid(courseGuid);
+				
+		List<Subscription> lstSubscription = subscriptionRepository.findByCustomerEntitlement_Customer_id(customerId);
+		
+		if(lstSubscription!=null && lstSubscription.size()>0){
+			for(Subscription subsc : lstSubscription){
+				subscriptionCode.add(Long.valueOf(subsc.getSubscriptionCode()));
+			}
+		}
+		
+		objRequest.setSubscriptionCode(subscriptionCode);
+		objRequest.setStoreId(2);
+		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+        HttpEntity requestData = new HttpEntity(objRequest, headers);
+        StringBuffer location = new StringBuffer();
+        location.append(magentoBaseURL + "rest/default/V1/itskills-manager/savings");
+        
+       
+        ResponseEntity<Object> returnedData = restTemplate.postForEntity(location.toString(), requestData ,Object.class);
+        List <LinkedHashMap<String, Object>> magentoAPiResponse = (List <LinkedHashMap<String, Object>>)returnedData.getBody();
+        LinkedHashMap<String, Object> mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
+        LinkedHashMap mapAPiResponse2 = (LinkedHashMap )mapAPiResponse.get("result");
+        List<Map<String, String>> mapcourses = (List<Map<String, String>>)mapAPiResponse2.get("course");
+        List<Map<String, String>> mapSubscription = (List<Map<String, String>>)mapAPiResponse2.get("subscription");
+        /*
+        SubscriptionSavingMagentoResponse obj = new SubscriptionSavingMagentoResponse();
+        List<SubscriptionSavingMagentoCourses> Lstsub = new ArrayList<SubscriptionSavingMagentoCourses>();
+        List<SubscriptionSavingMagentoCourses> Lstcourses = new ArrayList<SubscriptionSavingMagentoCourses>();
+        
+	      for(Map<String, String> mapcourse : mapcourses){
+	    	  SubscriptionSavingMagentoCourses Objsub = new SubscriptionSavingMagentoCourses();
+	    	  Objsub.setCode(mapcourse.get("code"));
+	    	  Objsub.setSku(mapcourse.get("sku"));
+	    	  Objsub.setName(mapcourse.get("name"));
+	    	  Objsub.setPrice( mapcourse.get("price"));
+	    	  Lstcourses.add(Objsub);
+	      }
+	      obj.setCourse(Lstcourses);
+	      for(Map<String, String> mapcourse : mapSubscription){
+	    	  SubscriptionSavingMagentoCourses Objsub = new SubscriptionSavingMagentoCourses();
+	    	  Objsub.setCode(mapcourse.get("code"));
+	    	  Objsub.setSku(mapcourse.get("sku"));
+	    	  Objsub.setName(mapcourse.get("name"));
+	    	  Objsub.setPrice( mapcourse.get("price"));
+	    	  Lstsub.add(Objsub);
+	      }
+	      obj.setSubscription(Lstsub);
+        */
+          
+		  SubscriptionSavingResponse objResponse = new SubscriptionSavingResponse();
+		  List<SubscriptionSavingCourses> courses = new ArrayList<SubscriptionSavingCourses>();
+		  float totalCoursePrice = 0, totalsubPrice=0;
+		  
+		  
+		  for(Map<String, String> mapcourse : mapcourses){
+			  SubscriptionSavingCourses Objsub = new SubscriptionSavingCourses();
+			  Objsub.setName(mapcourse.get("name"));
+			  
+			  if(mapcourse.get("price")!=null){
+				  Objsub.setPrice( Float.valueOf(mapcourse.get("price")));
+				  totalCoursePrice+=Float.valueOf(mapcourse.get("price"));
+			  }
+			  
+			  if( guidEnrollmentCount.get(mapcourse.get("sku"))!=null)
+				 Objsub.setEnrollmentCount(guidEnrollmentCount.get(mapcourse.get("sku")));
+			  else
+				 Objsub.setEnrollmentCount(0);
+				  
+				  courses.add(Objsub);
+			  }
+		  objResponse.setCourses(courses);
+	      
+		  
+		  for(Map<String, String> mapsub : mapSubscription){
+			  if(mapsub.get("price")!=null){
+				  totalsubPrice+=Float.valueOf(mapsub.get("price"));
+			  }
+		  }
+		  
+		  // fill saving 
+		  Map<String, Float> saving = new HashMap<String, Float>();
+		  saving.put("subscriptionCost", totalCoursePrice);
+		  saving.put("enrollmentCourseCost", totalsubPrice);
+		  objResponse.setSaving(saving);
+		  
+		  // fill user group
+		  List<LearnerGroup> lstUserGroup = userGroupServiceImpl.findByCustomer(customerId);
+		  List<UserGroupRest> lstuserGroupRest = new ArrayList<UserGroupRest>();
+		  
+		  for(LearnerGroup lg: lstUserGroup){
+			  UserGroupRest userGroupRest = new UserGroupRest();
+			  userGroupRest.setGuid(lg.getId());
+			  userGroupRest.setName(lg.getName());
+			  lstuserGroupRest.add(userGroupRest);
+		  }
+		    
+		  objResponse.setUserGroup(lstuserGroupRest);
+      	
+        // SubscriptionSavingMagentoResponse[] returnedData = restTemplate.postForObject(location.toString(), requestData ,SubscriptionSavingMagentoResponse[].class);
+        
+        //ParameterizedTypeReference<List<SubscriptionSavingMagentoResponse>>  parameterizedTypeReference = new ParameterizedTypeReference<List<SubscriptionSavingMagentoResponse>>(){};
+        //Object dtoList = restTemplate.exchange(location.toString(), HttpMethod.POST, requestData, parameterizedTypeReference);
+        
+		return objResponse;
 	}
 }

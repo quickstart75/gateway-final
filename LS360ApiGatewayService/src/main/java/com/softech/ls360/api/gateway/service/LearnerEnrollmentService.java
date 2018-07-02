@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse;
+import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
 import com.softech.ls360.lms.repository.entities.Course;
 
 public interface LearnerEnrollmentService {
@@ -16,4 +17,6 @@ public interface LearnerEnrollmentService {
 	
 	List<String> getEnrolledCoursesGUIDByCustomer(long customerId);
 	List<FocusResponse> getEnrolledCoursesPercentageByTopicByCustomer(long customerId, List<String> EnrolledCoursesGUID);
+	
+	SubscriptionSavingResponse getSubscriptionSavingStates(Long customerId,  List<Long> userGroup);
 }
