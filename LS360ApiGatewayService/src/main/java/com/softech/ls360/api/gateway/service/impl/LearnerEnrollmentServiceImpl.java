@@ -15,10 +15,8 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,8 +32,6 @@ import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsLearner;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsTimeSpent;
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingCourses;
-import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingMagentoCourses;
-import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingMagentoResponse;
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupRest;
 import com.softech.ls360.lms.repository.entities.Course;
@@ -43,6 +39,7 @@ import com.softech.ls360.lms.repository.entities.LearnerGroup;
 import com.softech.ls360.lms.repository.entities.Subscription;
 import com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection;
 import com.softech.ls360.lms.repository.projection.learner.enrollment.LearnerEnrollmentCourses;
+import com.softech.ls360.lms.repository.repositories.DistributorRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
@@ -65,6 +62,9 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	
 	@Inject
 	private UserGroupServiceImpl userGroupServiceImpl;
+	
+	@Inject
+	DistributorRepository distributorRepository;
 	
 	@Override
 	public List<Course> getLearnerEnrollmentCourses(Long learnerId, Collection<String> enrollmentStatus, LocalDateTime dateTime) throws Exception {
@@ -199,11 +199,35 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 
 	@Override
 	public SubscriptionSavingResponse getSubscriptionSavingStates(Long customerId, List<Long> userGroup) {
+		SubscriptionSavingResponse objResponse = new SubscriptionSavingResponse();
 		SavingRequest objRequest = new SavingRequest();
 		List<Long> subscriptionCode = new ArrayList<Long>();
 		List<String> courseGuid = new ArrayList<String>();
 		List<EnrollmentCoursesProjection> lstEnrolledCourses;
 		Map<String, Integer> guidEnrollmentCount = new HashMap<String, Integer>(); 
+		
+		// response objects
+		List<SubscriptionSavingCourses> courses = new ArrayList<SubscriptionSavingCourses>();
+		 Map<String, Float> saving = new HashMap<String, Float>();
+		 List<UserGroupRest> lstuserGroupRest = new ArrayList<UserGroupRest>();
+		 
+		List<Subscription> lstSubscription = subscriptionRepository.findByCustomerEntitlement_Customer_id(customerId);
+		
+		if(lstSubscription==null || lstSubscription.size()==0){
+			objResponse.setCourses(courses);
+			saving.put("subscriptionCost", 0f);
+			saving.put("enrollmentCourseCost", 0f);
+			objResponse.setSaving(saving);
+			objResponse.setUserGroup(lstuserGroupRest);
+			return objResponse;
+		}
+		
+		if(lstSubscription!=null && lstSubscription.size()>0){
+			for(Subscription subsc : lstSubscription){
+				subscriptionCode.add(Long.valueOf(subsc.getSubscriptionCode()));
+			}
+		}
+		
 		if(userGroup!=null && userGroup.size()>0){
 			 lstEnrolledCourses = learnerGroupMemberRepository.getEnrollmentCourses(userGroup);
 		}else{
@@ -221,16 +245,15 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		}
 		objRequest.setCourseGuid(courseGuid);
 				
-		List<Subscription> lstSubscription = subscriptionRepository.findByCustomerEntitlement_Customer_id(customerId);
-		
-		if(lstSubscription!=null && lstSubscription.size()>0){
-			for(Subscription subsc : lstSubscription){
-				subscriptionCode.add(Long.valueOf(subsc.getSubscriptionCode()));
-			}
-		}
-		
 		objRequest.setSubscriptionCode(subscriptionCode);
-		objRequest.setStoreId(2);
+		
+		String StoreId = distributorRepository.findDistributorCodeByCustomerId(customerId);
+		if(StoreId!=null){
+			try{
+				objRequest.setStoreId(Integer.valueOf(StoreId));
+			}catch(Exception ex){}
+		}
+			
 		
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
@@ -271,10 +294,9 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	      obj.setSubscription(Lstsub);
         */
           
-		  SubscriptionSavingResponse objResponse = new SubscriptionSavingResponse();
-		  List<SubscriptionSavingCourses> courses = new ArrayList<SubscriptionSavingCourses>();
-		  float totalCoursePrice = 0, totalsubPrice=0;
+		 
 		  
+		  float totalCoursePrice = 0, totalsubPrice=0;
 		  
 		  for(Map<String, String> mapcourse : mapcourses){
 			  SubscriptionSavingCourses Objsub = new SubscriptionSavingCourses();
@@ -302,14 +324,12 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		  }
 		  
 		  // fill saving 
-		  Map<String, Float> saving = new HashMap<String, Float>();
-		  saving.put("subscriptionCost", totalCoursePrice);
-		  saving.put("enrollmentCourseCost", totalsubPrice);
+		  saving.put("subscriptionCost", totalsubPrice);
+		  saving.put("enrollmentCourseCost", totalCoursePrice);
 		  objResponse.setSaving(saving);
 		  
 		  // fill user group
 		  List<LearnerGroup> lstUserGroup = userGroupServiceImpl.findByCustomer(customerId);
-		  List<UserGroupRest> lstuserGroupRest = new ArrayList<UserGroupRest>();
 		  
 		  for(LearnerGroup lg: lstUserGroup){
 			  UserGroupRest userGroupRest = new UserGroupRest();

@@ -22,6 +22,12 @@ public interface DistributorRepository extends CrudRepository<Distributor, Long>
 					+ "WHERE VU.USERNAME = :userName", nativeQuery = true)
 	String findDistributorCodeByUserName(@Param("userName") String userName);
 	
+	@Query(value="SELECT DS.DISTRIBUTORCODE "
+			+ "FROM DISTRIBUTOR DS "
+			+ "INNER JOIN CUSTOMER CS ON CS.DISTRIBUTOR_ID = DS.ID "
+			+ "WHERE CS.ID = :ID", nativeQuery = true)
+	String findDistributorCodeByCustomerId(@Param("ID") Long ID);
+	
 	Optional<List<DistributorCustomFields>> findCustomFieldsById(Long distributorId);
 	
 }
