@@ -1,22 +1,22 @@
 package com.softech.ls360.api.gateway.service.model.request;
 
-import java.util.List;
+import java.util.Set;
 
 public class SavingRequest {
-	List<Long> subscriptionCode;
-	List<String> courseGuid;
+	Set<Long> subscriptionCode;
+	Set<String> courseGuid;
 	Integer storeId;
 	
-	public List<Long> getSubscriptionCode() {
+	public Set<Long> getSubscriptionCode() {
 		return subscriptionCode;
 	}
-	public void setSubscriptionCode(List<Long> subscriptionCode) {
+	public void setSubscriptionCode(Set<Long> subscriptionCode) {
 		this.subscriptionCode = subscriptionCode;
 	}
-	public List<String> getCourseGuid() {
+	public Set<String> getCourseGuid() {
 		return courseGuid;
 	}
-	public void setCourseGuid(List<String> courseGuid) {
+	public void setCourseGuid(Set<String> courseGuid) {
 		this.courseGuid = courseGuid;
 	}
 	public Integer getStoreId() {

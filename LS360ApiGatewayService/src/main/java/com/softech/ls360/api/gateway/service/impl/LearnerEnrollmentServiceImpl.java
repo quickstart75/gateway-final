@@ -4,10 +4,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -201,8 +203,8 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	public SubscriptionSavingResponse getSubscriptionSavingStates(Long customerId, List<Long> userGroup) {
 		SubscriptionSavingResponse objResponse = new SubscriptionSavingResponse();
 		SavingRequest objRequest = new SavingRequest();
-		List<Long> subscriptionCode = new ArrayList<Long>();
-		List<String> courseGuid = new ArrayList<String>();
+		Set<Long> subscriptionCode = new HashSet<Long>();
+		Set<String> courseGuid = new HashSet<String>();
 		List<EnrollmentCoursesProjection> lstEnrolledCourses;
 		Map<String, Integer> guidEnrollmentCount = new HashMap<String, Integer>(); 
 		
@@ -303,8 +305,12 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 			  Objsub.setName(mapcourse.get("name"));
 			  
 			  if(mapcourse.get("price")!=null){
-				  Objsub.setPrice( Float.valueOf(mapcourse.get("price")));
-				  totalCoursePrice+=Float.valueOf(mapcourse.get("price"));
+				  Objsub.setPrice( Float.valueOf( mapcourse.get("price")));
+				  
+				  if( guidEnrollmentCount.get(mapcourse.get("sku"))!=null)
+					  totalCoursePrice+=Float.valueOf(mapcourse.get("price")) * guidEnrollmentCount.get(mapcourse.get("sku"));
+				  else
+					  totalCoursePrice+=Float.valueOf(mapcourse.get("price")) ;
 			  }
 			  
 			  if( guidEnrollmentCount.get(mapcourse.get("sku"))!=null)
