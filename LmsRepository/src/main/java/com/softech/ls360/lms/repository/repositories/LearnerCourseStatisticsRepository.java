@@ -119,6 +119,35 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
    	void markCompletionAndTotalTimeSpent(@Param("enrollmentIds") Long enrollmentIds, @Param("completionDate") String completionDate, @Param("totalTimeSpent") Long totalTimeSpent);
 
     
-    
+    @Query(value=" select learnergroup_id,	name,	y,	m,	sum(second) second from ( " +
+			" SELECT  lgm.learnergroup_id, lg.name, YEAR(completionDate) AS y, MONTH(completionDate) AS m, sum(TOTALTIMEINSECONDS) as second " +
+			" FROM Learner l " +
+			" inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
+			" inner join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id " +
+			" inner join course c on c.id=le.course_id  " + 
+			" left outer join LEARNER_LEARNERGROUP lgm on  lgm.learner_id=l.id  " +
+			" left outer join learnergroup lg on lg.customer_id = l.customer_id and lgm.learnergroup_id = lg.id   " +
+			" where l.customer_id=:customerId and c.coursetype='Classroom Course'  " +
+			" and lcs.completionDate>=:startDate and lcs.completionDate<=:endDate  " +
+			" GROUP BY YEAR(completionDate),MONTH(completionDate),lgm.learnergroup_id, lg.name  " +
+			"   " +
+			" union all  " +
+			"   " +
+			" SELECT lgm.learnergroup_id, lg.name, YEAR(ls.starttime) AS y, MONTH(ls.starttime) AS m,  sum(DATEDIFF(second,starttime,endtime)) as second  " +
+			" FROM  Learner l   " +
+			" inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id   " +
+			" inner join LEARNINGSESSION ls on ls.ENROLLMENT_id = le.id and le.LEARNER_ID = l.ID  " +
+			" inner join course crs on crs.id=le.course_id  " +
+			" left outer join LEARNER_LEARNERGROUP lgm on  lgm.learner_id=l.id   " +
+			" left outer join learnergroup lg on lg.customer_id = l.customer_id and lgm.learnergroup_id = lg.id  " +
+			" where  ls.starttime >= :startDate and ls.starttime<=:endDate  " +
+			" and crs.coursetype!='Classroom Course' "+ 
+			" and l.customer_id=:customerId  " +
+			" GROUP BY YEAR(ls.starttime), MONTH(ls.starttime), lgm.learnergroup_id,  lg.name  " +
+			" ) CourseStatisticsByMonth  " +
+			" group by learnergroup_id,	name,	y,	m "
+			+ " order by y desc, m desc, name ",
+	nativeQuery=true)
+    List<Object[]> getLearnerGroupCourseStatisticsByMonth(@Param("customerId") Long customerId, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
 }

@@ -1,6 +1,9 @@
 package com.softech.ls360.api.gateway.endpoint.restful.manager.analytics;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
+import com.softech.ls360.api.gateway.service.LearnerCourseStatisticsService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
+import com.softech.ls360.api.gateway.service.model.response.EngagementTeamByMonthResponse;
 import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse;
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
@@ -32,6 +37,9 @@ public class ManagerAnalyticsRestEndPoint {
 	
 	@Autowired
 	private LearnerRepository learnerRepository;
+	
+	@Autowired
+	private LearnerCourseStatisticsService learnerCourseStatisticsService;
 	
 	@Value( "${megasite.distributor.id}" )
     private String megasiteDistributorId;
@@ -92,6 +100,37 @@ public class ManagerAnalyticsRestEndPoint {
 		map.put("status", Boolean.TRUE);
         map.put("message", "success");
         map.put("result", objResponse);
+		return map;
+	}
+	
+	
+	
+	
+	
+	
+	@RequestMapping(value = "/engagement-team-bymonth", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	// for Focus widget 
+	public Map<Object, Object>   EngagementTeamByMonth(){
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		String userName = auth.getName(); 
+		Learner learner = learnerRepository.findByVu360UserUsername(userName);
+		Date st = new Date();
+
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.YEAR, -1); // to get previous year add -1
+		Date previousYear = cal.getTime();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		String endDate= sdf.format(st);
+		String startDate  = sdf.format(previousYear);
+		
+		EngagementTeamByMonthResponse response = learnerCourseStatisticsService.LearnerGroupCourseStatisticsByMonth(learner.getCustomer().getId(), startDate, endDate);
+		
+		map.put("status", Boolean.TRUE);
+        map.put("message", "success");
+        map.put("result", response);
 		return map;
 	}
 }
