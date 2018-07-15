@@ -15,6 +15,8 @@ import com.softech.ls360.api.gateway.service.LearnerCourseStatisticsService;
 import com.softech.ls360.api.gateway.service.model.response.EngagementTeamByMonth;
 import com.softech.ls360.api.gateway.service.model.response.EngagementTeamByMonthResponse;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupRest;
+import com.softech.ls360.api.gateway.service.model.response.UserGroupwithUserRest;
+import com.softech.ls360.api.gateway.service.model.response.UserRest;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupRepository;
@@ -126,6 +128,67 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	}
 	
 	
+	@Override
+	public List<UserGroupwithUserRest> getUsersTimespentByLearnerGroup(Long customerId){
+		List<UserGroupwithUserRest> objResponse = new ArrayList<UserGroupwithUserRest>();
+		List<LearnerGroup> lg = learnerGroupRepository.findByCustomerId(customerId);
+		
+		List<Object[]> objstates = learnerCourseStatisticsRepository.getUsersTimespentByLearnerGroup(customerId);
+		Map<String, List<UserRest>> yearwhise = new HashMap<String, List<UserRest>>();
+		for(Object[]  objCE : objstates){
+			if(yearwhise.get(objCE[0].toString())==null){
+				 List<UserRest> onjug = new ArrayList<UserRest>();
+				 UserRest obj = new UserRest();
+				 obj.setFirstName(objCE[2].toString());
+				 obj.setLastName(objCE[3].toString());
+				 obj.setUserName(objCE[4].toString());
+				 obj.setTimespent(Long.valueOf(objCE[5].toString()));
+				 onjug.add(obj);
+				 yearwhise.put(objCE[0].toString() , onjug);
+			}else{
+				List<UserRest> onjug = yearwhise.get(objCE[0].toString());
+				 UserRest obj = new UserRest();
+				 obj.setFirstName(objCE[2].toString());
+				 obj.setLastName(objCE[3].toString());
+				 obj.setUserName(objCE[4].toString());
+				 obj.setTimespent(Long.valueOf(objCE[5].toString()));
+				 onjug.add(obj);
+				yearwhise.put(objCE[0].toString() , onjug);
+			}
+		}
+		
+		for(LearnerGroup sublg : lg){
+			UserGroupwithUserRest objugr = new UserGroupwithUserRest();
+			objugr.setName(sublg.getName());
+			objugr.setGuid(sublg.getId());
+			
+			if(yearwhise.get(sublg.getId().toString())!=null)
+				objugr.setUsers(yearwhise.get(sublg.getId().toString()));
+			else
+				objugr.setUsers( new ArrayList<UserRest>());
+			objResponse.add(objugr);
+		}
+		
+		if(yearwhise.get("0")!=null){
+			UserGroupwithUserRest objugr = new UserGroupwithUserRest();
+			objugr.setName("__default");
+			objugr.setGuid(0L);
+			objugr.setUsers(yearwhise.get("0"));
+			objResponse.add(objugr);
+		}
+		return objResponse;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	boolean findinList(List<UserGroupRest> learnerGroup, String searchingtext){
 		for(UserGroupRest ugr : learnerGroup){
@@ -139,7 +202,7 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	private String getMonthAsString(int monthAsInt)
 	{
 	  String monthString = null;
-	  // the java switch/case statement
+	  
 	  switch (monthAsInt) {
 	    case 1: monthString = "January"; break;
 	    case 2: monthString = "February"; break;

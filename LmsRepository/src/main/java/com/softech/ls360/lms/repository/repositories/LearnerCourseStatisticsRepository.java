@@ -150,4 +150,15 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 	nativeQuery=true)
     List<Object[]> getLearnerGroupCourseStatisticsByMonth(@Param("customerId") Long customerId, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
+    @Query(value=" select " +
+    " isnull(lg.id, 0) as learnergroupid, isnull(lg.name,'__default') as learnergroupname , vu.firstName as firstname, vu.lastName as lastname, vu.username as username, " +
+    " (select isnull(sum(TOTALTIMEINSECONDS),0)  from LEARNERCOURSESTATISTICS lcs inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID and le.learner_id=l.id) as timespent " +
+    " from Learner l  " +
+    " inner join VU360User vu on vu.id = l.vu360User_id " +
+    " inner join Customer c on c.id = l.customer_id " +
+    " left join Learner_Learnergroup lp on l.id = lp.learner_id  " +
+    " left join LearnerGroup lg on lg.id = lp.learnerGroup_id  " +
+    " where c.id = :customerId  " 
+   ,nativeQuery=true)
+    List<Object[]> getUsersTimespentByLearnerGroup(@Param("customerId") Long customerId);
 }
