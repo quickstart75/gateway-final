@@ -44,10 +44,14 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 			if(yearwhise.get(objCE[2].toString() + "_" + objCE[3].toString())==null){
 				 List<UserGroupRest> onjug = new ArrayList<UserGroupRest>();
 				 UserGroupRest obj = new UserGroupRest();
-				 if(objCE[1]!=null)
+				 if(objCE[1]!=null){
 					 obj.setName(objCE[1].toString());
-				 else 
-					 obj.setName("__default");
+				 }else{ 
+					 if(lg.size()==0)
+						 obj.setName("All Team Members");
+					 else
+						 obj.setName("Unassigned Team Members");
+				 }
 				 obj.setTimeSpent(Long.valueOf(objCE[4].toString()));
 				 
 				 if(objCE[0]!=null)
@@ -60,10 +64,15 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 			}else{
 				List<UserGroupRest> onjug = yearwhise.get(objCE[2].toString() + "_" + objCE[3].toString());
 				UserGroupRest obj = new UserGroupRest();
-				if(objCE[1]!=null)
+				if(objCE[1]!=null){
 					 obj.setName(objCE[1].toString());
-				else 
-					 obj.setName("__default");
+				
+				}else{ 
+					 if(lg.size()==0)
+						 obj.setName("All Team Members");
+					 else
+						 obj.setName("Unassigned Team Members");
+				}
 				 obj.setTimeSpent(Long.valueOf(objCE[4].toString()));
 				 if(objCE[0]!=null)
 					 obj.setGuid(Long.valueOf(objCE[0].toString()));
@@ -110,19 +119,26 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 		for(EngagementTeamByMonth lgm : month){
 			List<UserGroupRest> learnerGroup = lgm.getUserGroup();
 			
-			for(LearnerGroup sublg : lg){
-				if(! findinList(learnerGroup, sublg.getName())){
-					UserGroupRest objugr = new UserGroupRest();
-					objugr.setName(sublg.getName());
-					objugr.setGuid(sublg.getId());
-					objugr.setTimeSpent(0L);
-					learnerGroup.add(objugr);
+			if(lg.size()==0 && learnerGroup.size()==0){
+				UserGroupRest objugr = new UserGroupRest();
+				objugr.setName("All Team Members");
+				objugr.setGuid(0L);
+				objugr.setTimeSpent(0L);
+				learnerGroup.add(objugr);
+			}else{
+				for(LearnerGroup sublg : lg){
+					if(! findinList(learnerGroup, sublg.getName())){
+						UserGroupRest objugr = new UserGroupRest();
+						objugr.setName(sublg.getName());
+						objugr.setGuid(sublg.getId());
+						objugr.setTimeSpent(0L);
+						learnerGroup.add(objugr);
+					}
 				}
 			}
-			
-			
-			
 		}
+		
+		
 		objResponse.setMonth(month);
 		return objResponse;
 	}
@@ -142,7 +158,7 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 				 obj.setFirstName(objCE[2].toString());
 				 obj.setLastName(objCE[3].toString());
 				 obj.setUserName(objCE[4].toString());
-				 obj.setTimespent(Long.valueOf(objCE[5].toString()));
+				 obj.setTimeSpent(Long.valueOf(objCE[5].toString()));
 				 onjug.add(obj);
 				 yearwhise.put(objCE[0].toString() , onjug);
 			}else{
@@ -151,7 +167,7 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 				 obj.setFirstName(objCE[2].toString());
 				 obj.setLastName(objCE[3].toString());
 				 obj.setUserName(objCE[4].toString());
-				 obj.setTimespent(Long.valueOf(objCE[5].toString()));
+				 obj.setTimeSpent(Long.valueOf(objCE[5].toString()));
 				 onjug.add(obj);
 				yearwhise.put(objCE[0].toString() , onjug);
 			}
@@ -169,9 +185,16 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 			objResponse.add(objugr);
 		}
 		
-		if(yearwhise.get("0")!=null){
+		if(yearwhise.get("0")!=null && lg.size()==0){
 			UserGroupwithUserRest objugr = new UserGroupwithUserRest();
-			objugr.setName("__default");
+			objugr.setName("All Team Members");
+			objugr.setGuid(0L);
+			objugr.setUsers(yearwhise.get("0"));
+			objResponse.add(objugr);
+		}
+		else if(yearwhise.get("0")!=null){
+			UserGroupwithUserRest objugr = new UserGroupwithUserRest();
+			objugr.setName("Unassigned Team Members");
 			objugr.setGuid(0L);
 			objugr.setUsers(yearwhise.get("0"));
 			objResponse.add(objugr);

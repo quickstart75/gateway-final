@@ -119,7 +119,7 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
    	void markCompletionAndTotalTimeSpent(@Param("enrollmentIds") Long enrollmentIds, @Param("completionDate") String completionDate, @Param("totalTimeSpent") Long totalTimeSpent);
 
     
-    @Query(value=" select learnergroup_id,	name,	y,	m,	sum(second) second from ( " +
+    @Query(value=" select learnergroup_id,	name,	y,	m,	isnull(sum(second),0) second from ( " +
 			" SELECT  lgm.learnergroup_id, lg.name, YEAR(completionDate) AS y, MONTH(completionDate) AS m, sum(TOTALTIMEINSECONDS) as second " +
 			" FROM Learner l " +
 			" inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
@@ -151,7 +151,7 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     List<Object[]> getLearnerGroupCourseStatisticsByMonth(@Param("customerId") Long customerId, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
     @Query(value=" select " +
-    " isnull(lg.id, 0) as learnergroupid, isnull(lg.name,'__default') as learnergroupname , vu.firstName as firstname, vu.lastName as lastname, vu.username as username, " +
+    " isnull(lg.id, 0) as learnergroupid, lg.name as learnergroupname , vu.firstName as firstname, vu.lastName as lastname, vu.username as username, " +
     " (select isnull(sum(TOTALTIMEINSECONDS),0)  from LEARNERCOURSESTATISTICS lcs inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID and le.learner_id=l.id) as timespent " +
     " from Learner l  " +
     " inner join VU360User vu on vu.id = l.vu360User_id " +

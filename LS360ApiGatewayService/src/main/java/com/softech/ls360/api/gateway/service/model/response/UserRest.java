@@ -10,7 +10,7 @@ public class UserRest {
 	Long startedCourses;
 	Boolean locked;
 	Boolean enabled;
-	Long timespent;
+	Long timeSpent;
 	
 	public String getUserName() {
 		return userName;
@@ -66,12 +66,10 @@ public class UserRest {
 	public void setEnabled(Boolean enabled) {
 		this.enabled = enabled;
 	}
-	public Long getTimespent() {
-		return timespent;
+	public Long getTimeSpent() {
+		return timeSpent;
 	}
-	public void setTimespent(Long timespent) {
-		this.timespent = timespent;
+	public void setTimeSpent(Long timeSpent) {
+		this.timeSpent = timeSpent;
 	}
-	
-	
 }
