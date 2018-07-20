@@ -114,24 +114,38 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 			month.add(responseMonth); 
 		}
 		
-		
 		//List<EngagementTeamByMonth> month = new ArrayList<EngagementTeamByMonth>();
 		for(EngagementTeamByMonth lgm : month){
 			List<UserGroupRest> learnerGroup = lgm.getUserGroup();
 			
-			if(lg.size()==0 && learnerGroup.size()==0){
+			if(lg.size()==0 && (learnerGroup==null || learnerGroup.size()==0)){
 				UserGroupRest objugr = new UserGroupRest();
-				objugr.setName("All Team Members");
+				
+				if(lg.size()==0)
+					objugr.setName("All Team Members");
+				else
+					objugr.setName("Unassigned Team Members");
+				
 				objugr.setGuid(0L);
 				objugr.setTimeSpent(0L);
+				
+				if(learnerGroup==null){
+					learnerGroup = new ArrayList<UserGroupRest>();
+					lgm.setUserGroup(learnerGroup);
+				}
 				learnerGroup.add(objugr);
 			}else{
 				for(LearnerGroup sublg : lg){
-					if(! findinList(learnerGroup, sublg.getName())){
+					if(learnerGroup==null || ! findinList(learnerGroup, sublg.getName())){
 						UserGroupRest objugr = new UserGroupRest();
 						objugr.setName(sublg.getName());
 						objugr.setGuid(sublg.getId());
 						objugr.setTimeSpent(0L);
+						
+						if(learnerGroup==null){
+							learnerGroup = new ArrayList<UserGroupRest>();
+							lgm.setUserGroup(learnerGroup);
+						}
 						learnerGroup.add(objugr);
 					}
 				}
