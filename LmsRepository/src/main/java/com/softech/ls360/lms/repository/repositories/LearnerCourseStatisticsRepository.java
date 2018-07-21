@@ -160,5 +160,31 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     " left join LearnerGroup lg on lg.id = lp.learnerGroup_id  " +
     " where c.id = :customerId  " 
    ,nativeQuery=true)
-    List<Object[]> getUsersTimespentByLearnerGroup(@Param("customerId") Long customerId);
+    List<Object[]> getAggregateUsersTimespentByLearnerGroup(@Param("customerId") Long customerId);
+    
+    
+    @Query(value=" SELECT u.username, u.firstname, u.lastname, c.name as courseName, c.guid as courseGuid, totalTimeInSeconds " +
+    	    " FROM vu360user u " +
+    	    " inner join Learner l on l.vu360user_id=u.id " +
+    	    " inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
+    	    " inner join learnercoursestatistics lcs on lcs.LEARNERENROLLMENT_ID =le.id " +
+    	    " inner join course c on c.id=le.course_id  " +
+    	    " inner join LEARNER_LEARNERGROUP lgm on  lgm.learner_id=l.id  " +
+    	    " where lgm.LEARNERGROUP_id = :learnerGroupId  and c.id in (:courseIds)" 
+    	   ,nativeQuery=true)
+    List<Object[]> getUsersTimespentPerCourseByLearnerGroup(@Param("learnerGroupId") Long learnerGroupId, @Param("courseIds") List<Long> courseIds);
+    
+    
+    
+    @Query(value=" select top 5 " +
+    	    " cr.guid, cr.name,  count(le.course_id), cr.id " +
+    	    " from Learner l " +
+    	    " inner join learnerenrollment le on le.learner_id = l.id  " +
+    	    " inner join course cr on le.course_id = cr.id " +
+    	    " inner join LEARNER_LEARNERGROUP lgm on  lgm.learner_id=l.id  " +
+    	    " where lgm.LearnerGroup_id=:learnerGroupId  " +
+    	    " group by  cr.guid, cr.id, cr.name  " +
+    	    " order by count(le.course_id) desc  " 
+    	   ,nativeQuery=true)
+    List<Object[]> getPopularCoursesByLearnerGroup(@Param("learnerGroupId") Long learnerGroupId);
 }
