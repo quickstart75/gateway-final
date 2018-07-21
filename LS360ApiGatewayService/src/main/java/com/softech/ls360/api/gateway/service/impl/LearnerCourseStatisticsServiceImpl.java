@@ -6,15 +6,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
 import com.softech.ls360.api.gateway.service.LearnerCourseStatisticsService;
+import com.softech.ls360.api.gateway.service.model.response.CourseRest;
 import com.softech.ls360.api.gateway.service.model.response.EngagementTeamByMonth;
 import com.softech.ls360.api.gateway.service.model.response.EngagementTeamByMonthResponse;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupRest;
+import com.softech.ls360.api.gateway.service.model.response.UserGroupwithCourseUserRest;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithUserRest;
 import com.softech.ls360.api.gateway.service.model.response.UserRest;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
@@ -163,7 +166,7 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 		List<UserGroupwithUserRest> objResponse = new ArrayList<UserGroupwithUserRest>();
 		List<LearnerGroup> lg = learnerGroupRepository.findByCustomerId(customerId);
 		
-		List<Object[]> objstates = learnerCourseStatisticsRepository.getUsersTimespentByLearnerGroup(customerId);
+		List<Object[]> objstates = learnerCourseStatisticsRepository.getAggregateUsersTimespentByLearnerGroup(customerId);
 		Map<String, List<UserRest>> yearwhise = new HashMap<String, List<UserRest>>();
 		for(Object[]  objCE : objstates){
 			if(yearwhise.get(objCE[0].toString())==null){
@@ -219,6 +222,96 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	public List<UserGroupwithCourseUserRest> getCourseEngagementByTeam(Long customerId){
+		List<UserGroupwithCourseUserRest> objResponse = new ArrayList<UserGroupwithCourseUserRest>();
+		List<LearnerGroup> lg = learnerGroupRepository.findByCustomerId(customerId);
+		
+		
+		// ----------------------------get popular courses---------------------------------------
+		Map<Long, List<CourseRest>> popularcourses = new HashMap<Long, List<CourseRest>>();
+		Map<Long, List<Long>> popularcoursesIds = new HashMap<Long, List<Long>>();
+		for(LearnerGroup sublg : lg){
+			List<Object[]>  arrpoplarCourses = learnerCourseStatisticsRepository.getPopularCoursesByLearnerGroup(sublg.getId()); 
+			List<CourseRest> lst = new ArrayList<CourseRest>();
+			List<Long> lstIds = new ArrayList<Long>();
+			for(Object[]  objCE : arrpoplarCourses){
+				CourseRest  objCourse = new CourseRest();
+				objCourse.setCourseGuid(objCE[0].toString());
+				objCourse.setName(objCE[1].toString());
+				lst.add(objCourse);
+				lstIds.add(Long.valueOf(objCE[3].toString()));
+			}
+			popularcoursesIds.put(sublg.getId(), lstIds);
+			popularcourses.put(sublg.getId(), lst);
+		}
+		//---------------------------------------------------------------------------------------
+		
+		
+		//-------------------------------filling users rest---------------------------------------
+		HashMap<Long, HashMap<String, List<UserRest>>> coursewithgroup = new HashMap<Long, HashMap<String, List<UserRest>>>();
+		
+		for(LearnerGroup sublg : lg){
+			if(popularcoursesIds.get(sublg.getId())!=null){
+				
+				List<Object[]> objstates = learnerCourseStatisticsRepository.getUsersTimespentPerCourseByLearnerGroup(sublg.getId(), popularcoursesIds.get(sublg.getId()));
+				
+				HashMap<String, List<UserRest>> usersWithCourse = new HashMap<String, List<UserRest>>();
+				//fill the map of users with course guid key
+				for(Object[]  objCE : objstates){
+					UserRest objuser = new UserRest();
+					objuser.setFirstName(objCE[1].toString());
+					objuser.setLastName(objCE[2].toString());
+					objuser.setUserName(objCE[0].toString());
+					
+					if(objCE[5]!=null)
+						objuser.setTimeSpent( Long.valueOf( objCE[5].toString() ) );
+					else
+						objuser.setTimeSpent( 0L );
+					
+					List<UserRest> lst ;
+					
+					if(usersWithCourse.get(objCE[4].toString())==null){
+						lst = new ArrayList<UserRest>();
+						lst.add(objuser);
+						
+					}else{
+						lst = usersWithCourse.get(objCE[4].toString());
+						lst.add(objuser);
+					}
+					
+					usersWithCourse.put(objCE[4].toString(), lst);
+				}
+				
+				
+				
+				List<CourseRest> coursesRest = popularcourses.get(sublg.getId());
+				for(CourseRest courseRest : coursesRest){
+					courseRest.setUsers(usersWithCourse.get(courseRest.getCourseGuid()));
+				}
+				
+						
+				UserGroupwithCourseUserRest mainObj = new UserGroupwithCourseUserRest();
+				mainObj.setGuid(sublg.getId());
+				mainObj.setName(sublg.getName());
+				mainObj.setCourses(coursesRest);
+				objResponse.add(mainObj);
+				//coursewithgroup.put(sublg.getId(), usersWithCourse);
+			}
+		}
+		
+		
+		for(LearnerGroup sublg : lg){
+		
+		}
+		return objResponse;
+	}
 	
 	
 	

@@ -25,6 +25,7 @@ import com.softech.ls360.api.gateway.service.model.response.EngagementTeamByMont
 import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse;
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
+import com.softech.ls360.api.gateway.service.model.response.UserGroupwithCourseUserRest;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithUserRest;
 import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
@@ -141,6 +142,25 @@ public class ManagerAnalyticsRestEndPoint {
 		String userName = auth.getName(); 
 		Learner learner = learnerRepository.findByVu360UserUsername(userName);
 		List<UserGroupwithUserRest>  response = learnerCourseStatisticsService.getUsersTimespentByLearnerGroup(learner.getCustomer().getId());
+		
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		responseMap.put("userGroup", response);
+		map.put("status", Boolean.TRUE);
+        map.put("message", "success");
+        map.put("result", responseMap);
+		return map;
+	}
+	
+	
+	@RequestMapping(value = "/engagement-team-bycourse", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	// Report 2: Total User Engagement by team
+	public Map<Object, Object>   getCourseEngagementByTeam(){
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		String userName = auth.getName(); 
+		Learner learner = learnerRepository.findByVu360UserUsername(userName);
+		List<UserGroupwithCourseUserRest>  response = learnerCourseStatisticsService.getCourseEngagementByTeam(learner.getCustomer().getId());
 		
 		Map<String, Object> responseMap = new HashMap<String, Object>();
 		responseMap.put("userGroup", response);
