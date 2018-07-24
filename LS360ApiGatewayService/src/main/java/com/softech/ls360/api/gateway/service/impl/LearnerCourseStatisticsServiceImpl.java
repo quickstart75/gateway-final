@@ -230,9 +230,9 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	
 	
 	public List<UserGroupwithCourseUserRest> getCourseEngagementByTeam(Long customerId){
+		
 		List<UserGroupwithCourseUserRest> objResponse = new ArrayList<UserGroupwithCourseUserRest>();
 		List<LearnerGroup> lg = learnerGroupRepository.findByCustomerId(customerId);
-		
 		
 		// ----------------------------get popular courses---------------------------------------
 		Map<Long, List<CourseRest>> popularcourses = new HashMap<Long, List<CourseRest>>();
@@ -248,8 +248,12 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 				lst.add(objCourse);
 				lstIds.add(Long.valueOf(objCE[3].toString()));
 			}
-			popularcoursesIds.put(sublg.getId(), lstIds);
-			popularcourses.put(sublg.getId(), lst);
+			
+			if(lstIds.size()>0)
+				popularcoursesIds.put(sublg.getId(), lstIds);
+			
+			if(lst.size()>0)
+				popularcourses.put(sublg.getId(), lst);
 		}
 		//---------------------------------------------------------------------------------------
 		
@@ -258,7 +262,7 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 		HashMap<Long, HashMap<String, List<UserRest>>> coursewithgroup = new HashMap<Long, HashMap<String, List<UserRest>>>();
 		
 		for(LearnerGroup sublg : lg){
-			if(popularcoursesIds.get(sublg.getId())!=null){
+			if(popularcoursesIds.get(sublg.getId())!=null && popularcoursesIds.get(sublg.getId()).size()>0){
 				
 				List<Object[]> objstates = learnerCourseStatisticsRepository.getUsersTimespentPerCourseByLearnerGroup(sublg.getId(), popularcoursesIds.get(sublg.getId()));
 				
@@ -307,9 +311,98 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 		}
 		
 		
-		for(LearnerGroup sublg : lg){
 		
-		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		// ----------------------------get popular courses---------------------------------------
+				Map<Long, List<CourseRest>> popularcourses2 = new HashMap<Long, List<CourseRest>>();
+				Map<Long, List<Long>> popularcoursesIds2 = new HashMap<Long, List<Long>>();
+				
+					List<Object[]>  arrpoplarCourses = learnerCourseStatisticsRepository.getPopularCoursesByCustomer(customerId); 
+					List<CourseRest> lst = new ArrayList<CourseRest>();
+					List<Long> lstIds = new ArrayList<Long>();
+					for(Object[]  objCE : arrpoplarCourses){
+						CourseRest  objCourse = new CourseRest();
+						objCourse.setCourseGuid(objCE[0].toString());
+						objCourse.setName(objCE[1].toString());
+						lst.add(objCourse);
+						lstIds.add(Long.valueOf(objCE[3].toString()));
+					}
+					
+					if(lstIds.size()>0)
+						popularcoursesIds2.put(0L, lstIds);
+					
+					if(lst.size()>0)
+						popularcourses2.put(0L, lst);
+				
+				//---------------------------------------------------------------------------------------
+				
+				
+				//-------------------------------filling users rest---------------------------------------
+				//HashMap<Long, HashMap<String, List<UserRest>>> coursewithgroup = new HashMap<Long, HashMap<String, List<UserRest>>>();
+				
+					HashMap<String, List<UserRest>> usersWithCourse2 = new HashMap<String, List<UserRest>>();
+					if(popularcoursesIds2.get(0L)!=null && popularcoursesIds2.size() >0){
+						
+						List<Object[]> objstates = learnerCourseStatisticsRepository.getUsersTimespentPerCourseByCustomer(customerId, popularcoursesIds2.get(0L));
+						
+						
+						//fill the map of users with course guid key
+						for(Object[]  objCE : objstates){
+							UserRest objuser = new UserRest();
+							objuser.setFirstName(objCE[1].toString());
+							objuser.setLastName(objCE[2].toString());
+							objuser.setUserName(objCE[0].toString());
+							
+							if(objCE[5]!=null)
+								objuser.setTimeSpent( Long.valueOf( objCE[5].toString() ) );
+							else
+								objuser.setTimeSpent( 0L );
+							
+							List<UserRest> lst2 ;
+							
+							if(usersWithCourse2.get(objCE[4].toString())==null){
+								lst2 = new ArrayList<UserRest>();
+								lst2.add(objuser);
+								
+							}else{
+								lst2 = usersWithCourse2.get(objCE[4].toString());
+								lst2.add(objuser);
+							}
+							
+							usersWithCourse2.put(objCE[4].toString(), lst2);
+						}
+					}
+					
+					UserGroupwithCourseUserRest mainObj = new UserGroupwithCourseUserRest();
+					List<CourseRest> coursesRest = popularcourses2.get(0L);
+					if(coursesRest!=null){
+						for(CourseRest courseRest : coursesRest){
+							courseRest.setUsers(usersWithCourse2.get(courseRest.getCourseGuid()));
+						}
+						
+						mainObj.setCourses(coursesRest);
+					}else{
+						mainObj.setCourses(new ArrayList<CourseRest>());
+					}
+					
+					mainObj.setGuid(0L);
+					mainObj.setName("All Team members");
+					
+					
+					objResponse.add(mainObj);
+		
 		return objResponse;
 	}
 	

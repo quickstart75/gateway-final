@@ -163,28 +163,59 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     List<Object[]> getAggregateUsersTimespentByLearnerGroup(@Param("customerId") Long customerId);
     
     
-    @Query(value=" SELECT u.username, u.firstname, u.lastname, c.name as courseName, c.guid as courseGuid, totalTimeInSeconds " +
-    	    " FROM vu360user u " +
-    	    " inner join Learner l on l.vu360user_id=u.id " +
-    	    " inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
-    	    " inner join learnercoursestatistics lcs on lcs.LEARNERENROLLMENT_ID =le.id " +
-    	    " inner join course c on c.id=le.course_id  " +
+    @Query(value=" select top 5 " +
+    	    " cr.guid, cr.name,  count(le.course_id), cr.id " +
+    	    " from Learner l " +
+    	    " inner join learnerenrollment le on le.learner_id = l.id  " +
+    	    " inner join learnercoursestatistics lcs on lcs.LEARNERENROLLMENT_ID =le.id  " +
+    	    " inner join course cr on le.course_id = cr.id " +
     	    " inner join LEARNER_LEARNERGROUP lgm on  lgm.learner_id=l.id  " +
-    	    " where lgm.LEARNERGROUP_id = :learnerGroupId  and c.id in (:courseIds)" 
+    	    " where lgm.LearnerGroup_id=:learnerGroupId and lcs.status!='notstarted' " +
+    	    " group by  cr.guid, cr.id, cr.name  " +
+    	    " order by count(le.course_id) desc  " 
     	   ,nativeQuery=true)
-    List<Object[]> getUsersTimespentPerCourseByLearnerGroup(@Param("learnerGroupId") Long learnerGroupId, @Param("courseIds") List<Long> courseIds);
-    
+    List<Object[]> getPopularCoursesByLearnerGroup(@Param("learnerGroupId") Long learnerGroupId);
     
     
     @Query(value=" select top 5 " +
     	    " cr.guid, cr.name,  count(le.course_id), cr.id " +
     	    " from Learner l " +
     	    " inner join learnerenrollment le on le.learner_id = l.id  " +
+    	    " inner join learnercoursestatistics lcs on lcs.LEARNERENROLLMENT_ID =le.id  " +
     	    " inner join course cr on le.course_id = cr.id " +
-    	    " inner join LEARNER_LEARNERGROUP lgm on  lgm.learner_id=l.id  " +
-    	    " where lgm.LearnerGroup_id=:learnerGroupId  " +
-    	    " group by  cr.guid, cr.id, cr.name  " +
+    	    " inner join Customer c on c.id = l.customer_id " +
+    	    " where c.id=:customerId and lcs.status!='notstarted' " +
+    	    " group by  cr.id, cr.guid, cr.name  " +
     	    " order by count(le.course_id) desc  " 
     	   ,nativeQuery=true)
-    List<Object[]> getPopularCoursesByLearnerGroup(@Param("learnerGroupId") Long learnerGroupId);
+    List<Object[]> getPopularCoursesByCustomer(@Param("customerId") Long customerId);
+    
+    
+    
+    @Query(value=" SELECT u.username, u.firstname, u.lastname, c.name as courseName, c.guid as courseGuid, isnull(sum(totalTimeInSeconds), 0) " +
+    	    " FROM vu360user u " +
+    	    " inner join Learner l on l.vu360user_id=u.id " +
+    	    " inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
+    	    " inner join learnercoursestatistics lcs on lcs.LEARNERENROLLMENT_ID =le.id " +
+    	    " inner join course c on c.id=le.course_id  " +
+    	    " inner join LEARNER_LEARNERGROUP lgm on  lgm.learner_id=l.id  " +
+    	    " where lgm.LEARNERGROUP_id = :learnerGroupId  and c.id in (:courseIds)" +
+    	    " group by  u.username, u.firstname, u.lastname, c.name , c.guid "
+    	   ,nativeQuery=true)
+    List<Object[]> getUsersTimespentPerCourseByLearnerGroup(@Param("learnerGroupId") Long learnerGroupId, @Param("courseIds") List<Long> courseIds);
+    
+    
+    
+    @Query(value=" SELECT u.username, u.firstname, u.lastname, c.name as courseName, c.guid as courseGuid, isnull(sum(totalTimeInSeconds), 0) " +
+    	    " FROM vu360user u " +
+    	    " inner join Learner l on l.vu360user_id=u.id " +
+    	    " inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
+    	    " inner join learnercoursestatistics lcs on lcs.LEARNERENROLLMENT_ID =le.id " +
+    	    " inner join course c on c.id=le.course_id  " +
+    	    " inner join Customer cus on cus.id = l.customer_id  " +
+    	    " where cus.id = :customerId  and c.id in (:courseIds)" +
+    	    " group by  u.username, u.firstname, u.lastname, c.name , c.guid "
+    	   ,nativeQuery=true)
+    List<Object[]> getUsersTimespentPerCourseByCustomer(@Param("customerId") Long customerId, @Param("courseIds") List<Long> courseIds);
+    
 }
