@@ -16,7 +16,8 @@ public interface LearnerEnrollmentService {
 	void updateLearnerEnrollmentStatus(String status, List<Long> enrollmentIds);
 	
 	List<String> getEnrolledCoursesGUIDByCustomer(long customerId);
+	List<String> getEnrolledCoursesGUID(Long learnerId);
 	List<FocusResponse> getEnrolledCoursesPercentageByTopicByCustomer(long customerId, List<String> EnrolledCoursesGUID);
-	
+	List<FocusResponse> getEnrolledCoursesPercentageByTopic(String userName,Long learnerId, List<String> EnrolledCoursesGUID);
 	SubscriptionSavingResponse getSubscriptionSavingStates(Long customerId,  List<Long> userGroup);
 }

@@ -6,7 +6,15 @@ public class FocusResponse {
 	String categoryName;
 	List<String> sku;
 	double percentage;
+	Long categoryId;
 	
+	
+	public Long getCategoryId() {
+		return categoryId;
+	}
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
 	public String getCategoryName() {
 		return categoryName;
 	}

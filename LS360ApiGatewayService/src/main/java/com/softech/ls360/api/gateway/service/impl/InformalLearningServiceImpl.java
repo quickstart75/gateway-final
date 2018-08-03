@@ -26,6 +26,13 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 	}
 	
 	@Override
+	public List<Object[]> getActivityTimeSpentByTopic(String userName){
+		
+		List<Object[]> activityTimeSpent = informalLearningRepository.getActivityTimeSpentByTopic(userName);
+		return activityTimeSpent;
+	}
+	
+	@Override
 	public List<HashMap<String,Double>> getActivityTimeSpent(String userName){
 		
 		Integer totalTimeSpentOfUserCourse = learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active");

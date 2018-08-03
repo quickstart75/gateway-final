@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
+import com.softech.ls360.api.gateway.service.InformalLearningService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.request.FocusRequest;
 import com.softech.ls360.api.gateway.service.model.request.SavingRequest;
@@ -42,6 +43,7 @@ import com.softech.ls360.lms.repository.entities.Subscription;
 import com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection;
 import com.softech.ls360.lms.repository.projection.learner.enrollment.LearnerEnrollmentCourses;
 import com.softech.ls360.lms.repository.repositories.DistributorRepository;
+import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
@@ -57,6 +59,9 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	private LearnerEnrollmentRepository learnerEnrollmentRepository;
 	
 	@Inject
+	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
+	
+	@Inject
 	private SubscriptionRepository subscriptionRepository;
 	
 	@Inject
@@ -67,6 +72,9 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	
 	@Inject
 	DistributorRepository distributorRepository;
+	
+	@Inject
+	private InformalLearningService informalLearningService;
 	
 	@Override
 	public List<Course> getLearnerEnrollmentCourses(Long learnerId, Collection<String> enrollmentStatus, LocalDateTime dateTime) throws Exception {
@@ -133,6 +141,17 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	}
 	
 	@Override
+	public List<String> getEnrolledCoursesGUID(Long learnerId){
+		List<String> lstCourseguids = new ArrayList<String>();
+		List<Object[]> lstEnrollment = learnerEnrollmentRepository.getCourseGuidByLearner(learnerId);
+		
+		for (Object objenrollment : lstEnrollment) {
+			lstCourseguids.add(objenrollment.toString());
+		}
+		return lstCourseguids;
+	}
+	
+	@Override
 	public List<FocusResponse> getEnrolledCoursesPercentageByTopicByCustomer(long customerId, List<String> EnrolledCoursesGUID){
 		FocusRequest objRequest = new FocusRequest();
 	    objRequest.setSku(EnrolledCoursesGUID);
@@ -186,6 +205,122 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		return lstFocusResponse3;
 	}
 
+	private List<FocusResponse> magentoApiTopicBySku(List<String> EnrolledCoursesGUID){
+		FocusRequest objRequest = new FocusRequest();
+	    objRequest.setSku(EnrolledCoursesGUID);
+	    
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+      
+        HttpEntity requestData = new HttpEntity(objRequest, headers);
+        StringBuffer location = new StringBuffer();
+        location.append(magentoBaseURL + "rest/default/V1/itskills-manager/focusbasecat");
+        
+        logger.info("---Focus API magento >>>>>>>>>>>>>>>>>>>>> service call .." + location.toString());
+       
+        ResponseEntity<Object> returnedData = restTemplate.postForEntity(location.toString(), requestData ,Object.class);
+      
+        List <Object> magentoAPiResponse = (List <Object>)returnedData.getBody();
+      if(magentoAPiResponse==null)
+    	  return new ArrayList<FocusResponse>();
+    			  
+        LinkedHashMap<String, Object> mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
+        
+        if(mapAPiResponse==null)
+      	  return  new ArrayList<FocusResponse>();;
+        
+        List<FocusResponse> lstFocusResponse = (List<FocusResponse>)mapAPiResponse.get("result");
+        
+        if(lstFocusResponse==null)
+        	  return  new ArrayList<FocusResponse>();
+		
+        return lstFocusResponse;
+	}
+	
+	@Override
+	public List<FocusResponse> getEnrolledCoursesPercentageByTopic(String userName,Long learnerId, List<String> EnrolledCoursesGUID){
+		/*
+		FocusRequest objRequest = new FocusRequest();
+	    objRequest.setSku(EnrolledCoursesGUID);
+	    
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+      
+        HttpEntity requestData = new HttpEntity(objRequest, headers);
+        StringBuffer location = new StringBuffer();
+        location.append(magentoBaseURL + "rest/default/V1/itskills-manager/focusbasecat");
+        
+        logger.info("---Focus API magento >>>>>>>>>>>>>>>>>>>>> service call .." + location.toString());
+       
+        ResponseEntity<Object> returnedData = restTemplate.postForEntity(location.toString(), requestData ,Object.class);
+      
+        List <Object> magentoAPiResponse = (List <Object>)returnedData.getBody();
+      if(magentoAPiResponse==null)
+    	  return new ArrayList<FocusResponse>();
+    			  
+        LinkedHashMap<String, Object> mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
+        
+        if(mapAPiResponse==null)
+      	  return  new ArrayList<FocusResponse>();;
+        
+        List<FocusResponse> lstFocusResponse = (List<FocusResponse>)mapAPiResponse.get("result");
+        */
+		List<FocusResponse> lstFocusResponse= new ArrayList<FocusResponse>();
+		List<FocusResponse> lstFocusResponse3 = new ArrayList<FocusResponse>();
+		Map<String, Long> mapEnrollmentCounts = new HashMap<String, Long>();
+		List<Long> guidsCategoryIds = new ArrayList<Long>();
+		Long totalTimeSpent=0l;
+
+		if(EnrolledCoursesGUID.size()>0){
+			 lstFocusResponse = magentoApiTopicBySku(EnrolledCoursesGUID);
+		}
+        List<Object[]> activityTimeSpent = informalLearningService.getActivityTimeSpentByTopic(userName);
+        for(Object lhm : lstFocusResponse){
+        	LinkedHashMap map= (LinkedHashMap) lhm;
+        	FocusResponse obj = new FocusResponse();
+    		obj.setCategoryName(map.get("categoryName").toString());
+    		Long categoryId = Long.parseLong( map.get("categoryId").toString());
+    		obj.setCategoryId(categoryId);
+    		guidsCategoryIds.add(categoryId);
+    		ArrayList al1 = new ArrayList();
+            al1 = (ArrayList) map.get("sku");
+    		obj.setSku(al1);
+    		lstFocusResponse3.add(obj);
+    		Long topicActivityTimeSpen = 0L;
+    		Long guidsTimeSpent = learnerCourseStatisticsRepository.getLearnerTimespentByGuids(learnerId, al1);
+    		for (Object[] record : activityTimeSpent) {
+    			if(record[0].toString().equalsIgnoreCase(map.get("categoryId").toString())){
+    				topicActivityTimeSpen = Long.parseLong(record[1].toString());
+    				break;
+    			}
+			}
+    		
+    		Long topicTimeSpent =  guidsTimeSpent + topicActivityTimeSpen;
+    		mapEnrollmentCounts.put(map.get("categoryName").toString(), topicTimeSpent);
+    		totalTimeSpent +=topicTimeSpent;
+        }
+        
+        for (Object[] record : activityTimeSpent) {
+        	if(!guidsCategoryIds.contains(Long.parseLong(record[0].toString())) && !record[2].toString().equalsIgnoreCase("")){
+        		FocusResponse obj = new FocusResponse();
+        		obj.setCategoryName(record[2].toString()); 
+        		obj.setCategoryId(Long.parseLong(record[0].toString()));
+        		ArrayList al1 = new ArrayList();
+        		obj.setSku(al1);
+        		lstFocusResponse3.add(obj);
+        		Long topicActivityTimeSpent =  Long.parseLong(record[1].toString());
+        		mapEnrollmentCounts.put(record[2].toString(),topicActivityTimeSpent);
+        		totalTimeSpent +=topicActivityTimeSpent;
+    		}
+		}
+		
+       calculatePercentageByTopic(lstFocusResponse3, mapEnrollmentCounts, totalTimeSpent);
+		return lstFocusResponse3;
+	}
+
+	
 	void calculatePercentageByTopic(List<FocusResponse> lstFocusResponse, Map<String, Long> mapEnrollmentCounts, Long totalEnrollment){
 		for(FocusResponse focusResponse : lstFocusResponse){
 			

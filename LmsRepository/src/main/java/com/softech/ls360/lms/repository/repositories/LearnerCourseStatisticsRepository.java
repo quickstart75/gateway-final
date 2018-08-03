@@ -34,7 +34,7 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     		*/
     
     
-	@Query(value="select sum(totalTimeInSeconds) From learnercoursestatistics lcs " +
+	@Query(value="select isnull(sum(totalTimeInSeconds), 0) From learnercoursestatistics lcs " +
 				"inner join learnerenrollment le on le.id = lcs.learnerenrollment_id " +
 				"inner join learner l on l.id = le.learner_id " +
 				"inner join vu360user u on u.id = l.vu360user_id " +
@@ -218,4 +218,13 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     	   ,nativeQuery=true)
     List<Object[]> getUsersTimespentPerCourseByCustomer(@Param("customerId") Long customerId, @Param("courseIds") List<Long> courseIds);
     
+    
+    @Query(value=" SELECT isnull(sum(lcs.totalTimeInSeconds), 0) " +
+    	    " FROM LEARNERENROLLMENT le " +
+    	    " inner join learnercoursestatistics lcs on lcs.LEARNERENROLLMENT_ID =le.id " +
+    	    " inner join course c on c.id=le.course_id  " +
+    	    " where le.ENROLLMENTSTATUS = 'Active' and le.learner_id = :learnerId  and c.guid in (:guids) " 
+    	   ,nativeQuery=true)
+    Long getLearnerTimespentByGuids(@Param("learnerId") Long learnerId, @Param("guids") List<String> guids);
+
 }

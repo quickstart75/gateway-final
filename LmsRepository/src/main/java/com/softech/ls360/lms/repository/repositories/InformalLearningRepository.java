@@ -18,4 +18,12 @@ public interface InformalLearningRepository extends CrudRepository<InformalLearn
 	nativeQuery=true)
 	List<Object[]> getActivityTimeSpent(@Param("username") String username);
 
+	@Query(value="select  ia.TopicId, " + 
+			"SUM(ISNULL(ia.TimeSpentInSeconds, 0)) TimeSpentInSeconds,ISNULL(mc.categoryname,'') categoryname " + 
+			"From LearnerInformalActivity ia " +
+			"left outer join Maganto_Category mc on mc.categoryid = ia.TopicId " +
+			"where ia.VU360Username=:username " +
+			"group by ia.TopicId,mc.categoryname ", 
+	nativeQuery=true)
+	List<Object[]> getActivityTimeSpentByTopic(@Param("username") String username);
 }
