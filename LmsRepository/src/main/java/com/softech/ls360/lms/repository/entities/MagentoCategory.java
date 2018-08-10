@@ -8,8 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "Maganto_Category")
-public class MagantoCategory  extends BaseEntity implements Serializable {
+@Table(name = "MAGENTO_CATEGORY")
+public class MagentoCategory  implements Serializable {
 
 	private static final long serialVersionUID = 6356363943897040868L;
 	
@@ -18,10 +18,10 @@ public class MagantoCategory  extends BaseEntity implements Serializable {
 	private String desc;
 	private String categoryUrl;
 	private String storeId;
-	private Integer type ;
+	private String type ;
 	
 	@Id
-	@Column(name = "categoryId", nullable = false)
+	@Column(name = "CATEGORY_ID", nullable = false)
 	public Long getCategoryId() {
 		return categoryId;
 	}
@@ -30,7 +30,7 @@ public class MagantoCategory  extends BaseEntity implements Serializable {
 		this.categoryId = categoryId;
 	}
 
-	@Column(name = "categoryName")
+	@Column(name = "CATEGORY_NAME")
 	public String getCategoryName() {
 		return categoryName;
 	}
@@ -39,7 +39,7 @@ public class MagantoCategory  extends BaseEntity implements Serializable {
 		this.categoryName = categoryName;
 	}
 
-	@Column(name = "description")
+	@Column(name = "DESCRIPTION")
 	public String getDesc() {
 		return desc;
 	}
@@ -48,7 +48,7 @@ public class MagantoCategory  extends BaseEntity implements Serializable {
 		this.desc = desc;
 	}
 
-	@Column(name = "categoryUrl")
+	@Column(name = "CATEGORY_URL")
 	public String getCategoryUrl() {
 		return categoryUrl;
 	}
@@ -57,7 +57,7 @@ public class MagantoCategory  extends BaseEntity implements Serializable {
 		this.categoryUrl = categoryUrl;
 	}
 
-	@Column(name = "storeId")
+	@Column(name = "STORE_ID")
 	public String getStoreId() {
 		return storeId;
 	}
@@ -66,16 +66,12 @@ public class MagantoCategory  extends BaseEntity implements Serializable {
 		this.storeId = storeId;
 	}
 
-	@Column(name = "type")
-	public Integer getType() {
+	@Column(name = "TYPE")
+	public String getType() {
 		return type;
 	}
 
-	public void setType(Integer type) {
+	public void setType(String type) {
 		this.type = type;
 	}
-
-	
-	
-
 }

@@ -39,9 +39,19 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
 	@Query(value=" select c.guid from course c   inner join learnerenrollment le on le.course_id = c.id inner join learner l on l.id = le.learner_id where le.ENROLLMENTSTATUS = 'Active' and le.learner_id=:learner_id", nativeQuery = true )
 	List<Object[]> getCourseGuidByLearner(@Param("learner_id") long learner_id );
 	
+	@Query(value=" select c.id, c.guid from course c " +  
+				 " inner join learnerenrollment le on le.course_id = c.id " + 
+				 " inner join learner l on l.id = le.learner_id " + 
+				 " where le.ENROLLMENTSTATUS = 'Active' and le.learner_id=:learner_id and le.course_id in (:courseId)", nativeQuery = true )
+	List<Object[]> getCourseGuidByLearnerByCourse(@Param("learner_id") long learner_id, @Param("courseId") List<Long> courseId );
+	
+	
 	@Query(value=" select count(le.id) from learnerenrollment le inner join course c " +
 				 " on c.id=le.course_id inner join learner l "+
 			     " on l.id = le.learner_id where customer_id=:customer_id " 
 				 + "and c.guid in :courseguid  ", nativeQuery = true )
 	Long countByCourseGuidByCustomerId(@Param("customer_id") long customer_id, @Param("courseguid") List<String> allGuid);
+	
+	//@Query("select le from LearnerEnrollment le JOIN Course c on le.course.id = c.id WHERE c.id in (:courseId) and le.learner.id=:learnerId")
+	//List<LearnerEnrollment> findByCourseIdIn_LearnerId(@Param("courseId") List<Long> courseId, @Param("learnerId") Long learnerId);
 }
