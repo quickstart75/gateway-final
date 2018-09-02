@@ -18,11 +18,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.service.CategoryService;
+import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.model.request.MembershipDetailResponse;
 import com.softech.ls360.api.gateway.service.model.request.MembershipRequest;
 import com.softech.ls360.api.gateway.service.model.response.CarrierPathRest;
-import com.softech.ls360.api.gateway.service.model.response.CategoryRest;
 import com.softech.ls360.api.gateway.service.model.response.CategoryCourseRest;
+import com.softech.ls360.api.gateway.service.model.response.CategoryRest;
+import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.entities.MagentoCategory;
 import com.softech.ls360.lms.repository.repositories.CourseRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
@@ -40,8 +42,14 @@ public class CategoryServiceImpl implements CategoryService{
 	@Inject
 	LearnerEnrollmentRepository learnerEnrollmentRepository;
 	
+	@Inject
+	LearnerService learnerService;
+	
 	@Value( "${api.humhub.baseURL}" )
     private String humhubBaseURL;
+	
+	@Value( "${api.humhub.token}" )
+    private String humhubToken;
 	
 	@Override
 	public Map<String , Object> getCategoryTopCourses(Long storeId, Long categoryId, String username) {
@@ -49,20 +57,21 @@ public class CategoryServiceImpl implements CategoryService{
 		CategoryRest category = new CategoryRest();
 		List<CategoryCourseRest> topCourses = new ArrayList<CategoryCourseRest>();
 		List<Long> courseIds = new ArrayList<Long>();
-		//List<String> topcourseGUIDs = new ArrayList<String>();
 		List<Long> enrolledcourseIds = new ArrayList<Long>();
 		List<String> enrolledcourseGUIDs = new ArrayList<String>();
 		
+		// get learner id by username
+		Learner objLearner = learnerService.findByVu360UserUsername(username); //"ATC-L-rri20160731T210347@lms.com"
+		
 		// get top courses of a category 
-		List<Object[]> lstSub =  magentoCategoryRepository.getCategoryTopCourses(categoryId); //, storeId
+		List<Object[]> lstSub =  magentoCategoryRepository.getCategoryTopCourses(categoryId); 
 		if(lstSub.size()>0){
 			 for(Object[]  objCE : lstSub){
 				 courseIds.add(Long.valueOf(objCE[0].toString()));
-				 //topcourseGUIDs.add(objCE[1].toString());
 			 }
 			 
-			 // get enrollments of learners in top courses
-			 List<Object[]> lstEnrollment = learnerEnrollmentRepository.getCourseGuidByLearnerByCourse(572405L, courseIds);
+			 // get enrollments of learner in top courses
+			 List<Object[]> lstEnrollment = learnerEnrollmentRepository.getCourseGuidByLearnerByCourse(objLearner.getId(), courseIds);
 			 for(Object[]  objCE : lstEnrollment){
 				 enrolledcourseIds.add( Long.valueOf(objCE[0].toString()) );
 				 enrolledcourseGUIDs.add(objCE[1].toString());
@@ -124,7 +133,7 @@ public class CategoryServiceImpl implements CategoryService{
        
         List<MembershipDetailResponse> lstmsResponse = new ArrayList<MembershipDetailResponse>();
         if(lstTopics.size()>0)
-    	   lstmsResponse = getHumHumMembershipResponseByTopic("17oct@mailinator.com", lstTopics);
+    	   lstmsResponse = getHumHumMembershipResponseByTopic(username, lstTopics);//"17oct@mailinator.com"
        
         result.put("discussionDetails", lstmsResponse);
         return result;
@@ -133,18 +142,16 @@ public class CategoryServiceImpl implements CategoryService{
 	List<MembershipDetailResponse> getHumHumMembershipResponseByTopic(String username, List lstTopic){
 		MembershipRequest objRequest = new MembershipRequest();
 	    objRequest.setUserId(username);
-	    
-	   
 	    objRequest.setTopics(lstTopic);
 	    
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
-        headers.add("access_token", "U6UgT88XLUvUolAP5WuYJFO1");
+        headers.add("access_token", humhubToken);
         
         HttpEntity requestData = new HttpEntity(objRequest, headers);
         StringBuffer location = new StringBuffer();
-        location.append( humhubBaseURL + "api/membership/active?access_token=U6UgT88XLUvUolAP5WuYJFO1");
+        location.append( humhubBaseURL + "api/membership/active?access_token="+humhubToken);
         
         ResponseEntity<Object> returnedData = restTemplate.postForEntity(location.toString(), requestData ,Object.class);
         Map map = (LinkedHashMap) returnedData.getBody();

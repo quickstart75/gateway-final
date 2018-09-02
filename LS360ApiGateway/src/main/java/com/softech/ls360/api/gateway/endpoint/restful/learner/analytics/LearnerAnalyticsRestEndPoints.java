@@ -31,13 +31,14 @@ public class LearnerAnalyticsRestEndPoints {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
 		String userName = auth.getName(); 
 		Map<String , Object> result = new HashMap<String , Object>();
-		if(request.get("storeId")==null || request.get("categoryId")==null){
+		if( request.get("categoryId")==null){
 			map.put("status", Boolean.FALSE);
 	        map.put("message", "request data is missing!");
 	        map.put("result", result);
 	        return map;
 		}
-		 result =  categoryService.getCategoryTopCourses(Long.valueOf(request.get("storeId").toString()), 
+		//store Id is not in use, in future it may use
+		 result =  categoryService.getCategoryTopCourses(1L, 
 				 									Long.valueOf(request.get("categoryId").toString()), userName);
 		//CategoryRest objRest =
 		//result.put("categoryDetails", objRest);
