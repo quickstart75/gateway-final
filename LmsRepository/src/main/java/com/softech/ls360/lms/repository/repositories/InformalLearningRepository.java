@@ -23,7 +23,7 @@ public interface InformalLearningRepository extends CrudRepository<InformalLearn
 			"From LearnerInformalActivity ia " +
 			"left outer join MAGENTO_CATEGORY mc on mc.CATEGORY_ID = ia.TopicId " +
 			"where ia.VU360Username=:username " +
-			"group by ia.TopicId,mc.categoryname ", 
+			"group by ia.TopicId,mc.CATEGORY_NAME ", 
 	nativeQuery=true)
 	List<Object[]> getActivityTimeSpentByTopic(@Param("username") String username);
 }
