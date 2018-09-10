@@ -10,7 +10,8 @@ public class ClassroomStatistics {
 	private String labType = "";
 	private String labURL = "";
 	private String meetingURL = "";
-	
+	private String timezone;
+	private String location;
 	
 	public String getMeetingURL() {
 		return meetingURL;
@@ -59,5 +60,17 @@ public class ClassroomStatistics {
 	}
 	public void setDurationUnit(String durationUnit) {
 		this.durationUnit = durationUnit;
+	}
+	public String getTimezone() {
+		return timezone;
+	}
+	public void setTimezone(String timezone) {
+		this.timezone = timezone;
+	}
+	public String getLocation() {
+		return location;
+	}
+	public void setLocation(String location) {
+		this.location = location;
 	}
 }

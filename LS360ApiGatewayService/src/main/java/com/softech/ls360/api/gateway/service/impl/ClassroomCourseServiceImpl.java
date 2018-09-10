@@ -163,6 +163,9 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 			classroomStatistics.setLabType(labType);
 			classroomStatistics.setLabURL(labURL);
 			classroomStatistics.setMeetingURL(meetingURL);			
+			classroomStatistics.setTimezone(classRoom.getTimeZone().getZone());
+			classroomStatistics.setLocation(classRoom.getLocation().getLocationName());
+			
 		}
 		return classroomStatistics;
 	}

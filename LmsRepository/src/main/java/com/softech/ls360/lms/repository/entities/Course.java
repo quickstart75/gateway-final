@@ -100,6 +100,7 @@ public class Course extends AuditedEntity implements Serializable {
 	private LocalDateTime lastPublishedDate;
 	private String durationUnit;
 	private String supplementCourseId;
+	private String courseInstructions;
 	//@OneToOne
 //	@Fetch(FetchMode.JOIN)
 	
@@ -641,13 +642,14 @@ public class Course extends AuditedEntity implements Serializable {
 				+ courseType + ", courseGuid=" + courseGuid + ", businessKey="
 				+ businessKey + "]";
 	}
-/*
-	public Integer getLABTYPE_ID() {
-		return LABTYPE_ID;
+
+	@Column(name = "ADDITIONALMATERIALS")
+	public String getCourseInstructions() {
+		return courseInstructions;
 	}
 
-	public void setLABTYPE_ID(Integer lABTYPE_ID) {
-		LABTYPE_ID = lABTYPE_ID;
+	public void setCourseInstructions(String courseInstructions) {
+		this.courseInstructions = courseInstructions;
 	}
-	*/
+
 }

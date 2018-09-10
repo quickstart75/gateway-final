@@ -41,6 +41,9 @@ public class LearnerEnrollmentStatistics   {
   private String labURL;
   private String labName;
   private Boolean isLabThirdParty;
+  private String courseInstructions;
+  private String learnerInstructions;
+  
   /**
    * Completion Certificate URI if the course is completed.
    **/
@@ -445,6 +448,23 @@ public void setRecordedClassLaunchURI(String recordedClassLaunchURI) {
 
 	public void setIsLabThirdParty(Boolean isLabThirdParty) {
 		this.isLabThirdParty = isLabThirdParty;
+	}
+
+	
+	public String getCourseInstructions() {
+		return courseInstructions;
+	}
+
+	public void setCourseInstructions(String courseInstructions) {
+		this.courseInstructions = courseInstructions;
+	}
+
+	public String getLearnerInstructions() {
+		return learnerInstructions;
+	}
+
+	public void setLearnerInstructions(String learnerInstructions) {
+		this.learnerInstructions = learnerInstructions;
 	}
 
 @Override

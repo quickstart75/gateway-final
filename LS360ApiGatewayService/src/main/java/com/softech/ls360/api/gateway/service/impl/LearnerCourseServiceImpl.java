@@ -453,6 +453,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				learnerCourse.setCourseSubType(courseType);
 			}
 			
+			learnerCourse.setCourseInstructions(lcs.getLearnerEnrollment().getCourse().getCourseInstructions());
+			learnerCourse.setLearnerInstructions(lcs.getLearnerEnrollment().getLearnerInstructions());
+			
 			learnerCourse.setEnrollmentId(lcs.getLearnerEnrollment().getId());
 			learnerCourse.setExpiryDate(lcs.getLearnerEnrollment().getEndDate());
 			

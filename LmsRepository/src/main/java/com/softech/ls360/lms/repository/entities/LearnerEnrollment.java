@@ -50,6 +50,7 @@ public class LearnerEnrollment extends BaseEntity implements Serializable {
 	private boolean launchInN3;
 	private Boolean skippedCourseApproval;
 	private Subscription subscription;
+	private String learnerInstructions ;
 	
 	public LocalDateTime getEnrollmentDate() {
 		return enrollmentDate;
@@ -192,4 +193,14 @@ public class LearnerEnrollment extends BaseEntity implements Serializable {
 		this.subscription = subscription;
 	}
 
+	@Column(name="LEARNERINSTRUCTIONS")
+	public String getLearnerInstructions() {
+		return learnerInstructions;
+	}
+
+	public void setLearnerInstructions(String learnerInstructions) {
+		this.learnerInstructions = learnerInstructions;
+	}
+
+	
 }

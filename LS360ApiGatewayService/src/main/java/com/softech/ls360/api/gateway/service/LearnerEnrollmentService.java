@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
 import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse;
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
@@ -20,4 +21,6 @@ public interface LearnerEnrollmentService {
 	List<FocusResponse> getEnrolledCoursesPercentageByTopicByCustomer(long customerId, List<String> EnrolledCoursesGUID);
 	List<FocusResponse> getEnrolledCoursesPercentageByTopic(String userName,Long learnerId, List<String> EnrolledCoursesGUID);
 	SubscriptionSavingResponse getSubscriptionSavingStates(Long customerId,  List<Long> userGroup);
+	String getLearnerEnrollmentInstruction(Long enrollmentId);
+	boolean saveLearnerEnrollmentInstruction(List<LearnerInstruction> instructionRequest);
 }

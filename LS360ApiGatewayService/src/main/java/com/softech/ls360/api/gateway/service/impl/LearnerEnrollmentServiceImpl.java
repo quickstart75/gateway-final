@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
+import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
 import com.softech.ls360.api.gateway.service.InformalLearningService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.request.FocusRequest;
@@ -487,5 +488,20 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
         //Object dtoList = restTemplate.exchange(location.toString(), HttpMethod.POST, requestData, parameterizedTypeReference);
         
 		return objResponse;
+	}
+	
+	@Override
+	public String getLearnerEnrollmentInstruction(Long enrollmentId){
+		return learnerEnrollmentRepository.getLearnerEnrollmentInstruction(enrollmentId);
+	}
+	
+	@Override
+	public boolean saveLearnerEnrollmentInstruction(List<LearnerInstruction> instructionRequest){
+		
+		for(LearnerInstruction objLI : instructionRequest){
+			learnerEnrollmentRepository.saveLearnerEnrollmentInstruction(objLI.getEnrollmentId(), objLI.getLearnerInstruction());
+		}
+		
+		return true;
 	}
 }
