@@ -1,10 +1,9 @@
 package com.softech.ls360.api.gateway.endpoint.restful;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -25,6 +24,7 @@ import com.softech.ls360.api.gateway.service.LearnerCourseService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
+import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
 import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
 import com.softech.ls360.api.gateway.service.model.request.UpdateEnrollmentStatusRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
@@ -170,4 +170,36 @@ public class EnrollmentRestEndpoint {
 			
 	}
 	
+	@RequestMapping(value = "/learner/enrollment/instruction/{enrollmentId}", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<Object, Object> getLearnerEnrollmentInstruction (@PathVariable("enrollmentId") Long enrollmentId) throws Exception {
+		
+		logger.info("Request received at " + getClass().getName() + " for get learner Enrollment Instruction Details");
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		
+		String enrollmentInstruction = learnerEnrollmentService.getLearnerEnrollmentInstruction(enrollmentId);
+		result.put("enrollmentId", enrollmentId);
+		result.put("learnerInstruction", enrollmentInstruction);
+		
+		map.put("status", Boolean.TRUE);
+        map.put("message", "success");
+        map.put("result", result);
+		return map;
+		
+	}
+	
+	@RequestMapping(value = "/learner/enrollment/instruction", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> getLearnerEnrollmentInstruction (@RequestBody List<LearnerInstruction> instructionRequest) throws Exception {
+		logger.info("Request received at " + getClass().getName() + " for save Learner Enrollment Instruction Details");
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		
+		learnerEnrollmentService.saveLearnerEnrollmentInstruction(instructionRequest);
+		
+		map.put("status", Boolean.TRUE);
+        map.put("message", "success");
+        map.put("result", new ArrayList());
+		return map;
+	}
 }
