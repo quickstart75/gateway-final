@@ -12,6 +12,7 @@ public class ClassroomStatistics {
 	private String meetingURL = "";
 	private String timezone;
 	private String location;
+	private String classInstructions;
 	
 	public String getMeetingURL() {
 		return meetingURL;
@@ -73,4 +74,11 @@ public class ClassroomStatistics {
 	public void setLocation(String location) {
 		this.location = location;
 	}
+	public String getClassInstructions() {
+		return classInstructions;
+	}
+	public void setClassInstructions(String classInstructions) {
+		this.classInstructions = classInstructions;
+	}
+	
 }

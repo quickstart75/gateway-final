@@ -162,10 +162,14 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 			//classroomStatistics.setDurationUnit(durationUnit);
 			classroomStatistics.setLabType(labType);
 			classroomStatistics.setLabURL(labURL);
-			classroomStatistics.setMeetingURL(meetingURL);			
-			classroomStatistics.setTimezone(classRoom.getTimeZone().getZone());
-			classroomStatistics.setLocation(classRoom.getLocation().getLocationName());
+			classroomStatistics.setMeetingURL(meetingURL);	
 			
+			if(classRoom.getTimeZone()!=null)
+				classroomStatistics.setTimezone(classRoom.getTimeZone().getZone());
+			
+			if(classRoom.getLocation()!=null)
+			classroomStatistics.setLocation(classRoom.getLocation().getLocationName());
+			classroomStatistics.setClassInstructions(classRoom.getClassinstructions());
 		}
 		return classroomStatistics;
 	}

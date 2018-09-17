@@ -52,6 +52,7 @@ public class SynchronousClass extends BaseEntity implements Serializable {
 	private String webinarServiceProvider;
 	private Boolean chkCourseTimePassed;
 	private List<SynchronousSession> synchronousSession;
+	private String classinstructions;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="COURSE_ID")
@@ -286,6 +287,15 @@ public class SynchronousClass extends BaseEntity implements Serializable {
 
 	public void setSynchronousSession(List<SynchronousSession> synchronousSession) {
 		this.synchronousSession = synchronousSession;
+	}
+
+	@Column(name="CLASSINSTRUCTIONS")
+	public String getClassinstructions() {
+		return classinstructions;
+	}
+	
+	public void setClassinstructions(String classinstructions) {
+		this.classinstructions = classinstructions;
 	}
 
 }
