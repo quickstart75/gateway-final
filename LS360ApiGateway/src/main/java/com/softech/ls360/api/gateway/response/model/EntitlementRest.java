@@ -1,5 +1,7 @@
 package com.softech.ls360.api.gateway.response.model;
 
+import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
+
 public class EntitlementRest {
 	String name;
 	String code;
@@ -9,7 +11,7 @@ public class EntitlementRest {
     String startDate;
     String endDate;
     String totalSeats;
-    
+    private ClassroomStatistics classroomStatistics; 
 	public String getName() {
 		return name;
 	}
@@ -59,6 +61,10 @@ public class EntitlementRest {
 	public void setTotalSeats(String totalSeats) {
 		this.totalSeats = totalSeats;
 	}
-
-    
+	public ClassroomStatistics getClassroomStatistics() {
+		return classroomStatistics;
+	}
+	public void setClassroomStatistics(ClassroomStatistics classroomStatistics) {
+		this.classroomStatistics = classroomStatistics;
+	}
 }

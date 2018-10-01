@@ -174,6 +174,43 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 		return classroomStatistics;
 	}
 
+	
+	@Override
+	@Transactional
+	public ClassroomStatistics getClassroomStatistics(Long classId) {
+		logger.info("Call for Classroom statistics (for My Courses/Isotopes) from class" + getClass().getName());
+		ClassroomStatistics classroomStatistics = null;
+		
+		SynchronousClass classRoom = synchronousClassRepository.findOne(classId);
+		if(classRoom != null){
+			classroomStatistics = new ClassroomStatistics();
+			List<SynchronousSession> synchronousSession = classRoom.getSynchronousSession();
+			Map<String, String> startEndDate = getStartEndDate(synchronousSession);
+			
+			String status = getStatus(synchronousSession);
+			String startDate = startEndDate.get("startDate");
+			String endDate = startEndDate.get("endDate");
+			String duration = classRoom.getCourse().getDuration();
+			//String durationUnit = classRoom.getCourse().getDurationUnit();
+			String meetingURL = classRoom.getMeetingUrl() != null ? classRoom.getMeetingUrl() : ""; 
+			
+			classroomStatistics.setStartDate(startDate);
+			classroomStatistics.setEndDate(endDate);
+			classroomStatistics.setStatus(status);
+			classroomStatistics.setDuration(duration);
+			//classroomStatistics.setDurationUnit(durationUnit);
+			classroomStatistics.setMeetingURL(meetingURL);	
+			
+			if(classRoom.getTimeZone()!=null)
+				classroomStatistics.setTimezone(classRoom.getTimeZone().getZone());
+			
+			if(classRoom.getLocation()!=null)
+			classroomStatistics.setLocation(classRoom.getLocation().getLocationName());
+			classroomStatistics.setClassInstructions(classRoom.getClassinstructions());
+		}
+		return classroomStatistics;
+	}
+	
 	@Override
 	public List<ClassroomCourseInfo> getClassroomCourseScheduleStatistics(String courseGuid) {
 

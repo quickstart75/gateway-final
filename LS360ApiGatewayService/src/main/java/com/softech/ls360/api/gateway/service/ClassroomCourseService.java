@@ -16,5 +16,6 @@ public interface ClassroomCourseService {
 	Map<String, String> getStartEndDate(List<SynchronousSession> synchronousSession);
 	String getStatus(List<SynchronousSession> synchronousSession);
 	ClassroomStatistics getClassroomStatistics(Long classId,com.softech.ls360.lms.repository.entities.Course course);
+	ClassroomStatistics getClassroomStatistics(Long classId);
 	List<ClassroomCourseInfo> getClassroomCourseScheduleStatistics(String courseGuid);
 }

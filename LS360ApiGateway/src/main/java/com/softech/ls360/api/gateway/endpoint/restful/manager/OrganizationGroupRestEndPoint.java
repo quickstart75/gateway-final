@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.inject.Inject;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
+
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.request.OrganizationRequest;
@@ -33,9 +36,11 @@ import com.softech.ls360.api.gateway.response.OrganizationResponse;
 import com.softech.ls360.api.gateway.response.model.EntitlementRest;
 import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 import com.softech.ls360.api.gateway.response.model.UserRest;
+import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.impl.UserGroupServiceImpl;
+import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
 import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
@@ -54,6 +59,9 @@ public class OrganizationGroupRestEndPoint {
 	
 	@Inject
 	LearnerService learnerService;
+	
+	@Inject
+    protected ClassroomCourseService classroomCourseService;
 	
 	@Autowired
     Environment env;
@@ -168,6 +176,17 @@ public class OrganizationGroupRestEndPoint {
 	        	er.setEndDate(objCE[5].toString());
 	        	er.setGuid(objCE[6].toString());
 	        	er.setCode(objCE[7].toString());
+	        	
+	        	try{
+	        		if(objCE[1].toString().equals("Course")  &&  objCE[8].toString().equals("Classroom Course")  &&  objCE[9] != null){
+	        			if(Long.valueOf(objCE[9].toString())>0){
+	        				ClassroomStatistics objclassdetail = classroomCourseService.getClassroomStatistics(Long.valueOf(objCE[9].toString()));
+	        				er.setClassroomStatistics(objclassdetail);
+	        			}
+	        		}
+	        	}catch(Exception ex){
+	        		logger.error(">>> Exception occurs while send the organizationgroupdetail >>>: getClassroomStatistics() >> " + ex);
+	        	}
 	        	lstEntitlementRest.add(er);
         	}catch(Exception ex){
         		logger.error(">>> Exception occurs while send the organizationgroupdetail >>>: findEntitlementByCustomer(customer.getId()) >> " + ex);
