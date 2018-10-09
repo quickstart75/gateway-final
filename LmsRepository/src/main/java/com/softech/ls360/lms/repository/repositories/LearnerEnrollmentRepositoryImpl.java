@@ -1,5 +1,7 @@
 package com.softech.ls360.lms.repository.repositories;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -13,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.lms.repository.entities.Enrollments;
 import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
@@ -117,6 +120,73 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 				enrollments.setMaxResults(pageable.getPageSize());
 				enrollments.setFirstResult(pageable.getOffset());
 				Page<LearnerEnrollment> page = new PageImpl<LearnerEnrollment>(enrollments.getResultList(), pageable, total);
+				
+		return page;
+	}
+	
+	
+	public Page<LearnerEnrollment> getLearnersMOCEnrollment(Pageable pageable, Map<String, String> userCoursesRequest){
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		StringBuilder queryString = new StringBuilder("SELECT le FROM LearnerEnrollment le JOIN le.course c "
+				+ "JOIN le.learner l JOIN l.vu360User u  where le.enrollmentStatus='"+LearnerEnrollment.ACTIVE+"' and  c.businessUnitName='MOC On Demand' "); 
+				
+		if(userCoursesRequest.get("dateFrom")!=null && StringUtils.isNotBlank( userCoursesRequest.get("dateFrom")))
+				queryString.append( " and le.enrollmentDate>= :startDate ");//'" + LocalDateTime.parse(userCoursesRequest.get("dateFrom"),formatter) + "' ");
+		
+		if(userCoursesRequest.get("dateTo")!=null && StringUtils.isNotBlank( userCoursesRequest.get("dateTo")))
+			queryString.append( "and le.enrollmentDate<=:dateTo " );
+		
+		if(StringUtils.isNotBlank( userCoursesRequest.get("userName")))
+			queryString.append( " and u.firstName + u.lastName like '%"+ StringUtils.replace( userCoursesRequest.get("userName"), " ", "%") +"%' ");
+		
+		if(userCoursesRequest.get("courseName")!=null && StringUtils.isNotBlank( userCoursesRequest.get("courseName")))
+			queryString.append( " and c.name like '%"+ userCoursesRequest.get("courseName")+"%' ");
+		
+		if(StringUtils.isNotBlank( userCoursesRequest.get("email")))
+			queryString.append( " and u.username like '%" +userCoursesRequest.get("email")+"%' ");
+		
+		
+		if(StringUtils.isNotBlank( userCoursesRequest.get("status"))){
+			if(userCoursesRequest.get("status").equalsIgnoreCase("Unassigned"))
+				queryString.append( " and (le.mocStatus IS NULL or le.mocStatus='Unassigned')");
+			else if(userCoursesRequest.get("status").equalsIgnoreCase("Assigned"))
+				queryString.append( " and le.mocStatus = 'Assigned' ");
+			else if(userCoursesRequest.get("status").equalsIgnoreCase("Completed"))
+				queryString.append( " and le.mocStatus = 'Completed' ");
+		}
+		
+		if(StringUtils.isNotBlank( userCoursesRequest.get("type"))){
+			if(userCoursesRequest.get("type").equalsIgnoreCase("Order"))
+				queryString.append( " and le.subscription IS NULL ");
+			else if(userCoursesRequest.get("type").equalsIgnoreCase("Subscription Request"))
+				queryString.append( " and le.subscription IS not NULL ");
+		}
+		
+		if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("username"))
+			queryString.append(" order by u.firstName ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("email"))
+			queryString.append(" order by u.username ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("courseName"))
+			queryString.append(" order by c.name ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("enrollmentDate"))
+			queryString.append(" order by le.enrollmentDate ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("status"))
+			queryString.append(" order by le.mocStatus ");
+		else if(userCoursesRequest.get("sortBy")!=null && userCoursesRequest.get("sortBy").equalsIgnoreCase("type"))
+			queryString.append(" order by le.subscription.id ");
+		else
+			queryString.append(" order by le.id ");
+		
+		queryString.append(userCoursesRequest.get("sortDirection"));
+		
+		TypedQuery<LearnerEnrollment> enrollments = entityManager.createQuery(queryString.toString(), LearnerEnrollment.class);
+		enrollments.setParameter("startDate", LocalDateTime.parse(userCoursesRequest.get("dateFrom"),formatter));
+		enrollments.setParameter("dateTo", LocalDateTime.parse(userCoursesRequest.get("dateTo"),formatter));
+		
+		int total = enrollments.getResultList().size();
+		enrollments.setMaxResults(pageable.getPageSize());
+		enrollments.setFirstResult(pageable.getOffset());
+		Page<LearnerEnrollment> page = new PageImpl<LearnerEnrollment>(enrollments.getResultList(), pageable, total);
 				
 		return page;
 	}

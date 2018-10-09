@@ -43,7 +43,7 @@ public class LearnerEnrollmentStatistics   {
   private Boolean isLabThirdParty;
   private String courseInstructions;
   private String learnerInstructions;
-  
+  private MOCDetail mocDetail;
   /**
    * Completion Certificate URI if the course is completed.
    **/
@@ -465,6 +465,15 @@ public void setRecordedClassLaunchURI(String recordedClassLaunchURI) {
 
 	public void setLearnerInstructions(String learnerInstructions) {
 		this.learnerInstructions = learnerInstructions;
+	}
+
+	
+	public MOCDetail getMocDetail() {
+		return mocDetail;
+	}
+
+	public void setMocDetail(MOCDetail mocDetail) {
+		this.mocDetail = mocDetail;
 	}
 
 @Override

@@ -504,4 +504,13 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		
 		return true;
 	}
+	
+	public boolean isAllowMOCSubscriptionEnrollment(String username, Long subscriptionId){
+		Long enrollmentCount = learnerEnrollmentRepository.countMOCEnrollmentBySubscription(username, subscriptionId);
+		
+		if(enrollmentCount==0)
+			return true;
+		else
+			return false;
+	}
 }

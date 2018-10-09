@@ -130,10 +130,27 @@ public class EnrollmentRestEndpoint {
 			
 	}
 	
+	
+	@RequestMapping(value = "/admin/mocod/enrollments", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> getMOCLearnerEnrollment(@RequestBody LearnersEnrollmentRequest user
+			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
+		
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		logger.info("Request received at " + getClass().getName() + " /admin/vilt/enrollments");
+		
+		LearnersEnrollmentResponse objResponse = learnerCourseCountService.getMOCLearnersEnrollment(user);
+		
+		map.put("status", Boolean.TRUE);
+		map.put("message", "success");
+		map.put("result", objResponse);
+		return map;
+			
+	}
+	
 	@RequestMapping(value = "/customer/enrollment/status", method = RequestMethod.PUT)
 	@ResponseBody
 	public Map<Object, Object> updateEnrollmentStatus(@RequestBody UpdateEnrollmentStatusRequest enrolRequest) {
-		
 		Map<Object, Object> map = new HashMap<Object, Object>();
 		logger.info("Request received at " + getClass().getName() + " /customer/enrollment/status ");
 		
@@ -152,10 +169,9 @@ public class EnrollmentRestEndpoint {
 			map.put("message", "Failure! given status is not correct.");
 		}
 		
-		
 		return map;
-			
 	}
+	
 	@RequestMapping(value = "/learner/classroom/details/{enrollmentId}", method = RequestMethod.GET)
 	@ResponseBody
 	public LearnerClassroomDetailResponse learnerClassroomDetails(@PathVariable("enrollmentId") long enrollmentId) throws Exception {
@@ -200,6 +216,25 @@ public class EnrollmentRestEndpoint {
 		map.put("status", Boolean.TRUE);
         map.put("message", "success");
         map.put("result", new ArrayList());
+		return map;
+	}
+	
+	@RequestMapping(value = "/learner/subscription-mocod-enrollment/allowed/{subscriptionId}", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<Object, Object> isAllowMOCSubscriptionEnrollment(@PathVariable("subscriptionId") long subscriptionCode) throws Exception {
+		logger.info("Request received at " + getClass().getName() + " is Allow MOC Subscription Enrollment ");
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		String userName = auth.getName();
+		
+		boolean isAllow = learnerEnrollmentService.isAllowMOCSubscriptionEnrollment(userName, subscriptionCode);
+		
+		Map<Object, Object> result = new HashMap<Object, Object>();
+		result.put("subMocodEnrollmentAllowed", isAllow);
+		map.put("status", Boolean.TRUE);
+        map.put("message", "success");
+        map.put("result", result);
 		return map;
 	}
 }

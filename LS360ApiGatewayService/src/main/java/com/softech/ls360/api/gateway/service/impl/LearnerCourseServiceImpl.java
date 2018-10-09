@@ -46,6 +46,7 @@ import com.softech.ls360.api.gateway.service.model.response.LearnerCourseRespons
 import com.softech.ls360.api.gateway.service.model.response.LearnerEnrollmentStatistics;
 import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
 import com.softech.ls360.api.gateway.service.model.response.LearnersEnrollmentResponse;
+import com.softech.ls360.api.gateway.service.model.response.MOCDetail;
 import com.softech.ls360.lcms.api.service.LockedCourseService;
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.ArrayOfLockedCourseStatus;
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.GetCourseLockedStatusResponse;
@@ -358,7 +359,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		LearnerEnrollmentStatistics learnerCourse = null;
 		
 		//String enrollments = getEnrollments(learnerCoursesList);
-		String enrollments = getEnrollmentIdsByStatus(learnerCoursesList, "inprogress");
+		//String enrollments = getEnrollmentIdsByStatus(learnerCoursesList, "inprogress");
 		
 		
 		//Locked Course
@@ -378,8 +379,8 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			Long enrollmentId = lcs.getLearnerEnrollment().getId();
 			learnerCourse = new LearnerEnrollmentStatistics();
 			
-			Long entitlementId = lcs.getLearnerEnrollment().getCustomerEntitlement().getId();
-			Long courseId = lcs.getLearnerEnrollment().getCourse().getId();
+			//Long entitlementId = lcs.getLearnerEnrollment().getCustomerEntitlement().getId();
+			//Long courseId = lcs.getLearnerEnrollment().getCourse().getId();
 			
 			Long enrollmentSubscriptionID = null;
 			if(lcs.getLearnerEnrollment().getSubscription() != null)
@@ -475,7 +476,15 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				}		
 			}
 			
-			
+			String mocType = lcs.getLearnerEnrollment().getCourse().getBusinessUnitName();
+			if(mocType!=null && mocType.equalsIgnoreCase("MOC On Demand")){
+				MOCDetail objmocDetail = new MOCDetail();
+				objmocDetail.setType(mocType);
+				objmocDetail.setEnrollmentStatus(lcs.getLearnerEnrollment().getMocStatus());
+				learnerCourse.setMocDetail(objmocDetail);
+			}
+				
+				
 			if(enrollmentSubscriptionID == null)
 				learnerCourse.setIsSubscriptionEnrollment(false);
 			else
@@ -692,6 +701,102 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				classInfo.setTimeZone(enrollment.getSynchronousClass().getTimeZone().getZone());
 			}
 			classes.put( "classId_" + enrollment.getSynchronousClass().getId() , classInfo);
+		}
+		
+		objLER.setEnrollments(lstEnrollment);
+		objLER.setClasses(classes);
+		objLER.setPageNumber(page.getNumber()+1);
+		objLER.setPageSize(page.getSize());
+		objLER.setTotalPages(page.getTotalPages());
+		objLER.setTotalEnrollments(page.getTotalElements());
+		return objLER;
+	}
+	
+	@Transactional
+	public LearnersEnrollmentResponse getMOCLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest){
+		int pageNumber = userCoursesRequest.getPageNumber()-1;
+		int pageSize = userCoursesRequest.getPageSize();
+		
+		PageRequest request = new PageRequest(pageNumber, pageSize);//, sortDirection, "learnerEnrollment.course.name");
+		Map<String, String> userCoursesmap = new HashMap<String, String>();
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateFrom()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateFrom()))
+			userCoursesmap.put("dateFrom", userCoursesRequest.getFilter().getDateFrom() + " 00:00:00");
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateTo()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateTo())){
+			userCoursesmap.put("dateTo", userCoursesRequest.getFilter().getDateTo() + " 23:59:59");
+		}
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getCourseName()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getCourseName()))
+			userCoursesmap.put("courseName", userCoursesRequest.getFilter().getCourseName());
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getEmail()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getEmail()))
+			userCoursesmap.put("email", userCoursesRequest.getFilter().getEmail());
+		
+		if(StringUtils.isNotBlank(userCoursesRequest.getFilter().getUserName()))
+			userCoursesmap.put("userName", userCoursesRequest.getFilter().getUserName());
+		
+		if(StringUtils.isNotBlank(userCoursesRequest.getFilter().getType())){
+			//if(userCoursesRequest.getFilter().getStatus().equalsIgnoreCase(""))
+				userCoursesmap.put("type", userCoursesRequest.getFilter().getType());
+		}
+		
+		if(StringUtils.isNotBlank(userCoursesRequest.getFilter().getStatus())){
+			//if(userCoursesRequest.getFilter().getStatus().equalsIgnoreCase(""))
+				userCoursesmap.put("status", userCoursesRequest.getFilter().getStatus());
+		}
+		
+		
+		String sortDirection = "Asc";
+		if(StringUtils.isNotBlank(userCoursesRequest.getSortDirection()) && userCoursesRequest.getSortDirection().equalsIgnoreCase("Desc")){
+			sortDirection = "Desc";
+		}
+		
+		if(StringUtils.isNotBlank(userCoursesRequest.getSortBy())){
+			userCoursesmap.put("sortBy", userCoursesRequest.getSortBy());
+		}
+		
+		userCoursesmap.put("sortDirection", sortDirection);
+		
+		Page<LearnerEnrollment> page = learnerEnrollmentRepository.getLearnersMOCEnrollment(request, userCoursesmap);
+		List<LearnerEnrollment> learnerCoursesList = new ArrayList<LearnerEnrollment>();
+		if(page != null)
+			learnerCoursesList = page.getContent();
+		
+		//List<Long> enrollmentids = new ArrayList<Long>();
+		//for(LearnerEnrollment enrollmentforAttendance : learnerCoursesList ){
+		//	enrollmentids.add(enrollmentforAttendance.getId());
+		//}
+		
+		//if(enrollmentids.size()>0){
+		//	List<Object[]> lstattendance = vILTAttendanceService.findByEnrollmentIds( enrollmentids);
+		//}
+		
+		LearnersEnrollmentResponse objLER = new LearnersEnrollmentResponse();
+		List<EnrollmentInfo> lstEnrollment = new ArrayList<EnrollmentInfo>();
+		Map<String, ClassInfo> classes = new HashMap<String, ClassInfo>();
+		
+		for(LearnerEnrollment enrollment : learnerCoursesList ){
+			EnrollmentInfo objE = new EnrollmentInfo();
+			
+			objE.setEnrollmentId(enrollment.getId());
+			if(enrollment.getEnrollmentDate()!=null)
+				objE.setEnrollmentDate(enrollment.getEnrollmentDate()+"");
+			
+			objE.setCourseName(enrollment.getCourse().getName());
+			objE.setName(enrollment.getLearner().getVu360User().getFirstName() + " " +enrollment.getLearner().getVu360User().getLastName());
+			objE.setEmail(enrollment.getLearner().getVu360User().getUsername());
+			
+			if(enrollment.getMocStatus() == null)
+				objE.setStatus("Unassigned");
+			else
+				objE.setStatus(enrollment.getMocStatus());
+			
+			if(enrollment.getSubscription() == null)
+				objE.setType("Order");
+			else
+				objE.setType("Subscription Request");
+			
+			lstEnrollment.add(objE);
 		}
 		
 		objLER.setEnrollments(lstEnrollment);

@@ -60,4 +60,14 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
    	@Query(value="update LEARNERENROLLMENT set LEARNERINSTRUCTIONS=:learnerinstructions  where ID = :id", nativeQuery = true )
    	void saveLearnerEnrollmentInstruction(@Param("id") Long id, @Param("learnerinstructions") String learnerinstructions);
 
+	
+	@Query(value=" select count(le.id) from learnerenrollment le   " +
+			" inner join learner l on l.id = le.learner_id  " +
+			" inner join vu360user u on u.id = l.vu360user_id  " +
+			" inner join course c on c.id = le.course_id  " +
+			" inner join subscription s on s.id=le.subscription_id  " +
+			" where u.username=:username and  " +
+		    " c.BUSINESSUNIT_NAME='MOC On Demand'  " + 
+			" and s.subscription_Code = :subscriptionCode ", nativeQuery = true )
+	Long countMOCEnrollmentBySubscription(@Param("username") String username, @Param("subscriptionCode") Long subscriptionCode);
 }

@@ -20,4 +20,6 @@ public interface LearnerCourseService {
 	List<CourseTimeSpentResponse> getCourseTimeSpent(CourseTimeSpentRequest request, String userName);
 
 	LearnersEnrollmentResponse getLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest);
+	
+	LearnersEnrollmentResponse getMOCLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest);
 }

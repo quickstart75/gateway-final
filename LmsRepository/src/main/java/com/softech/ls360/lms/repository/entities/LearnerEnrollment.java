@@ -51,6 +51,7 @@ public class LearnerEnrollment extends BaseEntity implements Serializable {
 	private Boolean skippedCourseApproval;
 	private Subscription subscription;
 	private String learnerInstructions ;
+	private String mocStatus ;
 	
 	public LocalDateTime getEnrollmentDate() {
 		return enrollmentDate;
@@ -200,6 +201,15 @@ public class LearnerEnrollment extends BaseEntity implements Serializable {
 
 	public void setLearnerInstructions(String learnerInstructions) {
 		this.learnerInstructions = learnerInstructions;
+	}
+
+	@Column(name="MOC_STATUS")
+	public String getMocStatus() {
+		return mocStatus;
+	}
+
+	public void setMocStatus(String mocStatus) {
+		this.mocStatus = mocStatus;
 	}
 
 	

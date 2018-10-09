@@ -7,6 +7,10 @@ public class EnrollmentInfo {
 	 private String name;
 	 private String email;
 	 private Attendance attendance;
+	 private String enrollmentDate;
+	 private String courseName;
+	 private String type;
+	 private String status;
 	 
 	public Long getEnrollmentId() {
 		return enrollmentId;
@@ -37,6 +41,30 @@ public class EnrollmentInfo {
 	}
 	public void setAttendance(Attendance attendance) {
 		this.attendance = attendance;
+	}
+	public String getEnrollmentDate() {
+		return enrollmentDate;
+	}
+	public void setEnrollmentDate(String enrollmentDate) {
+		this.enrollmentDate = enrollmentDate;
+	}
+	public String getCourseName() {
+		return courseName;
+	}
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	 
 }

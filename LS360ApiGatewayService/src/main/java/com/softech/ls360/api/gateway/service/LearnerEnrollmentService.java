@@ -23,4 +23,5 @@ public interface LearnerEnrollmentService {
 	SubscriptionSavingResponse getSubscriptionSavingStates(Long customerId,  List<Long> userGroup);
 	String getLearnerEnrollmentInstruction(Long enrollmentId);
 	boolean saveLearnerEnrollmentInstruction(List<LearnerInstruction> instructionRequest);
+	boolean isAllowMOCSubscriptionEnrollment(String username, Long subscriptionId);
 }
