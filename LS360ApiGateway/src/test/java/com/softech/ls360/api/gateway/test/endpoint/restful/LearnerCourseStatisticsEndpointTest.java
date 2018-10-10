@@ -57,7 +57,7 @@ public class LearnerCourseStatisticsEndpointTest extends
 		learnerEnrollmentIdList.add(5618L);
 		learnerEnrollmentIdList.add(51L);
 		
-		user.setEnrollmentId(learnerEnrollmentIdList);
+	//	user.setEnrollmentId(learnerEnrollmentIdList);
 		
 
 		return JsonUtil.convertObjectToJson(user);

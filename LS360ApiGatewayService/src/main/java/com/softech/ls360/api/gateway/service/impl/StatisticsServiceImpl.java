@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,9 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.api.gateway.service.StatisticsService;
+import com.softech.ls360.api.gateway.service.model.request.LearnerCourseStatisticsRequest;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseStatisticsResponse;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
+import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 
 @Service
 public class StatisticsServiceImpl implements StatisticsService{
@@ -24,6 +27,42 @@ public class StatisticsServiceImpl implements StatisticsService{
 
 	@Inject
 	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
+	
+	@Inject
+	private LearnerEnrollmentRepository learnerEnrollmentRepository;
+	
+	
+	@Override
+	@Transactional
+	public Boolean updateLearnerCourseStatistics(
+			LearnerCourseStatisticsRequest learnerCourseStatisticsRequest) {
+		
+		String completionDate = null;
+		String lastAccessDate =  LocalDateTime.now().toString();
+		String completed = "0";
+		
+		if (learnerCourseStatisticsRequest.getCompletionDate().trim().length() > 0){
+			completionDate = learnerCourseStatisticsRequest.getCompletionDate().trim();
+			completed = "1";
+		}
+		
+		learnerCourseStatisticsRepository.statsUpdate(learnerCourseStatisticsRequest.getEnrollmentId(), 
+				completionDate, completed, learnerCourseStatisticsRequest.getTimeSpent(), 
+				learnerCourseStatisticsRequest.getScore(), 
+				learnerCourseStatisticsRequest.getPercentComplete(),
+				learnerCourseStatisticsRequest.getStatus(), lastAccessDate);
+		return true;
+		
+		
+	}
+	
+	@Override
+	@Transactional
+	public Boolean updateMocStatistics(List<Long> enrollmentIds , String status) {
+		
+		learnerEnrollmentRepository.updateMocStatus(status, enrollmentIds);
+		return true;
+	}
 	
 	@Override
 	@Transactional
@@ -33,10 +72,12 @@ public class StatisticsServiceImpl implements StatisticsService{
 		logger.info("Call getLearnerCourseStatistics from " + getClass().getName());
 		
 		//validate get user from token	
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
-		String name = auth.getName(); //get logged in username
+	//	Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+	//	String name = auth.getName(); //get logged in username
 		
-		List<LearnerCourseStatistics> lcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollmentIdIn(name, learnerEnrollmentIdList);
+	//	List<LearnerCourseStatistics> lcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollmentIdIn(name, learnerEnrollmentIdList);
+		
+		List<LearnerCourseStatistics> lcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_IdIn( learnerEnrollmentIdList);
 				
 		List<LearnerCourseStatisticsResponse> lcsResponse = new ArrayList<LearnerCourseStatisticsResponse>();
 		
@@ -85,4 +126,5 @@ public class StatisticsServiceImpl implements StatisticsService{
 		
 		return averageTime;
 	}
+	
 }

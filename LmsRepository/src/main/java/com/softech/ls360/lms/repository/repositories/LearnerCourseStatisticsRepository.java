@@ -96,6 +96,8 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 
     List<LearnerCourseStatistics> findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollmentIdIn(String userName, List<Long> learnerEnrollmentIdList);
     
+    List<LearnerCourseStatistics> findAllByLearnerEnrollment_IdIn(List<Long> learnerEnrollmentIdList);
+    
     @Query(value=" SELECT  sum(DATEDIFF(SECOND, ls.STARTTIME, ls.ENDTIME)) " +
 			" FROM vu360user u " +
 			" inner join Learner l on l.vu360user_id=u.id " +
@@ -118,6 +120,21 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
    	@Query(value="update LearnerCourseStatistics set COMPLETIONDATE=:completionDate, COMPLETED = 1, STATUS = 'completed', TOTALTIMEINSECONDS=:totalTimeSpent where LEARNERENROLLMENT_ID = :enrollmentIds", nativeQuery = true )
    	void markCompletionAndTotalTimeSpent(@Param("enrollmentIds") Long enrollmentIds, @Param("completionDate") String completionDate, @Param("totalTimeSpent") Long totalTimeSpent);
 
+    
+    @Modifying
+   	@Transactional
+   	@Query(value="update LearnerCourseStatistics set COMPLETIONDATE=:completionDate, COMPLETED =:completed, " + 
+   					" STATUS =:status, TOTALTIMEINSECONDS=:totalTimeSpent,HIGHESTPOSTTESTSCORE=:highestPostTestScore, " +
+   					" PERCENTCOMPLETE=:percentComplete,LASTACCESSDATE=:lastAccessDate " + 
+   					 " where LEARNERENROLLMENT_ID = :enrollmentIds", nativeQuery = true )
+   	void statsUpdate(@Param("enrollmentIds") Long enrollmentIds,
+   					@Param("completionDate") String completionDate, @Param("completed") String completed, 
+   					@Param("totalTimeSpent") Long totalTimeSpent,@Param("highestPostTestScore") Double highestPostTestScore,
+   					@Param("percentComplete") Long percentComplete , @Param("status") String status,
+   					@Param("lastAccessDate") String lastAccessDate );
+
+    
+//    COMPLETED	COMPLETIONDATE	LASTACCESSDATE	PERCENTCOMPLETE	STATUS	TOTALTIMEINSECONDS	LEARNERENROLLMENT_ID	HIGHESTPOSTTESTSCORE
     
     @Query(value=" select learnergroup_id,	name,	y,	m,	isnull(sum(second),0) second from ( " +
 			" SELECT  lgm.learnergroup_id, lg.name, YEAR(completionDate) AS y, MONTH(completionDate) AS m, sum(TOTALTIMEINSECONDS) as second " +

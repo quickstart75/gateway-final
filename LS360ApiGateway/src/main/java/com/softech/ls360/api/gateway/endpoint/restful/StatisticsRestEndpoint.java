@@ -1,6 +1,8 @@
 package com.softech.ls360.api.gateway.endpoint.restful;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -30,15 +32,46 @@ public class StatisticsRestEndpoint {
 	
 	@RequestMapping(value = "/learner/courses/statistics/byEnrollmentId", method = RequestMethod.POST)
 	@ResponseBody
-	public List<LearnerCourseStatisticsResponse> learnerCourseStatistics(@RequestBody LearnerCourseStatisticsRequest lcs
+	public List<LearnerCourseStatisticsResponse> learnerCourseStatistics(@RequestBody List<Long> lcs
 			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
 		
-		
+		//public List<LearnerCourseStatisticsResponse> learnerCourseStatistics(@RequestBody LearnerCourseStatisticsRequest lcs
 		
 		logger.info("Request received at " + getClass().getName() + " for learnerCourseStatistics");
 		
-		return statsService.getLearnerCourseStatistics(lcs.getEnrollmentId());
-			
+		return statsService.getLearnerCourseStatistics(lcs);
+		//return statsService.getLearnerCourseStatistics(lcs.getEnrollmentId());
+		///lms/customer	
 	}
 
+	@RequestMapping(value = "/learner/courses/statistics/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> statsUpdate(@RequestBody LearnerCourseStatisticsRequest lcs
+			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
+		
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		
+		statsService.updateLearnerCourseStatistics(lcs);
+		
+		returnResponse.put("status", Boolean.TRUE);
+		returnResponse.put("message", "success");
+		return returnResponse;		
+	}
+	
+	@RequestMapping(value = "/learner/courses/statistics/moc/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> mocStatsUpdate(@RequestBody HashMap<Object, Object> mocStatus
+			) throws Exception {
+		
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		
+		List<Long> enrollmentIds = (List<Long>) mocStatus.get("enrollmentId");
+		String status = (String) mocStatus.get("status");
+		
+		statsService.updateMocStatistics(enrollmentIds, status);
+		
+		returnResponse.put("status", Boolean.TRUE);
+		returnResponse.put("message", "success");
+		return returnResponse;		
+	}
 }
