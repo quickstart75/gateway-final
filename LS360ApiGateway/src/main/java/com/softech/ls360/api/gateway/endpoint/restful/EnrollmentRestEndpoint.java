@@ -137,7 +137,7 @@ public class EnrollmentRestEndpoint {
 			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
 		
 		Map<Object, Object> map = new HashMap<Object, Object>();
-		logger.info("Request received at " + getClass().getName() + " /admin/vilt/enrollments");
+		logger.info("Request received at " + getClass().getName() + " /admin/mocod/enrollments");
 		
 		LearnersEnrollmentResponse objResponse = learnerCourseCountService.getMOCLearnersEnrollment(user);
 		

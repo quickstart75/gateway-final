@@ -74,6 +74,8 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
 			" inner join subscription s on s.id=le.subscription_id  " +
 			" where u.username=:username and  " +
 		    " c.BUSINESSUNIT_NAME='MOC On Demand'  " + 
+			" and (le.moc_status is NULL or le.moc_status!='Completed') " +
+		    " and le.ENROLLMENTSTATUS!='Dropped' "+
 			" and s.subscription_Code = :subscriptionCode ", nativeQuery = true )
 	Long countMOCEnrollmentBySubscription(@Param("username") String username, @Param("subscriptionCode") Long subscriptionCode);
 }

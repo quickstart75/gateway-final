@@ -762,15 +762,6 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		if(page != null)
 			learnerCoursesList = page.getContent();
 		
-		//List<Long> enrollmentids = new ArrayList<Long>();
-		//for(LearnerEnrollment enrollmentforAttendance : learnerCoursesList ){
-		//	enrollmentids.add(enrollmentforAttendance.getId());
-		//}
-		
-		//if(enrollmentids.size()>0){
-		//	List<Object[]> lstattendance = vILTAttendanceService.findByEnrollmentIds( enrollmentids);
-		//}
-		
 		LearnersEnrollmentResponse objLER = new LearnersEnrollmentResponse();
 		List<EnrollmentInfo> lstEnrollment = new ArrayList<EnrollmentInfo>();
 		Map<String, ClassInfo> classes = new HashMap<String, ClassInfo>();

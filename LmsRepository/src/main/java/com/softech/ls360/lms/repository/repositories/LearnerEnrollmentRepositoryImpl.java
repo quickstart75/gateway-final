@@ -146,13 +146,11 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 			queryString.append( " and u.username like '%" +userCoursesRequest.get("email")+"%' ");
 		
 		
-		if(StringUtils.isNotBlank( userCoursesRequest.get("status"))){
+		if(StringUtils.isNotBlank( userCoursesRequest.get("status")) && !userCoursesRequest.get("status").equals("All")){
 			if(userCoursesRequest.get("status").equalsIgnoreCase("Unassigned"))
 				queryString.append( " and (le.mocStatus IS NULL or le.mocStatus='Unassigned')");
-			else if(userCoursesRequest.get("status").equalsIgnoreCase("Assigned"))
-				queryString.append( " and le.mocStatus = 'Assigned' ");
-			else if(userCoursesRequest.get("status").equalsIgnoreCase("Completed"))
-				queryString.append( " and le.mocStatus = 'Completed' ");
+			else
+				queryString.append( " and le.mocStatus = '"+ userCoursesRequest.get("status") +"' ");
 		}
 		
 		if(StringUtils.isNotBlank( userCoursesRequest.get("type"))){
