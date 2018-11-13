@@ -178,8 +178,12 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 		queryString.append(userCoursesRequest.get("sortDirection"));
 		
 		TypedQuery<LearnerEnrollment> enrollments = entityManager.createQuery(queryString.toString(), LearnerEnrollment.class);
-		enrollments.setParameter("startDate", LocalDateTime.parse(userCoursesRequest.get("dateFrom"),formatter));
-		enrollments.setParameter("dateTo", LocalDateTime.parse(userCoursesRequest.get("dateTo"),formatter));
+		
+		if(userCoursesRequest.get("dateFrom")!=null && StringUtils.isNotBlank( userCoursesRequest.get("dateFrom")))
+			enrollments.setParameter("startDate", LocalDateTime.parse(userCoursesRequest.get("dateFrom"),formatter));
+		
+		if(userCoursesRequest.get("dateTo")!=null && StringUtils.isNotBlank( userCoursesRequest.get("dateTo")))
+			enrollments.setParameter("dateTo", LocalDateTime.parse(userCoursesRequest.get("dateTo"),formatter));
 		
 		int total = enrollments.getResultList().size();
 		enrollments.setMaxResults(pageable.getPageSize());
