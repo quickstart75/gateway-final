@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,13 +15,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.request.UserRequest;
-import com.softech.ls360.api.gateway.response.UserAnalyticsResponse;
 import com.softech.ls360.api.gateway.response.UserCourseAnalyticsResponse;
+import com.softech.ls360.api.gateway.response.model.UserGroupRest;
+import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.StatisticsService;
 import com.softech.ls360.api.gateway.service.UserService;
+import com.softech.ls360.api.gateway.service.model.request.CourseDetail;
+import com.softech.ls360.api.gateway.service.model.request.LearnerRequest;
 import com.softech.ls360.api.gateway.service.model.vo.VU360UserVO;
 import com.softech.ls360.lms.api.model.request.UserPermissionRequest;
+import com.softech.ls360.lms.repository.entities.Customer;
+import com.softech.ls360.lms.repository.entities.LearnerGroup;
 
 @RestEndpoint
 @RequestMapping(value="/lms/customer")
@@ -35,6 +41,8 @@ public class CustomerRestEndPoint {
 	@Inject
 	private StatisticsService statsService;
 	
+	@Inject
+	private CustomerService customerService;
 	
 	@RequestMapping(value = "/useranalytics", method = RequestMethod.POST)
 	@ResponseBody
@@ -169,5 +177,120 @@ public class CustomerRestEndPoint {
 		 map.put("status", Boolean.TRUE);
 		 map.put("message", "User Status changed");
 		 return map;
+	}
+	
+	
+//	@RequestMapping(value = "enrollmentsDetail", method = RequestMethod.GET)
+//	@ResponseBody
+//	public Map<Object, Object> getEnrollmentsDetail() throws Exception {
+//		
+//		Map<Object, Object> map = new HashMap<Object, Object>();
+//		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+//        Customer customer = customerService.findByUsername(userName);
+//        List<Object[]> lstED = customerService.getEnrollmentsDetail(customer.getId());
+//        
+//        
+//        
+//        
+//        List<LearnerRequest> lstenrollmentDetail = new ArrayList<LearnerRequest>();
+//		LearnerRequest objLearner=null ;;
+//		Map<Object, Object> enrollmentsDetail = new HashMap<Object, Object>();
+//		boolean flag = false;
+//		long learnerID=-1;
+////		if(lstED.size()>0){
+////			Object[]  objCE1 = lstED.get(0);
+////			learnerID = Long.valueOf(objCE1.toString());
+////		}
+//		System.out.println("sssssssssssssssssssssssssssssssssss");
+//		 for(Object[]  objCE : lstED){
+//	        	try{
+//	        		if(learnerID==-1 || learnerID!=Long.valueOf(objCE[0].toString())){
+//	        			learnerID = Long.valueOf(objCE[0].toString());
+//	        			Object[]  objCE1 = lstED.get(0);
+//	        			learnerID = Long.valueOf(objCE[0].toString());
+//	        			enrollmentsDetail = new HashMap<Object, Object>();
+//	        			
+//	        			objLearner = new LearnerRequest();
+//		        		objLearner.setFirstName(objCE[1].toString());
+//		        		objLearner.setLastName(objCE[2].toString());
+//		        		objLearner.setEmail(objCE[3].toString());
+//		        		flag = true;
+//	        		}
+//	        		
+//	        		
+//	        		
+//	        		
+//	        		enrollmentsDetail = objLearner.getEnrollmentsDetail();
+//	        		enrollmentsDetail.put("courseName", objCE[4].toString());
+//	        		enrollmentsDetail.put("coursetype", objCE[5].toString());
+//	        		enrollmentsDetail.put("courseStatus", objCE[6].toString());
+//	        		
+//	        		
+//	        		objLearner.setEnrollmentsDetail(enrollmentsDetail);
+//	        		
+//	        		if(flag){
+//	        			lstenrollmentDetail.add(objLearner);
+//	        			flag=false;
+//	        		}
+//	        	}catch(Exception ex){
+//	        		//logger.error(">>> Exception occurs while send the organizationgroupdetail >>>: findEntitlementByCustomer(customer.getId()) >> " + ex);
+//	        	}
+//	        	
+//		 }
+//        
+//        map.put("result", lstenrollmentDetail);
+//        map.put("status", Boolean.TRUE);
+//        map.put("message", "Success");
+//        return map;
+//        
+//	}
+	
+	@RequestMapping(value = "enrollmentsDetail", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<Object, Object> getEnrollmentsDetail() throws Exception {
+		
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = customerService.findByUsername(userName);
+        List<Object[]> lstED = customerService.getLearnersByCustomer(customer.getId());
+        
+        
+        
+        
+        List<LearnerRequest> lstenrollmentDetail = new ArrayList<LearnerRequest>();
+		LearnerRequest objLearner=null ;;
+		
+		for(Object[]  objCE : lstED){
+			objLearner = new LearnerRequest();
+     		objLearner.setFirstName(objCE[1].toString());
+     		objLearner.setLastName(objCE[2].toString());
+     		objLearner.setEmail(objCE[3].toString());	
+     		
+     		List<CourseDetail> lst = new ArrayList<CourseDetail>();
+			 List<Object[]> lstEnrollment = customerService.getEnrollmentsDetail(Long.valueOf(objCE[4].toString()));
+			 for(Object[]  objEnrollment : lstEnrollment){
+				 CourseDetail obj = new CourseDetail();
+				 obj.setCourseName(objEnrollment[4].toString());
+				 
+				 if(objEnrollment[5].toString().equalsIgnoreCase("Scorm Course"))
+					 obj.setCoursetype("Self Paced Course");
+				 else
+					 obj.setCoursetype(objEnrollment[5].toString());
+				 
+				 if(objEnrollment[6]!=null)
+					 obj.setCourseStatus(objEnrollment[6].toString());
+				 
+				 lst.add(obj);
+				 
+			 }
+			 objLearner.setEnrollmentsDetail(lst);
+			 lstenrollmentDetail.add(objLearner);
+		 }
+		
+        map.put("result", lstenrollmentDetail);
+        map.put("status", Boolean.TRUE);
+        map.put("message", "Success");
+        return map;
+        
 	}
 }

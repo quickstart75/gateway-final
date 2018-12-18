@@ -1,6 +1,9 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.softech.ls360.api.gateway.service.CustomerService;
+import com.softech.ls360.api.gateway.service.model.request.LearnerRequest;
 import com.softech.ls360.lms.repository.entities.CustomField;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.projection.customer.CustomerCustomFields;
@@ -49,5 +53,18 @@ public class CustomerServiceImpl implements CustomerService {
 	public List<Object[]> findEntitlementByCustomer(Long customerId){
 		List<Object[]> objCE = customerRepository.findEntitlementByCustomer(customerId);
 		return objCE;
+	}
+	
+	
+	public List<Object[]> getEnrollmentsDetail(Long customerId){
+		List<Object[]> lstED = customerRepository.getEnrollmentsDetail(customerId);
+		
+		 return lstED;
+	}
+	
+	public List<Object[]> getLearnersByCustomer(Long customerId){
+		List<Object[]> lstED = customerRepository.getLearnersByCustomer(customerId);
+		
+		 return lstED;
 	}
 }

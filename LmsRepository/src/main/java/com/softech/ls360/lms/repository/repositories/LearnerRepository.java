@@ -46,4 +46,10 @@ public interface LearnerRepository extends CrudRepository<Learner, Long> {
 			+" AND C.GUID IN (:guids) ", nativeQuery = true)
 	public List<Object[]> findUserCourseAnalyticsByUserNameByCourseGUIDs(@Param("usename") String usename, @Param("guids") List<String> guids);
 	
+	
+	@Query(value=" SELECT  U.FIRSTNAME + ' ' + U.LASTNAME as Name, Username FROM VU360USER U "
+			+" INNER JOIN LCMSAUTHOR A ON U.ID=A.VU360USER_ID "
+			+" WHERE AUTHORSTATUS = 'ACTIVE' "
+			+" AND U.FIRSTNAME + U.LASTNAME LIKE CONCAT('%', :name, '%') ", nativeQuery = true)
+	public List<Object[]> getAuthorByName(@Param("name") String name);
 }

@@ -34,4 +34,25 @@ public interface CustomerRepository extends CrudRepository<Customer, Long> {
 			" inner join subscription_kit sk on sk.id = s.SUBSCRIPTION_KIT_ID " +
 			" inner join CUSTOMER customer1_ on ce.CUSTOMER_ID=customer1_.id where customer1_.id=?1 ", nativeQuery = true)
 	List<Object[]> findEntitlementByCustomer(Long customerId);
+	
+	@Query(value = " SELECT u.id as userId , u.firstName, u.lastName, u.emailaddress, crs.name as courseName, crs.courseType, lcs.status as courseStatus, le.id " +
+			" FROM vu360user u  " +
+			" inner join Learner l on l.vu360user_id=u.id " +
+			" inner join customer c on l.customer_id=c.id  " +
+			" inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
+			" left outer join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id " +
+			" inner join course crs on crs.id=le.course_id " +
+			" where l.id = ?1 order by u.id ", nativeQuery = true)
+	List<Object[]> getEnrollmentsDetail(Long learerId);
+	
+	
+	@Query(value = " SELECT u.id as userId , u.firstName, u.lastName, u.emailaddress, l.id as learner_id" +
+			" FROM vu360user u  " +
+			" inner join Learner l on l.vu360user_id=u.id " +
+			" where l.customer_id = ?1 order by u.id ", nativeQuery = true)
+	List<Object[]> getLearnersByCustomer(Long customerId);
+	
+	
+	
+	
 }

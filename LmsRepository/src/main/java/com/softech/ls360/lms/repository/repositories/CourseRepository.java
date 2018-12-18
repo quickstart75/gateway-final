@@ -21,4 +21,12 @@ public interface CourseRepository extends CrudRepository<Course, Long> {
 	
 	@Query(value = "select isNull(c.ceus, 0) from Course c where c.Guid in (:guids)", nativeQuery = true)
 	List<Object> findByCourseGuid(@Param("guids") List<String> guids);
+	
+	
+	@Query(value = "SELECT ID, NAME, DESCRIPTION, (Select top 1 scene_id from CONTENTOBJECT_SCENE where contentobject_id=co.id) as sceneId " +
+				   " FROM CONTENTOBJECT co WHERE CONTENTOBJECT_GUID IN (:guids)", nativeQuery = true)
+	List<Object[]> findLessonByGuids(@Param("guids") List<String> guids);
+	
+	@Query(value = " select ID, NAME, DESCRIPTION  from scene where SCENE_GUID IN (:guids) ", nativeQuery = true)
+	List<Object[]> findSlideByGuids(@Param("guids") List<String> guids);
 }

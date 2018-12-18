@@ -1,12 +1,13 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,6 @@ import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Distributor;
 import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.entities.LearnerGroupMember;
-import com.softech.ls360.lms.repository.projection.VU360UserProjection;
 import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
@@ -116,6 +116,19 @@ public class LearnerServiceImpl implements LearnerService {
 	public List<Object[]> findSubscriptionNameByUsername(String username){
 		List<Object[]> subscriptioname = subscriptionRepository.findSubscriptionNameByUsername(username);
 		return subscriptioname;
+	}
+	
+	public Map<String, String> getAuthorByName(String authorName){
+		
+		Map<String, String> mapAuthor = new HashMap<String, String>();
+		List<Object[]> author = learnerRepository.getAuthorByName(authorName);
+		
+		for(Object[]  objCE : author){
+        	try{
+        		mapAuthor.put(objCE[0].toString(), objCE[1].toString());
+        	}catch(Exception ex){}
+        }
+		return mapAuthor;
 	}
 	
 	public Long countByCustomerId(Long customerId){

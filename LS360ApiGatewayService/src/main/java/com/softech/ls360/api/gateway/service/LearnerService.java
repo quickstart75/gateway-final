@@ -1,8 +1,8 @@
 package com.softech.ls360.api.gateway.service;
 
 import java.util.List;
+import java.util.Map;
 
-import com.softech.ls360.lms.repository.projection.VU360UserProjection;
 import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
 
@@ -17,4 +17,6 @@ public interface LearnerService {
 	String findLearnerGroupByUsername(String username);
 	List<Object[]> findSubscriptionNameByUsername(String username);
 	void deleteLearnerFromLearnerGroup(String username);
+	
+	Map<String, String> getAuthorByName(String authorName);
 }
