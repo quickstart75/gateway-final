@@ -11,5 +11,7 @@ public interface CourseService {
 	public Map<String, String> getCourseOutlineByGuids(List<String> guids);
 	List<Object> getCourseByGUIDs(List<String> guids);
 	
-	List<Map<String, String>> findSlideAndLessonByGuids(List<String> slideguids, List<String> lessonguids);
+	List<Map<String, String>> findSlideAndLessonByGuids(List<String> slideguids, List<String> lessonguids, Long courseId);
+	
+	Long findIdByGuid(String guid);
 }

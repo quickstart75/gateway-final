@@ -45,6 +45,9 @@ public class ElasticSearchEndPoint {
 	@Value( "${api.magento.baseURL}" )
     private String magentoBaseURL;
 	
+	@Value( "${api.elasticSearch.baseURL}" )
+	private String elasticSearchBaseURL;
+		
 	private static final Logger logger = LogManager.getLogger();
 	
 	@RequestMapping(value = "/content/search", method = RequestMethod.POST)
@@ -57,83 +60,95 @@ public class ElasticSearchEndPoint {
 			HttpHeaders headers2 = new HttpHeaders();
 			headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
 			
-			String token = authorization.substring("Bearer".length()).trim();
-			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			 
-			request.setEmailAddress(username);
-			request.setSecurityCode(token);
-			
-			HttpEntity requestData2 = new HttpEntity(request, headers2);
-			StringBuffer location2 = new StringBuffer();
-			//location2.append("https://dev-itskills.quickstart.com/rest/default/V1/itskills-mycourses/mycoursesapi");
-			location2.append("https://dev-itskills.quickstart.com/rest/default/V1/itskills-mycourses/mycoursesapi");
-			ResponseEntity<Object> returnedData2=null;
-			LinkedHashMap<String, Object> mapAPiResponse=null;
-			
 			try {
+				String token = authorization.substring("Bearer".length()).trim();
+				String username = SecurityContextHolder.getContext().getAuthentication().getName();
+				 
+				request.setEmailAddress(username);
+				request.setSecurityCode(token);
+				
+				HttpEntity requestData2 = new HttpEntity(request, headers2);
+				StringBuffer location2 = new StringBuffer();
+				//location2.append("https://dev-itskills.quickstart.com/rest/default/V1/itskills-mycourses/mycoursesapi");
+				location2.append("https://qa2.quickstart.com/rest/default/V1/itskills-mycourses/mycoursesapi");
+				ResponseEntity<Object> returnedData2=null;
+				LinkedHashMap<String, Object> mapAPiResponse=null;
+			
+			
 				 returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 				 List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();
 				 mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
 			     
-			}catch(Exception ex) {
-				System.out.println(ex);
-			}
 			
-			if(request.getSearchType().equalsIgnoreCase("courses")){
-				returnResponse.put("courses", mapAPiResponse.get("result"));
-			}else if(request.getSearchType().equalsIgnoreCase("learningPaths")){
-				returnResponse.put("learningPaths", mapAPiResponse.get("result"));
+			
+				if(request.getSearchType().equalsIgnoreCase("courses")){
+					returnResponse.put("courses", mapAPiResponse.get("result"));
+				}else if(request.getSearchType().equalsIgnoreCase("learningPaths")){
+					returnResponse.put("learningPaths", mapAPiResponse.get("result"));
+				}
+			
+			
+			}catch(Exception ex) {
+				logger.info("   /content/search    ");
+				logger.info(ex.getMessage());
+				logger.info(ex);
+				logger.info("   /content/search    ");
 			}
 		}else if(request.getSearchType().equalsIgnoreCase("informalLearning") || request.getSearchType().equalsIgnoreCase("collaborate")){
 			List<String> lstSearch = new ArrayList<String>();
 			
-			if(request.getFilter()!=null && request.getFilter().getLearningTopics()!=null){
-				for(Map map : request.getFilter().getLearningTopics()){
-					lstSearch.add(map.get("label").toString());
-				}
-			}
-			
-			if(request.getSearchText()!=null && !request.getSearchText().equals(""))
-				lstSearch.add(request.getSearchText());
-			
-			if(lstSearch.size()==0)
-				lstSearch.add(request.getSearchText());
-			
-			ElasticSearch onjESearch = new ElasticSearch();
-			onjESearch.setKeywords(lstSearch);
-			onjESearch.setPageNumber(request.getPageNumber());
-			onjESearch.setPageSize(request.getPageSize());
-			
-
-			if(request.getSearchType().equalsIgnoreCase("collaborate")){
-				Map guidCollection = new HashMap();
-				guidCollection.put("courseGuid", "quickstart-spaces");
-				onjESearch.setGuidCollection(guidCollection);
-			}else if (request.getSearchType().equalsIgnoreCase("informalLearning")){
-				onjESearch.setContentFilter(request.getInformalLearning().getSourceFilters());
-				onjESearch.setContentTypeFilter(request.getInformalLearning().getContentFilters());
-			}
-			
-			RestTemplate restTemplate2 = new RestTemplate();
-			HttpHeaders headers2 = new HttpHeaders();
-			headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
-			//headers2.add("access_token", "U6UgT88XLUvUolAP5WuYJFO1");
-			   
-			HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
-			StringBuffer location2 = new StringBuffer();
-			location2.append("https://dev-clipp.quickstart.com/contents/_search");
-			ResponseEntity<Object> returnedData2=null;
 			try {
+				
+				if(request.getFilter()!=null && request.getFilter().getLearningTopics()!=null){
+					for(Map map : request.getFilter().getLearningTopics()){
+						lstSearch.add(map.get("label").toString());
+					}
+				}
+				
+				if(request.getSearchText()!=null && !request.getSearchText().equals(""))
+					lstSearch.add(request.getSearchText());
+				
+				if(lstSearch.size()==0)
+					lstSearch.add(request.getSearchText());
+				
+				ElasticSearch onjESearch = new ElasticSearch();
+				onjESearch.setKeywords(lstSearch);
+				onjESearch.setPageNumber(request.getPageNumber());
+				onjESearch.setPageSize(request.getPageSize());
+				
+	
+				if(request.getSearchType().equalsIgnoreCase("collaborate")){
+					Map guidCollection = new HashMap();
+					guidCollection.put("courseGuid", "quickstart-spaces");
+					onjESearch.setGuidCollection(guidCollection);
+				}else if (request.getSearchType().equalsIgnoreCase("informalLearning")){
+					onjESearch.setContentFilter(request.getInformalLearning().getSourceFilters());
+					onjESearch.setContentTypeFilter(request.getInformalLearning().getContentFilters());
+				}
+				
+				RestTemplate restTemplate2 = new RestTemplate();
+				HttpHeaders headers2 = new HttpHeaders();
+				headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+				//headers2.add("access_token", "U6UgT88XLUvUolAP5WuYJFO1");
+				   
+				HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
+				StringBuffer location2 = new StringBuffer();
+				location2.append("https://dev-clipp.quickstart.com/contents/_search");
+				ResponseEntity<Object> returnedData2=null;
+			
 				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 				LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 				
-				if(request.getSearchType().equalsIgnoreCase("informalLearning")){
-					returnResponse.put("informalLearning", magentoAPiResponse.get("result"));
-				}else if(request.getSearchType().equalsIgnoreCase("collaborate")){
-					returnResponse.put("collaborate", magentoAPiResponse.get("result"));
+				if(request.getSearchType().equalsIgnoreCase("informalLearning")){// poora dena ha
+					returnResponse.put("informalLearning", magentoAPiResponse);  //.get("result")
+				}else if(request.getSearchType().equalsIgnoreCase("collaborate")){// poora dena ha
+					returnResponse.put("collaborate", magentoAPiResponse);
 				}
-			}catch(Exception ex) {
-				
+			}catch(Exception ex) {	
+				logger.info(" informalLearning area    /content/search    ");
+				logger.info(ex.getMessage());
+				logger.info(ex);
+				logger.info("   /content/search    ");
 			}
 		}
 		
@@ -145,42 +160,47 @@ public class ElasticSearchEndPoint {
 	}
 	
 
-	@RequestMapping(value = "/summary", method = RequestMethod.POST)
+	@RequestMapping(value = "/course/bitesized", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<Object, Object> summary(@RequestHeader("Authorization") String authorization, @RequestBody GeneralFilter filter) throws Exception {
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		
-			
-			List lstSearch = new ArrayList();
-			if(filter.getFilter().get("keyword")!=null)
-				lstSearch.add(filter.getFilter().get("keyword"));
-			
-			ElasticSearch onjESearch = new ElasticSearch();
-			Map guidCollection = new HashMap();
-			List summary = new ArrayList<>();
-			
-			onjESearch.setKeywords(lstSearch);
-			onjESearch.setPageNumber(1);
-			onjESearch.setPageSize(0);
-			summary.add("guidCollection.slideGuid");
-			summary.add("guidCollection.lessonGuid");
-			onjESearch.setSummary(summary);
-			
-			if(filter.getFilter().get("courseGuid")!=null)
-				guidCollection.put("courseGuid", filter.getFilter().get("courseGuid"));
-			
-			onjESearch.setGuidCollection(guidCollection);
-			
-			RestTemplate restTemplate2 = new RestTemplate();
-			HttpHeaders headers2 = new HttpHeaders();
-			headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
-			//headers2.add("access_token", "U6UgT88XLUvUolAP5WuYJFO1");
-			   
-			HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
-			StringBuffer location2 = new StringBuffer();
-			location2.append("https://dev-clipp.quickstart.com/contents/_search");
-			ResponseEntity<Object> returnedData2=null;
 			try {
+				List lstSearch = new ArrayList();
+				if(filter.getFilter().get("keyword")!=null)
+					lstSearch.add(filter.getFilter().get("keyword"));
+				
+				ElasticSearch onjESearch = new ElasticSearch();
+				Map guidCollection = new HashMap();
+				List summary = new ArrayList<>();
+				
+				onjESearch.setKeywords(lstSearch);
+				onjESearch.setPageNumber(1);
+				onjESearch.setPageSize(0);
+				summary.add("guidCollection.slideGuid");
+				summary.add("guidCollection.lessonGuid");
+				onjESearch.setSummary(summary);
+				
+				
+				Long courseId = courseService.findIdByGuid(filter.getFilter().get("courseGuid"));
+				if(courseId==0)
+					return null;
+				
+				if(filter.getFilter().get("courseGuid")!=null)
+					guidCollection.put("courseGuid", filter.getFilter().get("courseGuid"));
+				
+				//onjESearch.setGuidCollection(guidCollection);
+				
+				RestTemplate restTemplate2 = new RestTemplate();
+				HttpHeaders headers2 = new HttpHeaders();
+				headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+				//headers2.add("access_token", "U6UgT88XLUvUolAP5WuYJFO1");
+				   
+				HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
+				StringBuffer location2 = new StringBuffer();
+				location2.append(elasticSearchBaseURL +"/contents/_search");
+				ResponseEntity<Object> returnedData2=null;
+
 				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 
 				Map body = (Map) returnedData2.getBody();
@@ -197,16 +217,22 @@ public class ElasticSearchEndPoint {
 				 for (Map.Entry<String, Integer> entry : slideGuid.entrySet())  
 					 lstSlideGuids.add(entry.getKey());
 				 
-				 List<Map<String, String>> result = courseService.findSlideAndLessonByGuids(lstLessonGuids, lstSlideGuids);
+				List<Map<String, String>> result = courseService.findSlideAndLessonByGuids(lstLessonGuids, lstSlideGuids, courseId);
 				returnResponse.put("status", Boolean.TRUE);
-				returnResponse.put("message", "");
+				returnResponse.put("message", "Success");
 				returnResponse.put("result", result);
 			
-			}catch(Exception ex) {}
-			
-			
-			
-		System.out.println("ddd");
+			}catch(Exception ex) {
+				
+				logger.info(" /course/bitesized    ");
+				logger.info(ex.getMessage());
+				logger.info(ex);
+				logger.info("   /course/bitesized    ");
+				
+				returnResponse.put("status", Boolean.FALSE);
+				returnResponse.put("message", "Error");
+				returnResponse.put("result", ex.toString());
+			}
 		return returnResponse;
 		
 	}

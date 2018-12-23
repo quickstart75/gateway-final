@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,9 @@ public class CourseServiceImpl implements CourseService{
 	
 	@Inject
 	private CourseRepository courseRepository;
+	
+	@Value("${lms.recordedClassLaunchURI.url}")
+	private String recordedClassLaunchURI;
 	
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -47,27 +52,51 @@ public class CourseServiceImpl implements CourseService{
 		return arrCourse;
 	}
 	
-	public List<Map<String, String>> findSlideAndLessonByGuids(List<String> slideguids, List<String> lessonguids){
+	public List<Map<String, String>> findSlideAndLessonByGuids(List<String> lessonguids, List<String> slideguids, Long courseId){
 		List<Map<String, String>> lstresponse = new ArrayList<Map<String, String>>();
 		
 		
+		StringBuffer playerurl = new StringBuffer();
+		playerurl.append(MessageFormat.format(recordedClassLaunchURI, courseId+""));
+		
 		List<Object[]> arrLesson = courseRepository.findLessonByGuids(lessonguids);
-		Map mapLesson = new HashMap<String, String>();
+		
 		for (Object[] lesson : arrLesson) {
+			StringBuffer completeurl = new StringBuffer();
+			completeurl.append(playerurl);
+			completeurl.append("&SESSION="+lesson[4].toString());
+			completeurl.append("&SCENEID="+lesson[3].toString());
+			
+			Map mapLesson = new HashMap<String, String>();
 			mapLesson.put("name", lesson[1].toString());
 			mapLesson.put("description", lesson[2].toString());
-			mapLesson.put("url", "http://www.quickstart.com/"+lesson[3].toString());
+			mapLesson.put("url", completeurl);
 			lstresponse.add(mapLesson);
 		}
 		
-		List<Object[]> arrslide = courseRepository.findLessonByGuids(lessonguids);
-		Map mapSlide = new HashMap<String, String>();
+		List<Object[]> arrslide = courseRepository.findLessonByGuids(slideguids);
+		
 		for (Object[] lesson : arrslide) {
-			mapSlide.put("name", lesson[2].toString());
-			mapSlide.put("description", lesson[3].toString());
-			mapSlide.put("url", "http://www.quickstart.com/"+lesson[1].toString());
+			StringBuffer completeurl = new StringBuffer();
+			completeurl.append(playerurl);
+			completeurl.append("&SESSION="+lesson[3].toString());
+			completeurl.append("&SCENEID="+lesson[0].toString());
+			
+			Map mapSlide = new HashMap<String, String>();
+			mapSlide.put("name", lesson[1].toString());
+			mapSlide.put("description", lesson[2].toString());
+			mapSlide.put("url", completeurl);
 			lstresponse.add(mapSlide);
 		}	
 		return lstresponse;
+	}
+	
+	public Long findIdByGuid(String guid){
+		Long courseId = courseRepository.findIdByGuid(guid);
+		
+		if(courseId==null)
+			return 0L;
+		
+		return courseId;
 	}
 }
