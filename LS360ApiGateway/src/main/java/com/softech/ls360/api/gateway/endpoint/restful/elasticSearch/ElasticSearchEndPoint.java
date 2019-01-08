@@ -1,7 +1,9 @@
 package com.softech.ls360.api.gateway.endpoint.restful.elasticSearch;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +34,6 @@ import com.softech.ls360.api.gateway.service.CourseService;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearch;
 import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
-import com.softech.ls360.api.gateway.service.model.request.PersonalizationFilter;
-import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 
 @RestEndpoint
 @RequestMapping(value="/clip")
@@ -48,6 +48,9 @@ public class ElasticSearchEndPoint {
 	@Value( "${api.elasticSearch.baseURL}" )
 	private String elasticSearchBaseURL;
 		
+	@Value("${lms.recordedClassLaunchURI.url}")
+	private String recordedClassLaunchURI;
+	
 	private static final Logger logger = LogManager.getLogger();
 	
 	@RequestMapping(value = "/content/search", method = RequestMethod.POST)
@@ -79,15 +82,11 @@ public class ElasticSearchEndPoint {
 				 List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();
 				 mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
 			     
-			
-			
-				if(request.getSearchType().equalsIgnoreCase("courses")){
+				 if(request.getSearchType().equalsIgnoreCase("courses")){
 					returnResponse.put("courses", mapAPiResponse.get("result"));
 				}else if(request.getSearchType().equalsIgnoreCase("learningPaths")){
 					returnResponse.put("learningPaths", mapAPiResponse.get("result"));
 				}
-			
-			
 			}catch(Exception ex) {
 				logger.info("   /content/search    ");
 				logger.info(ex.getMessage());
@@ -108,6 +107,12 @@ public class ElasticSearchEndPoint {
 				if(request.getSearchText()!=null && !request.getSearchText().equals(""))
 					lstSearch.add(request.getSearchText());
 				
+				if(request.getPersonalization()!=null && request.getPersonalization().getCompetencies()!=null){
+					for(Map map : request.getPersonalization().getCompetencies()){
+						lstSearch.add(map.get("label").toString());
+					}
+				}
+				
 				if(lstSearch.size()==0)
 					lstSearch.add(request.getSearchText());
 				
@@ -122,6 +127,9 @@ public class ElasticSearchEndPoint {
 					guidCollection.put("courseGuid", "quickstart-spaces");
 					onjESearch.setGuidCollection(guidCollection);
 				}else if (request.getSearchType().equalsIgnoreCase("informalLearning")){
+					List<String> lstOrigin = new ArrayList<String>();
+					lstOrigin.add("other");
+					onjESearch.setOrigins(lstOrigin);
 					onjESearch.setContentFilter(request.getInformalLearning().getSourceFilters());
 					onjESearch.setContentTypeFilter(request.getInformalLearning().getContentFilters());
 				}
@@ -139,13 +147,70 @@ public class ElasticSearchEndPoint {
 				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 				LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 				
-				if(request.getSearchType().equalsIgnoreCase("informalLearning")){// poora dena ha
-					returnResponse.put("informalLearning", magentoAPiResponse);  //.get("result")
-				}else if(request.getSearchType().equalsIgnoreCase("collaborate")){// poora dena ha
+				if(request.getSearchType().equalsIgnoreCase("informalLearning")){
+					returnResponse.put("informalLearning", magentoAPiResponse);  
+				}else if(request.getSearchType().equalsIgnoreCase("collaborate")){
 					returnResponse.put("collaborate", magentoAPiResponse);
 				}
 			}catch(Exception ex) {	
 				logger.info(" informalLearning area    /content/search    ");
+				logger.info(ex.getMessage());
+				logger.info(ex);
+				logger.info("   /content/search    ");
+			}
+			
+		}else if(request.getSearchType().equalsIgnoreCase("expertConnect") ){
+			List<String> lstSearch = new ArrayList<String>();
+			
+			try {
+				/*
+				if(request.getFilter()!=null && request.getFilter().getLearningTopics()!=null){
+					for(Map map : request.getFilter().getLearningTopics()){
+						lstSearch.add(map.get("label").toString());
+					}
+				}
+				
+				if(request.getSearchText()!=null && !request.getSearchText().equals(""))
+					lstSearch.add(request.getSearchText());
+				
+				if(lstSearch.size()==0)
+				*/
+				
+				if(request.getPersonalization()!=null && request.getPersonalization().getCompetencies()!=null){
+					for(Map map : request.getPersonalization().getCompetencies()){
+						lstSearch.add(map.get("label").toString());
+					}
+				}
+				
+				if(lstSearch.size()==0 || !request.getSearchText().equals(""))
+					lstSearch.add(request.getSearchText());
+				
+				ElasticSearch onjESearch = new ElasticSearch();
+				onjESearch.setKeywords(lstSearch);
+				onjESearch.setPageNumber(request.getPageNumber());
+				onjESearch.setPageSize(request.getPageSize());
+				
+				Map guidCollection = new HashMap();
+				guidCollection.put("courseGuid", "quickstart-experts");
+				onjESearch.setGuidCollection(guidCollection);
+				
+				RestTemplate restTemplate2 = new RestTemplate();
+				HttpHeaders headers2 = new HttpHeaders();
+				headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+				//headers2.add("access_token", "U6UgT88XLUvUolAP5WuYJFO1");
+				   
+				HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
+				StringBuffer location2 = new StringBuffer();
+				location2.append("https://dev-clipp.quickstart.com/contents/_search");
+				ResponseEntity<Object> returnedData2=null;
+			
+				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+				LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
+				
+				returnResponse.put("expertConnect", magentoAPiResponse);  
+				
+			}catch(Exception ex) {	
+				logger.info(" expertConnect area    /content/search    ");
 				logger.info(ex.getMessage());
 				logger.info(ex);
 				logger.info("   /content/search    ");
@@ -162,34 +227,164 @@ public class ElasticSearchEndPoint {
 
 	@RequestMapping(value = "/course/bitesized", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<Object, Object> summary(@RequestHeader("Authorization") String authorization, @RequestBody GeneralFilter filter) throws Exception {
+	public Map<Object, Object> courseBitesized(@RequestHeader("Authorization") String authorization, @RequestBody GeneralFilter filter) throws Exception {
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		StringBuffer playerurl = new StringBuffer();
+		List<Map<String, String>> lstresponse = new ArrayList<Map<String, String>>();
+		Map<String, Map> mapLessonRandomOrder = new HashMap<String, Map>();
+		String courseGuid = filter.getFilter().get("courseGuid").toString();
+		
+		
+			try {
+				List<String> lstSearch = new ArrayList<String>();
+				if(filter.getFilter().get("keyword")!=null)
+					lstSearch = (ArrayList) filter.getFilter().get("keyword");
+				
+				System.out.println("aaa");
+				if(filter.getFilter().get("courseType").toString().equalsIgnoreCase("Classroom Course")){
+					Object[] arrCO = courseService.getCourseMaterialByGuid(courseGuid, lstSearch.get(0).toString());
+					Map<String, String> mapLesson = new HashMap<String, String>();
+					
+					if(arrCO.length==0)
+					{
+						returnResponse.put("status", Boolean.TRUE);
+						returnResponse.put("message", "Success");
+						returnResponse.put("result", new ArrayList());
+						return returnResponse;
+					}
+					Object[] arrCO1 = (Object[])arrCO[0];
+					
+					StringBuffer completeurl = new StringBuffer();
+					if(arrCO1.length>1 && arrCO1[1]!=null && !arrCO1[1].toString().equals("0"))
+						completeurl.append(MessageFormat.format(recordedClassLaunchURI, arrCO1[1].toString()));
+					
+					
+					mapLesson.put("name", "");
+					mapLesson.put("description", String.valueOf(arrCO1[0]).toString());
+					mapLesson.put("url", completeurl.toString());
+					lstresponse.add(mapLesson);
+				}else if(filter.getFilter().get("").toString().equalsIgnoreCase("Self Paced Course")){
+					ElasticSearch onjESearch = new ElasticSearch();
+					Map<String, String> guidCollection = new HashMap<String, String>();
+					List<String> origins = new ArrayList<String>();
+					
+					onjESearch.setKeywords(lstSearch);
+					onjESearch.setPageNumber(1);
+					onjESearch.setPageSize(20);
+					origins.add("lesson");
+					onjESearch.setOrigins(origins);
+					
+					Long courseId = courseService.findIdByGuid(courseGuid);
+					if(courseId==0){
+						returnResponse.put("status", Boolean.FALSE);
+						returnResponse.put("message", "Error! Course not found!");
+						returnResponse.put("result", "");
+						return returnResponse;
+					}
+					
+					if(filter.getFilter().get("courseGuid")!=null)
+						guidCollection.put("courseGuid", courseGuid);
+					
+					onjESearch.setGuidCollection(guidCollection);
+					
+					RestTemplate restTemplate2 = new RestTemplate();
+					HttpHeaders headers2 = new HttpHeaders();
+					headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+					   
+					HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
+					StringBuffer location2 = new StringBuffer();
+					location2.append(elasticSearchBaseURL +"/contents/_search");
+					ResponseEntity<Object> returnedData2=null;
+	
+					returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+	
+					Map body = (Map) returnedData2.getBody();
+					List<Map> result = (ArrayList<Map>) body.get("result");
+					List<String> lstLessonGuids = new ArrayList<String>();
+					
+					for(Map lstResult : result){
+						String strLink = lstResult.get("link").toString();
+						String lessonGuid = strLink.substring(strLink.lastIndexOf("/") + 1).trim();
+						lstLessonGuids.add(lessonGuid);
+						mapLessonRandomOrder.put(lessonGuid, lstResult);
+					}
+					
+					if(lstLessonGuids.size()>0){
+						LinkedHashMap<String, String> arrLesson = courseService.findLessonWithFirstSlideIdByGuids(lstLessonGuids);
+						
+						/*for(String lessonGuid : lstLessonGuids){
+							mapLessonSortedOrder.put(lessonGuid, mapLessonRandomOrder.get(lessonGuid));
+						}*/
+						playerurl.append(MessageFormat.format(recordedClassLaunchURI, courseId+""));
+						
+						for (Map.Entry<String,String> entry : arrLesson.entrySet())  {
+							Map mapLesson = new HashMap<String, String>();
+							String strLink = mapLessonRandomOrder.get(entry.getKey()).get("link").toString();
+							String slideId= arrLesson.get(strLink.substring(strLink.lastIndexOf("/") + 1).trim());
+							
+							StringBuffer completeurl = new StringBuffer();
+							completeurl.append(playerurl);
+							completeurl.append("&SESSION="+strLink.substring(strLink.lastIndexOf("/") + 1).trim());
+							completeurl.append("&SCENEID="+slideId);
+							
+							String title = mapLessonRandomOrder.get(entry.getKey()).get("title").toString();
+							title = title.substring( 0, title.indexOf("-"));
+							mapLesson.put("name", title.trim());
+							mapLesson.put("description", mapLessonRandomOrder.get(entry.getKey()).get("shortDescription"));
+							mapLesson.put("url", completeurl);
+							lstresponse.add(mapLesson);
+						}
+						
+					}
+				}
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				returnResponse.put("result", lstresponse);
+			
+			}catch(Exception ex) {
+				
+				logger.info(" /course/bitesized    ");
+				logger.info(ex.getMessage());
+				logger.info(ex);
+				logger.info("   /course/bitesized    ");
+				
+				returnResponse.put("status", Boolean.FALSE);
+				returnResponse.put("message", "Error");
+				returnResponse.put("result", ex.toString());
+			}
+		return returnResponse;
+	}
+	
+	
+	@RequestMapping(value = "/course/informal-learning", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> courseInformalLearning(@RequestHeader("Authorization") String authorization, @RequestBody GeneralFilter filter) throws Exception {
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		
 			try {
 				List lstSearch = new ArrayList();
-				if(filter.getFilter().get("keyword")!=null)
-					lstSearch.add(filter.getFilter().get("keyword"));
+				if(filter.getFilter().get("keyword")!=null){
+					lstSearch = (ArrayList) filter.getFilter().get("keyword");
+				}
 				
 				ElasticSearch onjESearch = new ElasticSearch();
-				Map guidCollection = new HashMap();
-				List summary = new ArrayList<>();
+				//Map guidCollection = new HashMap();
 				
+				
+				if(filter.getFilter().get("pageSize")==null || filter.getFilter().get("pageNumber")==null)
+					throw new Exception("pageSize and or pageNumber is not defined");
+				
+				Integer pageSize = Integer.valueOf(filter.getFilter().get("pageSize").toString());
+				Integer pageNumber =  Integer.valueOf(filter.getFilter().get("pageNumber").toString());
+				
+				
+				List<String> lstOrigin = new ArrayList<String>();
+				lstOrigin.add("other");
+				onjESearch.setOrigins(lstOrigin);
 				onjESearch.setKeywords(lstSearch);
-				onjESearch.setPageNumber(1);
-				onjESearch.setPageSize(0);
-				summary.add("guidCollection.slideGuid");
-				summary.add("guidCollection.lessonGuid");
-				onjESearch.setSummary(summary);
+				onjESearch.setPageNumber(pageNumber);
+				onjESearch.setPageSize(pageSize);
 				
-				
-				Long courseId = courseService.findIdByGuid(filter.getFilter().get("courseGuid"));
-				if(courseId==0)
-					return null;
-				
-				if(filter.getFilter().get("courseGuid")!=null)
-					guidCollection.put("courseGuid", filter.getFilter().get("courseGuid"));
-				
-				//onjESearch.setGuidCollection(guidCollection);
 				
 				RestTemplate restTemplate2 = new RestTemplate();
 				HttpHeaders headers2 = new HttpHeaders();
@@ -199,28 +394,15 @@ public class ElasticSearchEndPoint {
 				HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
 				StringBuffer location2 = new StringBuffer();
 				location2.append(elasticSearchBaseURL +"/contents/_search");
+
 				ResponseEntity<Object> returnedData2=null;
-
-				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
-
-				Map body = (Map) returnedData2.getBody();
-
-				Map summary2 = (Map) body.get("summary");
-				Map<String, Integer> lessonGuid = (Map) summary2.get("guidCollection.lessonGuid");
-				Map<String, Integer> slideGuid = (Map) summary2.get("guidCollection.slideGuid");
 				
-				List lstLessonGuids = new ArrayList();
-				List lstSlideGuids = new ArrayList();
-				 for (Map.Entry<String, Integer> entry : lessonGuid.entrySet())  
-					 lstLessonGuids.add(entry.getKey());
-				 
-				 for (Map.Entry<String, Integer> entry : slideGuid.entrySet())  
-					 lstSlideGuids.add(entry.getKey());
-				 
-				List<Map<String, String>> result = courseService.findSlideAndLessonByGuids(lstLessonGuids, lstSlideGuids, courseId);
+				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+				LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
+				
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
-				returnResponse.put("result", result);
+				returnResponse.put("result", magentoAPiResponse);
 			
 			}catch(Exception ex) {
 				
@@ -236,7 +418,6 @@ public class ElasticSearchEndPoint {
 		return returnResponse;
 		
 	}
-	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)

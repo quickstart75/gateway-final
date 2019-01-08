@@ -3,6 +3,7 @@ package com.softech.ls360.api.gateway.service.impl;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,6 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.softech.ls360.api.gateway.service.CourseService;
@@ -91,6 +91,17 @@ public class CourseServiceImpl implements CourseService{
 		return lstresponse;
 	}
 	
+	@Override
+	public LinkedHashMap<String, String> findLessonWithFirstSlideIdByGuids(List<String> lessonguids){
+		List<Object[]> arrLesson = courseRepository.findLessonWithFirstSlideIdByGuids(lessonguids);
+		LinkedHashMap<String, String> mapLesson = new LinkedHashMap<String, String>();
+		
+		for (Object[] lesson : arrLesson) {
+			mapLesson.put(lesson[1].toString(), lesson[2].toString());
+		}
+		return mapLesson;
+	}
+	
 	public Long findIdByGuid(String guid){
 		Long courseId = courseRepository.findIdByGuid(guid);
 		
@@ -98,5 +109,14 @@ public class CourseServiceImpl implements CourseService{
 			return 0L;
 		
 		return courseId;
+	}
+	
+	@Override
+	public Object[] getCourseMaterialByGuid(String guid, String searchText){
+		if(guid==null && guid.equals(""))
+			return null;
+		
+		Object[] arrCO = courseRepository.getCourseMaterialByGuid(guid, searchText);
+		return arrCO;
 	}
 }

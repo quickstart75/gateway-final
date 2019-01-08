@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GeneralFilter {
-	Map<String, String> filter = new HashMap<String, String>();
+	Map<String, Object> filter = new HashMap<String, Object>();
 
-	public Map<String, String> getFilter() {
+	public Map<String, Object> getFilter() {
 		return filter;
 	}
 
-	public void setFilter(Map<String, String> filter) {
+	public void setFilter(Map<String, Object> filter) {
 		this.filter = filter;
 	}
 	

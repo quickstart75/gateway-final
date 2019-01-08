@@ -11,6 +11,7 @@ public class ElasticSearch {
 	List keywords;
 	Map guidCollection;
 	List summary;
+	List origins;
 	
 	public int getPageSize() {
 		return pageSize;
@@ -54,6 +55,10 @@ public class ElasticSearch {
 	public void setSummary(List summary) {
 		this.summary = summary;
 	}
-	
-	
+	public List getOrigins() {
+		return origins;
+	}
+	public void setOrigins(List origins) {
+		this.origins = origins;
+	}
 }

@@ -27,9 +27,20 @@ public interface CourseRepository extends CrudRepository<Course, Long> {
 				   " FROM CONTENTOBJECT co WHERE CONTENTOBJECT_GUID IN (:guids)", nativeQuery = true)
 	List<Object[]> findLessonByGuids(@Param("guids") List<String> guids);
 	
+	@Query(value = "SELECT co.ID, co.CONTENTOBJECT_GUID, (Select top 1 scene_id from CONTENTOBJECT_SCENE where contentobject_id=co.id) as sceneId, cdo.displayorder " +
+			   " FROM CONTENTOBJECT co " +
+			   " inner join coursedisplayorder cdo on cdo.item_id=co.id and cdo.course_id=co.course_id " + 
+			   " WHERE CONTENTOBJECT_GUID IN (:guids)  " + 
+			   " order by cdo.displayorder ", nativeQuery = true)
+	List<Object[]> findLessonWithFirstSlideIdByGuids(@Param("guids") List<String> guids);
+
 	@Query(value = " select ID, NAME, DESCRIPTION, SCENE_GUID  from scene where SCENE_GUID IN (:guids) ", nativeQuery = true)
 	List<Object[]> findSlideByGuids(@Param("guids") List<String> guids);
 	
 	@Query(value = " select ID from course where GUID =:guid ", nativeQuery = true)
 	Long findIdByGuid(@Param("guid") String guid);
+	
+	@Query(value = " SELECT LEARNINGOBJECTIVES, SUPPLEMENT_COURSE_ID FROM COURSE WHERE GUID =:guid " +
+			   	   " AND LEARNINGOBJECTIVES LIKE CONCAT('%', :searchText, '%') ", nativeQuery = true)
+	Object[] getCourseMaterialByGuid(@Param("guid") String guid, @Param("searchText") String searchText);
 }

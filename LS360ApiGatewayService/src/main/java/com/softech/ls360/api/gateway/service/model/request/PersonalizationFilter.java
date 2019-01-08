@@ -1,15 +1,16 @@
 package com.softech.ls360.api.gateway.service.model.request;
 
-public class PersonalizationFilter {
-	String test;
+import java.util.List;
+import java.util.Map;
 
-	public String getTest() {
-		return test;
+public class PersonalizationFilter {
+	List<Map> competencies;
+
+	public List<Map> getCompetencies() {
+		return competencies;
 	}
 
-	public void setTest(String test) {
-		this.test = test;
-	} 
-	
-	
+	public void setCompetencies(List<Map> competencies) {
+		this.competencies = competencies;
+	}
 }
