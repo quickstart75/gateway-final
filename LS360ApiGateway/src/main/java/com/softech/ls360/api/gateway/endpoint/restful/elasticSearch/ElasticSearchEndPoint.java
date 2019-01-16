@@ -32,6 +32,7 @@ import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.service.CourseService;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearch;
+import com.softech.ls360.api.gateway.service.model.request.ElasticSearchAdvance;
 import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
 
@@ -73,7 +74,7 @@ public class ElasticSearchEndPoint {
 				HttpEntity requestData2 = new HttpEntity(request, headers2);
 				StringBuffer location2 = new StringBuffer();
 				//location2.append("https://dev-itskills.quickstart.com/rest/default/V1/itskills-mycourses/mycoursesapi");
-				location2.append("https://qa2.quickstart.com/rest/default/V1/itskills-mycourses/mycoursesapi");
+				location2.append(magentoBaseURL + "rest/default/V1/itskills-mycourses/mycoursesapi");
 				ResponseEntity<Object> returnedData2=null;
 				LinkedHashMap<String, Object> mapAPiResponse=null;
 			
@@ -124,7 +125,7 @@ public class ElasticSearchEndPoint {
 	
 				if(request.getSearchType().equalsIgnoreCase("collaborate")){
 					Map guidCollection = new HashMap();
-					guidCollection.put("courseGuid", "quickstart-spaces");
+					guidCollection.put("courseGuid", "quickstart_spaces");
 					onjESearch.setGuidCollection(guidCollection);
 				}else if (request.getSearchType().equalsIgnoreCase("informalLearning")){
 					List<String> lstOrigin = new ArrayList<String>();
@@ -141,7 +142,7 @@ public class ElasticSearchEndPoint {
 				   
 				HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
 				StringBuffer location2 = new StringBuffer();
-				location2.append("https://dev-clipp.quickstart.com/contents/_search");
+				location2.append(elasticSearchBaseURL +"/contents/_search");
 				ResponseEntity<Object> returnedData2=null;
 			
 				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
@@ -163,19 +164,7 @@ public class ElasticSearchEndPoint {
 			List<String> lstSearch = new ArrayList<String>();
 			
 			try {
-				/*
-				if(request.getFilter()!=null && request.getFilter().getLearningTopics()!=null){
-					for(Map map : request.getFilter().getLearningTopics()){
-						lstSearch.add(map.get("label").toString());
-					}
-				}
-				
-				if(request.getSearchText()!=null && !request.getSearchText().equals(""))
-					lstSearch.add(request.getSearchText());
-				
-				if(lstSearch.size()==0)
-				*/
-				
+
 				if(request.getPersonalization()!=null && request.getPersonalization().getCompetencies()!=null){
 					for(Map map : request.getPersonalization().getCompetencies()){
 						lstSearch.add(map.get("label").toString());
@@ -191,7 +180,7 @@ public class ElasticSearchEndPoint {
 				onjESearch.setPageSize(request.getPageSize());
 				
 				Map guidCollection = new HashMap();
-				guidCollection.put("courseGuid", "quickstart-experts");
+				guidCollection.put("courseGuid", "quickstart_experts");
 				onjESearch.setGuidCollection(guidCollection);
 				
 				RestTemplate restTemplate2 = new RestTemplate();
@@ -201,7 +190,7 @@ public class ElasticSearchEndPoint {
 				   
 				HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
 				StringBuffer location2 = new StringBuffer();
-				location2.append("https://dev-clipp.quickstart.com/contents/_search");
+				location2.append(elasticSearchBaseURL +"/contents/_search");
 				ResponseEntity<Object> returnedData2=null;
 			
 				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
@@ -240,7 +229,6 @@ public class ElasticSearchEndPoint {
 				if(filter.getFilter().get("keyword")!=null)
 					lstSearch = (ArrayList) filter.getFilter().get("keyword");
 				
-				System.out.println("aaa");
 				if(filter.getFilter().get("courseType").toString().equalsIgnoreCase("Classroom Course")){
 					Object[] arrCO = courseService.getCourseMaterialByGuid(courseGuid, lstSearch.get(0).toString());
 					Map<String, String> mapLesson = new HashMap<String, String>();
@@ -259,11 +247,11 @@ public class ElasticSearchEndPoint {
 						completeurl.append(MessageFormat.format(recordedClassLaunchURI, arrCO1[1].toString()));
 					
 					
-					mapLesson.put("name", "");
+					mapLesson.put("name", String.valueOf(arrCO1[2]).toString());
 					mapLesson.put("description", String.valueOf(arrCO1[0]).toString());
 					mapLesson.put("url", completeurl.toString());
 					lstresponse.add(mapLesson);
-				}else if(filter.getFilter().get("").toString().equalsIgnoreCase("Self Paced Course")){
+				}else if(filter.getFilter().get("courseType").toString().equalsIgnoreCase("Self Paced Course")){
 					ElasticSearch onjESearch = new ElasticSearch();
 					Map<String, String> guidCollection = new HashMap<String, String>();
 					List<String> origins = new ArrayList<String>();
@@ -418,6 +406,60 @@ public class ElasticSearchEndPoint {
 		return returnResponse;
 		
 	}
+	
+	
+	@RequestMapping(value = "/virtualMentor-ans", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> getVirtualMentorQueryAnswer(@RequestHeader("Authorization") String authorization, @RequestBody ElasticSearchAdvance filter){
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		
+		try {
+			
+			
+			ElasticSearchAdvance onjESearch = new ElasticSearchAdvance();
+			onjESearch.setQuery(filter.getQuery());
+			
+			Integer pageSize = filter.getPageSize();
+			Integer pageNumber =  filter.getPageNumber();
+			
+			
+			List<String> lstOrigin = new ArrayList<String>();
+			lstOrigin.add("other");
+			
+			onjESearch.setPageNumber(pageNumber);
+			onjESearch.setPageSize(pageSize);
+			onjESearch.setOrigins(lstOrigin);
+			
+			RestTemplate restTemplate2 = new RestTemplate();
+			HttpHeaders headers2 = new HttpHeaders();
+			headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+			//headers2.add("access_token", "U6UgT88XLUvUolAP5WuYJFO1");
+			   
+			HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
+			StringBuffer location2 = new StringBuffer();
+			location2.append(elasticSearchBaseURL +"/contents/_advanced_search");
+
+			ResponseEntity<Object> returnedData2=null;
+			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+			
+			returnResponse.put("status", Boolean.TRUE);
+			returnResponse.put("message", "Success");
+			returnResponse.put("result", returnedData2.getBody());
+		
+		}catch(Exception ex) {
+			
+			logger.info(" /course/bitesized    ");
+			logger.info(ex.getMessage());
+			logger.info(ex);
+			logger.info("   /course/bitesized    ");
+			
+			returnResponse.put("status", Boolean.FALSE);
+			returnResponse.put("message", "Error");
+			returnResponse.put("result", ex.toString());
+		}
+	return returnResponse;
+	}
+	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)

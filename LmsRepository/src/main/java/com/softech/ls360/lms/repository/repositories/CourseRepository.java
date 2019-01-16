@@ -40,7 +40,7 @@ public interface CourseRepository extends CrudRepository<Course, Long> {
 	@Query(value = " select ID from course where GUID =:guid ", nativeQuery = true)
 	Long findIdByGuid(@Param("guid") String guid);
 	
-	@Query(value = " SELECT LEARNINGOBJECTIVES, SUPPLEMENT_COURSE_ID FROM COURSE WHERE GUID =:guid " +
+	@Query(value = " SELECT LEARNINGOBJECTIVES, SUPPLEMENT_COURSE_ID, NAME FROM COURSE WHERE GUID =:guid " +
 			   	   " AND LEARNINGOBJECTIVES LIKE CONCAT('%', :searchText, '%') ", nativeQuery = true)
 	Object[] getCourseMaterialByGuid(@Param("guid") String guid, @Param("searchText") String searchText);
 }

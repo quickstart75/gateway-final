@@ -334,6 +334,11 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			case "started": courseStatus.add("inprogress");
 						page = learnerCourseStatisticsRepository.findAllByStatusInAndLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus(courseStatus, userName, "Active", request);
 						break;
+			case "new_started":
+						courseStatus.add("notstarted");
+						courseStatus.add("inprogress");
+						page = learnerCourseStatisticsRepository.findAllByStatusInAndLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus(courseStatus, userName, "Active", request);
+						break;
 			case "completed": courseStatus = getCompletedStatus();
 						page = learnerCourseStatisticsRepository.findAllByStatusInAndLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus(courseStatus, userName, "Active", request);
 						break;	
