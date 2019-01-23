@@ -77,6 +77,9 @@ public class StatisticsServiceImpl implements StatisticsService{
 		
 	//	List<LearnerCourseStatistics> lcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollmentIdIn(name, learnerEnrollmentIdList);
 		
+		if(learnerEnrollmentIdList==null || learnerEnrollmentIdList.size()==0)
+			return null;
+		
 		List<LearnerCourseStatistics> lcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_IdIn( learnerEnrollmentIdList);
 				
 		List<LearnerCourseStatisticsResponse> lcsResponse = new ArrayList<LearnerCourseStatisticsResponse>();

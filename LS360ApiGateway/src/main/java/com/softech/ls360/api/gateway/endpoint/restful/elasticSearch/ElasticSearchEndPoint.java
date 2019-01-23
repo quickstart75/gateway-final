@@ -124,9 +124,15 @@ public class ElasticSearchEndPoint {
 				
 	
 				if(request.getSearchType().equalsIgnoreCase("collaborate")){
-					Map guidCollection = new HashMap();
-					guidCollection.put("courseGuid", "quickstart_spaces");
-					onjESearch.setGuidCollection(guidCollection);
+					List origins = new ArrayList();
+					origins.add("space");
+					origins.add("ans_post");
+					origins.add("post");
+					onjESearch.setOrigins(origins);
+					
+					List lstcustomField = new ArrayList();
+					lstcustomField.add("description");
+					onjESearch.setCustom_fields(lstcustomField);
 				}else if (request.getSearchType().equalsIgnoreCase("informalLearning")){
 					List<String> lstOrigin = new ArrayList<String>();
 					lstOrigin.add("other");
@@ -171,6 +177,12 @@ public class ElasticSearchEndPoint {
 					}
 				}
 				
+				if(request.getFilter()!=null && request.getFilter().getLearningTopics()!=null){
+					for(Map map : request.getFilter().getLearningTopics()){
+						lstSearch.add(map.get("label").toString());
+					}
+				}
+				
 				if(lstSearch.size()==0 || !request.getSearchText().equals(""))
 					lstSearch.add(request.getSearchText());
 				
@@ -178,6 +190,10 @@ public class ElasticSearchEndPoint {
 				onjESearch.setKeywords(lstSearch);
 				onjESearch.setPageNumber(request.getPageNumber());
 				onjESearch.setPageSize(request.getPageSize());
+				
+				List lstcustomField = new ArrayList();
+				lstcustomField.add("description");
+				onjESearch.setCustom_fields(lstcustomField);
 				
 				Map guidCollection = new HashMap();
 				guidCollection.put("courseGuid", "quickstart_experts");
@@ -230,6 +246,15 @@ public class ElasticSearchEndPoint {
 					lstSearch = (ArrayList) filter.getFilter().get("keyword");
 				
 				if(filter.getFilter().get("courseType").toString().equalsIgnoreCase("Classroom Course")){
+					
+					if(courseGuid==null || courseGuid.equals(""))
+					{
+						returnResponse.put("status", Boolean.TRUE);
+						returnResponse.put("message", "Success");
+						returnResponse.put("result", new ArrayList());
+						return returnResponse;
+					}
+					
 					Object[] arrCO = courseService.getCourseMaterialByGuid(courseGuid, lstSearch.get(0).toString());
 					Map<String, String> mapLesson = new HashMap<String, String>();
 					
@@ -262,6 +287,13 @@ public class ElasticSearchEndPoint {
 					origins.add("lesson");
 					onjESearch.setOrigins(origins);
 					
+					if(courseGuid==null || courseGuid.equals(""))
+					{
+						returnResponse.put("status", Boolean.TRUE);
+						returnResponse.put("message", "Success");
+						returnResponse.put("result", new ArrayList());
+						return returnResponse;
+					}
 					Long courseId = courseService.findIdByGuid(courseGuid);
 					if(courseId==0){
 						returnResponse.put("status", Boolean.FALSE);
@@ -316,8 +348,11 @@ public class ElasticSearchEndPoint {
 							completeurl.append("&SCENEID="+slideId);
 							
 							String title = mapLessonRandomOrder.get(entry.getKey()).get("title").toString();
-							title = title.substring( 0, title.indexOf("-"));
-							mapLesson.put("name", title.trim());
+							title = title.substring( 0, title.indexOf("-")).trim();
+							if(title.endsWith(".")){
+								title = title.substring(0,title.length() - 1);
+							}
+							mapLesson.put("name", title);
 							mapLesson.put("description", mapLessonRandomOrder.get(entry.getKey()).get("shortDescription"));
 							mapLesson.put("url", completeurl);
 							lstresponse.add(mapLesson);
@@ -356,8 +391,6 @@ public class ElasticSearchEndPoint {
 				}
 				
 				ElasticSearch onjESearch = new ElasticSearch();
-				//Map guidCollection = new HashMap();
-				
 				
 				if(filter.getFilter().get("pageSize")==null || filter.getFilter().get("pageNumber")==null)
 					throw new Exception("pageSize and or pageNumber is not defined");

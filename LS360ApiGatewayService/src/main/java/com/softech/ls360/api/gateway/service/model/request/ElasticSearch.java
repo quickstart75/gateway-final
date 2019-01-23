@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.service.model.request;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ public class ElasticSearch {
 	Map guidCollection;
 	List summary;
 	List origins;
+	List custom_fields = new ArrayList();
 	
 	public int getPageSize() {
 		return pageSize;
@@ -61,4 +63,11 @@ public class ElasticSearch {
 	public void setOrigins(List origins) {
 		this.origins = origins;
 	}
+	public List getCustom_fields() {
+		return custom_fields;
+	}
+	public void setCustom_fields(List custom_fields) {
+		this.custom_fields = custom_fields;
+	}
+	
 }
