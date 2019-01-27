@@ -52,4 +52,14 @@ public interface LearnerRepository extends CrudRepository<Learner, Long> {
 			+" WHERE AUTHORSTATUS = 'ACTIVE' "
 			+" AND U.FIRSTNAME + U.LASTNAME LIKE CONCAT('%', :name, '%') ", nativeQuery = true)
 	public List<Object[]> getAuthorByName(@Param("name") String name);
+	
+	@Query(value=" SELECT U.FIRSTNAME + ' ' + U.LASTNAME AS STUDENTNAME, U.EMAILADDRESS, LF.MOBILEPHONE, LF.OFFICEPHONE, C.NAME AS COURSENAME, SC.CLASSNAME, LE.SYNCHRONOUSCLASS_ID, CONVERT(varchar, SC.CLASSSTARTDATE, 110) as CLASSSTARTDATE,	CONVERT(varchar, SC.CLASSENDDATE, 110) as CLASSENDDATE  "
+			+" FROM LEARNERENROLLMENT LE "
+			+" INNER JOIN LEARNER L ON L.ID=LE.LEARNER_ID "
+			+" INNER JOIN LEARNERPROFILE LF ON LF.LEARNER_ID=L.ID "
+			+" INNER JOIN VU360USER U ON U.ID = L.VU360USER_ID "
+			+" INNER JOIN COURSE C ON C.ID = LE.COURSE_ID "
+			+" LEFT JOIN SYNCHRONOUSCLASS SC ON SC.ID = LE.SYNCHRONOUSCLASS_ID "
+			+" WHERE ENROLLMENTDATE BETWEEN :sDate AND :eDate ", nativeQuery = true)
+	public List<Object[]> getEnrollmentsByDates(@Param("sDate") String sDate, @Param("eDate") String eDate);
 }

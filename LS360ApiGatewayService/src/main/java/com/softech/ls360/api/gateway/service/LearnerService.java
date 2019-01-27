@@ -3,6 +3,9 @@ package com.softech.ls360.api.gateway.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.repository.query.Param;
+
+import com.softech.ls360.api.gateway.service.model.vo.EnrollmentVO;
 import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
 
@@ -19,4 +22,5 @@ public interface LearnerService {
 	void deleteLearnerFromLearnerGroup(String username);
 	
 	Map<String, String> getAuthorByName(String authorName);
+	List<EnrollmentVO> getEnrollmentsByDates(String sDate, String eDate);
 }

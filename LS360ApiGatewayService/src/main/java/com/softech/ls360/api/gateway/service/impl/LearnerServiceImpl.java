@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.UserGroupService;
+import com.softech.ls360.api.gateway.service.model.vo.EnrollmentVO;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Distributor;
 import com.softech.ls360.lms.repository.entities.Learner;
@@ -137,5 +139,41 @@ public class LearnerServiceImpl implements LearnerService {
 			return (long) 0;
 		
 		return count;
+	}
+	
+	public List<EnrollmentVO> getEnrollmentsByDates(String sDate, String eDate){
+		
+		List<EnrollmentVO> lst = new ArrayList<EnrollmentVO>();
+		List<Object[]> dbcol = learnerRepository.getEnrollmentsByDates(sDate, eDate);
+		
+		
+		 for(Object[]  obj : dbcol){
+			 EnrollmentVO vo = new EnrollmentVO();
+			 vo.setStudentName(obj[0].toString());
+			 
+			 if(obj[1]!=null)
+				 vo.setEmail(obj[1].toString());
+			 if(obj[2]!=null)
+				 vo.setMobilePhone(obj[2].toString());
+			 if(obj[3]!=null)
+				 vo.setOfficePhone(obj[3].toString());
+			 
+			 vo.setCourseName(obj[4].toString());
+
+			 if(obj[6]==null){
+				 vo.setModality("Self Paced Course");
+			 }else{
+		 		 vo.setModality("Classroom Course");
+		 		 if(obj[5]!=null)
+		 			 vo.setClassName(obj[5].toString());
+		 		 if(obj[7]!=null)
+		 			 vo.setClassStartDate(obj[7].toString());
+		 		 if(obj[8]!=null)
+		 			 vo.setClassEndDate(obj[8].toString());
+		 	 }
+			
+			 lst.add(vo);
+		 }
+		return lst;
 	}
 }
