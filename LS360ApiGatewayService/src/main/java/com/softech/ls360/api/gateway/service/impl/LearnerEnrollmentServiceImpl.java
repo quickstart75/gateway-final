@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -181,7 +182,7 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
         List<FocusResponse> lstFocusResponse = (List<FocusResponse>)mapAPiResponse.get("result");
         
         if(lstFocusResponse==null)
-        	  return  new ArrayList<FocusResponse>();;
+        	  return  new ArrayList<FocusResponse>();
         
         Long totalEnrollment=0l;
         List<FocusResponse> lstFocusResponse3 = new ArrayList<FocusResponse>();
@@ -512,5 +513,10 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 			return true;
 		else
 			return false;
+	}
+	
+	public List<Object[]> getEnrolledCoursesInfoByUsername(String username){
+		List<Object[]> lst = learnerCourseStatisticsRepository.getEnrolledCoursesInfoByUsername(username);
+		return lst;
 	}
 }

@@ -3,7 +3,6 @@ package com.softech.ls360.api.gateway.endpoint.restful.elasticSearch;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +30,11 @@ import org.springframework.web.client.RestTemplate;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.service.CourseService;
+import com.softech.ls360.api.gateway.service.LearnerCourseService;
+import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearch;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearchAdvance;
+import com.softech.ls360.api.gateway.service.model.request.ElasticSearchCourseRequest;
 import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
 
@@ -42,6 +44,12 @@ public class ElasticSearchEndPoint {
 
 	@Inject
 	private CourseService courseService;
+	
+	@Inject
+	private LearnerCourseService learnerCourseService;
+	
+	@Inject
+	LearnerEnrollmentService learnerEnrollmentService;
 	
 	@Value( "${api.magento.baseURL}" )
     private String magentoBaseURL;
@@ -57,16 +65,113 @@ public class ElasticSearchEndPoint {
 	@RequestMapping(value = "/content/search", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<Object, Object> informalLearning(@RequestHeader("Authorization") String authorization, @RequestBody InformalLearningRequest request) throws Exception {
-		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		
-		if(request.getSearchType().equalsIgnoreCase("courses") || request.getSearchType().equalsIgnoreCase("learningPaths")){
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		// COURSE --------------------------------------------------------------------------------------------------
+		if(request.getSearchType().equalsIgnoreCase("courses")){
+			ElasticSearchCourseRequest onjESearch = new ElasticSearchCourseRequest();
+			//List<String> subscriptions = learnerCourseService.getSubscriptionId(username);
+			List<Object[]> arr = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
+			
+			if(request.getSubsCode()!=null && request.getSubsCode().length()>0){
+				RestTemplate restTemplate2 = new RestTemplate();
+				request.setEmailAddress(username);
+				HttpEntity requestData2 = new HttpEntity(request, getHttpHeaders());
+				StringBuffer location2 = new StringBuffer();
+				location2.append(magentoBaseURL + "rest/default/V1/itskills-mycourses/getUserSubscription");
+				ResponseEntity<Object> returnedData2=null;
+				
+				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+				List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();
+				 
+				 if(magentoAPiResponse!=null){
+					 LinkedHashMap<String, Object> mapAPiResponse  = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
+			     
+					 if(mapAPiResponse!=null){
+						 LinkedHashMap mapAPiResponseResult = (LinkedHashMap ) mapAPiResponse.get("result");
+						 if(mapAPiResponseResult.get("subscriptionCatId")!=null){
+							 List lstSub = new ArrayList();
+							 lstSub.add(mapAPiResponseResult.get("subscriptionCatId"));
+							 onjESearch.setSubscriptions(lstSub);
+						 }
+					 }
+				 }
+			}
+			//------------------------------------------------------------------------------------
+
+			onjESearch.setPageNumber(request.getPageNumber());
+			onjESearch.setPageSize(request.getPageSize());
+			
+			//---------------------------------------
+			//---------------------------------------
+			List lstSearch = new ArrayList();
+			if(request.getSearchText() != null){
+				lstSearch.add(request.getSearchText());
+			}
+			onjESearch.setKeywords(lstSearch);
+			//---------------------------------------
+			//---------------------------------------
+			List lstAttribute = new ArrayList();
+			for(Map.Entry entry : request.getFilter().getLearningStyle().entrySet()){
+				if(entry.getKey()!=null && entry.getKey().equals("value")){
+					lstAttribute.add(entry.getValue());
+				}
+			}
+			onjESearch.setAttributes(lstAttribute);
+			//---------------------------------------
+			//---------------------------------------
+			List lstCategories = new ArrayList();
+			List<Map<String, String>> lstRequestLT = request.getFilter().getLearningTopics();
+			for(Map<String, String> mapLT : lstRequestLT){
+				for(Map.Entry entry : mapLT.entrySet()){
+					if(entry.getKey()!=null && entry.getKey().equals("value")){
+						lstCategories.add(entry.getValue());
+					}
+				}
+			}
+			onjESearch.setCategories(lstCategories);
+			//---------------------------------------
+			//---------------------------------------
+			List lstGuids = new ArrayList();
+			for(Object[] subArr: arr){
+				if(subArr[0]!=null){
+					lstGuids.add(subArr[0].toString());
+				}
+			}
+			onjESearch.setCourseGuids(lstGuids);
+			//--------------------------------------
+			//---------------------------------------
+			List lstDuration = new ArrayList();
+			for(Map.Entry entry : request.getFilter().getDuration().entrySet()){
+				if(entry.getKey()!=null && entry.getKey().equals("value")){
+					lstDuration.add(entry.getValue());
+				}
+			}
+			onjESearch.setDurations(lstDuration);
+			//---------------------------------------
+			//---------------------------------------
+			
+			RestTemplate restTemplate2 = new RestTemplate();
+			HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
+			StringBuffer location2 = new StringBuffer();
+			location2.append(elasticSearchBaseURL +"/course_api/search/default/" + request.getStoreId());
+			ResponseEntity<Object> returnedData3=null;
+			returnedData3 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
+			magentoAPiResponse.put("enrolledCourses", arr);
+			return magentoAPiResponse;
+			
+			
+		}else if(request.getSearchType().equalsIgnoreCase("learningPaths")){
 			RestTemplate restTemplate2 = new RestTemplate();
 			HttpHeaders headers2 = new HttpHeaders();
 			headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
 			
 			try {
 				String token = authorization.substring("Bearer".length()).trim();
-				String username = SecurityContextHolder.getContext().getAuthentication().getName();
+				//username = SecurityContextHolder.getContext().getAuthentication().getName();
 				 
 				request.setEmailAddress(username);
 				request.setSecurityCode(token);
@@ -83,6 +188,8 @@ public class ElasticSearchEndPoint {
 				 List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();
 				 mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
 			     
+				 //List<ElasticSerachCourseResponse> lst = (List<ElasticSerachCourseResponse>)mapAPiResponse.get("result");
+				 
 				 if(request.getSearchType().equalsIgnoreCase("courses")){
 					returnResponse.put("courses", mapAPiResponse.get("result"));
 				}else if(request.getSearchType().equalsIgnoreCase("learningPaths")){
@@ -447,8 +554,6 @@ public class ElasticSearchEndPoint {
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		
 		try {
-			
-			
 			ElasticSearchAdvance onjESearch = new ElasticSearchAdvance();
 			onjESearch.setQuery(filter.getQuery());
 			
@@ -500,5 +605,11 @@ public class ElasticSearchEndPoint {
 		logger.error("\n\n LOG info of ***********  handleException() ** start **");
 		logger.error(e.getMessage() + "\n" + e.getStackTrace() +"\n\n");
 		return new GeneralExceptionResponse("ERROR", e.getMessage());
+	}
+	
+	HttpHeaders getHttpHeaders(){
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+		return headers;
 	}
 }

@@ -244,4 +244,14 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     	   ,nativeQuery=true)
     Long getLearnerTimespentByGuids(@Param("learnerId") Long learnerId, @Param("guids") List<String> guids);
 
+    
+    @Query(value=" SELECT  c.guid, lcs.status " +
+    	    " FROM vu360user u  " +
+    	    " inner join Learner l on l.vu360user_id=u.id " +
+    	    " inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id   " +
+    	    " inner join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id   " +
+    	    " inner join course c on c.id=le.course_id  " +
+    	    " where u.username=:username " 
+    	   ,nativeQuery=true)
+    List<Object[]> getEnrolledCoursesInfoByUsername(@Param("username") String username);
 }

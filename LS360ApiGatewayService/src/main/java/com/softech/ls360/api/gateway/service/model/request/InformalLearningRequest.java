@@ -14,6 +14,7 @@ public class InformalLearningRequest {
 	private Filter filter;
 	private InformalLearningFilter informalLearning;
 	private PersonalizationFilter personalization;
+	private String subsCode;
 	
 	public String getSearchText() {
 		return searchText;
@@ -87,6 +88,12 @@ public class InformalLearningRequest {
 	}
 	public void setPersonalization(PersonalizationFilter personalization) {
 		this.personalization = personalization;
+	}
+	public String getSubsCode() {
+		return subsCode;
+	}
+	public void setSubsCode(String subsCode) {
+		this.subsCode = subsCode;
 	}
 	
 

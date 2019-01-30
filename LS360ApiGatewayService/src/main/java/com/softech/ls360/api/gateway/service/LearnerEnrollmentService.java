@@ -3,6 +3,9 @@ package com.softech.ls360.api.gateway.service;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.repository.query.Param;
 
 import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
 import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
@@ -24,4 +27,5 @@ public interface LearnerEnrollmentService {
 	String getLearnerEnrollmentInstruction(Long enrollmentId);
 	boolean saveLearnerEnrollmentInstruction(List<LearnerInstruction> instructionRequest);
 	boolean isAllowMOCSubscriptionEnrollment(String username, Long subscriptionId);
+	List<Object[]> getEnrolledCoursesInfoByUsername(String username);
 }
