@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 public class Filter {
-	Map courseStatus;
-	List<Map> learningTopics;
+	Map<String, String> courseStatus;
+	List<Map<String, String>> learningTopics;
 	List<Map> trainingProvider;
 	List<Map> author;
 	List<Map> instructor;
-	Map learningStyle;
-	Map duration;
+	Map<String, String> learningStyle;
+	Map<String, String> duration;
 	Map dateRange;
 	List<Map> expertRole;
 	
@@ -19,16 +19,16 @@ public class Filter {
 	List contentFilters;
 	List sourceFilters;
 	
-	public Map getCourseStatus() {
+	public Map<String, String> getCourseStatus() {
 		return courseStatus;
 	}
-	public void setCourseStatus(Map courseStatus) {
+	public void setCourseStatus(Map<String, String> courseStatus) {
 		this.courseStatus = courseStatus;
 	}
-	public List<Map> getLearningTopics() {
+	public List<Map<String, String>> getLearningTopics() {
 		return learningTopics;
 	}
-	public void setLearningTopics(List<Map> learningTopics) {
+	public void setLearningTopics(List<Map<String, String>> learningTopics) {
 		this.learningTopics = learningTopics;
 	}
 	public List<Map> getTrainingProvider() {
@@ -49,16 +49,16 @@ public class Filter {
 	public void setInstructor(List<Map> instructor) {
 		this.instructor = instructor;
 	}
-	public Map getLearningStyle() {
+	public Map<String, String> getLearningStyle() {
 		return learningStyle;
 	}
-	public void setLearningStyle(Map learningStyle) {
+	public void setLearningStyle(Map<String, String> learningStyle) {
 		this.learningStyle = learningStyle;
 	}
-	public Map getDuration() {
+	public Map<String, String> getDuration() {
 		return duration;
 	}
-	public void setDuration(Map duration) {
+	public void setDuration(Map<String, String> duration) {
 		this.duration = duration;
 	}
 	public Map getDateRange() {

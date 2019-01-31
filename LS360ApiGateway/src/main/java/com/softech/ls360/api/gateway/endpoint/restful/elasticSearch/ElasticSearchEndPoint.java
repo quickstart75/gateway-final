@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.service.CourseService;
@@ -73,9 +75,20 @@ public class ElasticSearchEndPoint {
 		if(request.getSearchType().equalsIgnoreCase("courses")){
 			ElasticSearchCourseRequest onjESearch = new ElasticSearchCourseRequest();
 			//List<String> subscriptions = learnerCourseService.getSubscriptionId(username);
-			List<Object[]> arr = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
 			
-			if(request.getSubsCode()!=null && request.getSubsCode().length()>0){
+			
+			String enrolledCourses_Subscription = "";
+			Map mapStatus = request.getFilter().getCourseStatus();
+			for(Map.Entry entry : request.getFilter().getCourseStatus().entrySet()){
+				if(entry.getKey()!=null && entry.getKey().equals("value")){
+					enrolledCourses_Subscription=entry.getValue().toString();
+				}
+			}
+			
+			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
+			
+			if(request.getSubsCode()!=null && request.getSubsCode().length()>0 
+					&& (enrolledCourses_Subscription.equals("all") || enrolledCourses_Subscription.equals("subscription"))){
 				RestTemplate restTemplate2 = new RestTemplate();
 				request.setEmailAddress(username);
 				HttpEntity requestData2 = new HttpEntity(request, getHttpHeaders());
@@ -115,7 +128,7 @@ public class ElasticSearchEndPoint {
 			//---------------------------------------
 			List lstAttribute = new ArrayList();
 			for(Map.Entry entry : request.getFilter().getLearningStyle().entrySet()){
-				if(entry.getKey()!=null && entry.getKey().equals("value")){
+				if(entry.getKey()!=null && entry.getKey().equals("value") && entry.getValue()!=null && !entry.getValue().equals("")){
 					lstAttribute.add(entry.getValue());
 				}
 			}
@@ -126,7 +139,7 @@ public class ElasticSearchEndPoint {
 			List<Map<String, String>> lstRequestLT = request.getFilter().getLearningTopics();
 			for(Map<String, String> mapLT : lstRequestLT){
 				for(Map.Entry entry : mapLT.entrySet()){
-					if(entry.getKey()!=null && entry.getKey().equals("value")){
+					if(entry.getKey()!=null && entry.getKey().equals("value") && !entry.getValue().equals("")){
 						lstCategories.add(entry.getValue());
 					}
 				}
@@ -134,24 +147,52 @@ public class ElasticSearchEndPoint {
 			onjESearch.setCategories(lstCategories);
 			//---------------------------------------
 			//---------------------------------------
-			List lstGuids = new ArrayList();
-			for(Object[] subArr: arr){
-				if(subArr[0]!=null){
-					lstGuids.add(subArr[0].toString());
+			if(!enrolledCourses_Subscription.equals("all") && !enrolledCourses_Subscription.equals("subscription")){
+				List lstGuids = new ArrayList();
+				for(Object[] subArr: arrEnrollment){
+					if(subArr[0]!=null){
+						lstGuids.add(subArr[0].toString());
+					}
 				}
+				onjESearch.setCourseGuids(lstGuids);
+			}else{
+				onjESearch.setCourseGuids(new ArrayList());
 			}
-			onjESearch.setCourseGuids(lstGuids);
 			//--------------------------------------
 			//---------------------------------------
 			List lstDuration = new ArrayList();
 			for(Map.Entry entry : request.getFilter().getDuration().entrySet()){
-				if(entry.getKey()!=null && entry.getKey().equals("value")){
+				if(entry.getKey()!=null && entry.getKey().equals("value") && !entry.getValue().equals("")){
 					lstDuration.add(entry.getValue());
 				}
 			}
 			onjESearch.setDurations(lstDuration);
 			//---------------------------------------
 			//---------------------------------------
+			List lstpersonalization = new ArrayList();
+			List<Map<String, String>> lstRequestP = request.getPersonalization().getCompetencies();
+			for(Map<String, String> mapLT : lstRequestP){
+				for(Map.Entry entry : mapLT.entrySet()){
+					if(entry.getKey()!=null && entry.getKey().equals("value")){
+						lstpersonalization.add(entry.getValue());
+					}
+				}
+			}
+			onjESearch.getCategories().addAll(lstpersonalization);
+			
+			//-----------------------------------------
+			//-----------------------------------------
+			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+			Map<String, String> subMapEnrollment;
+			for(Object[] subArr: arrEnrollment){
+				subMapEnrollment = new HashMap<String,String>();
+				subMapEnrollment.put("status", subArr[1].toString());
+				mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
+			}
+			
+/*			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+			String json = ow.writeValueAsString(onjESearch);
+			System.out.println(json);*/
 			
 			RestTemplate restTemplate2 = new RestTemplate();
 			HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
@@ -160,10 +201,12 @@ public class ElasticSearchEndPoint {
 			ResponseEntity<Object> returnedData3=null;
 			returnedData3 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
-			magentoAPiResponse.put("enrolledCourses", arr);
-			return magentoAPiResponse;
+			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			
-			
+			returnResponse.put("status", Boolean.TRUE);
+			returnResponse.put("message", "Success");
+			returnResponse.put("courses", magentoAPiResponse);
+			return returnResponse;
 		}else if(request.getSearchType().equalsIgnoreCase("learningPaths")){
 			RestTemplate restTemplate2 = new RestTemplate();
 			HttpHeaders headers2 = new HttpHeaders();

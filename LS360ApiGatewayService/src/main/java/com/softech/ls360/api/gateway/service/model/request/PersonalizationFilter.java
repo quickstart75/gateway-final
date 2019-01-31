@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 public class PersonalizationFilter {
-	List<Map> competencies;
+	List<Map<String, String>> competencies;
 
-	public List<Map> getCompetencies() {
+	public List<Map<String, String>> getCompetencies() {
 		return competencies;
 	}
 
-	public void setCompetencies(List<Map> competencies) {
+	public void setCompetencies(List<Map<String, String>> competencies) {
 		this.competencies = competencies;
 	}
 }
