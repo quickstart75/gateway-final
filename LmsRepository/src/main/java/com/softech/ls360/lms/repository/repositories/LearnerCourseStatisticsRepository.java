@@ -254,4 +254,8 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     	    " where u.username=:username " 
     	   ,nativeQuery=true)
     List<Object[]> getEnrolledCoursesInfoByUsername(@Param("username") String username);
+    
+    LearnerCourseStatistics findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuid(String userName, String guid);
+
+    
 }

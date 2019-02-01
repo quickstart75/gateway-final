@@ -87,6 +87,13 @@ public class ElasticSearchEndPoint {
 			
 			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
 			
+			if(arrEnrollment.size()==0 && (request.getSubsCode()==null || request.getSubsCode().equals(""))){
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				returnResponse.put("courses", new ArrayList());
+				return returnResponse;
+			}
+			
 			if(request.getSubsCode()!=null && request.getSubsCode().length()>0 
 					&& (enrolledCourses_Subscription.equals("all") || enrolledCourses_Subscription.equals("subscription"))){
 				RestTemplate restTemplate2 = new RestTemplate();
@@ -190,9 +197,9 @@ public class ElasticSearchEndPoint {
 				mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
 			}
 			
-/*			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-			String json = ow.writeValueAsString(onjESearch);
-			System.out.println(json);*/
+			//ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+			//String json = ow.writeValueAsString(onjESearch);
+			
 			
 			RestTemplate restTemplate2 = new RestTemplate();
 			HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
@@ -202,6 +209,7 @@ public class ElasticSearchEndPoint {
 			returnedData3 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
+			magentoAPiResponse.put("requestData", onjESearch);
 			
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "Success");

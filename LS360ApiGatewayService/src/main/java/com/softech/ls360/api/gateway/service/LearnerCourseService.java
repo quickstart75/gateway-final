@@ -7,8 +7,10 @@ import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentReques
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
+import com.softech.ls360.api.gateway.service.model.request.UserRequest;
 import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
+import com.softech.ls360.api.gateway.service.model.response.LearnerEnrollmentStatistics;
 import com.softech.ls360.api.gateway.service.model.response.LearnersEnrollmentResponse;
 
 public interface LearnerCourseService {
@@ -22,4 +24,8 @@ public interface LearnerCourseService {
 	LearnersEnrollmentResponse getLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest);
 	
 	LearnersEnrollmentResponse getMOCLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest);
+	
+	List<String> getSubscriptionId(String userName);
+	
+	LearnerEnrollmentStatistics getLearnerCourse(UserRequest userRequest);
 }

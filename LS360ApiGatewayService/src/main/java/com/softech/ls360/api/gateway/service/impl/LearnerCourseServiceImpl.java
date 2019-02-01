@@ -2,7 +2,6 @@ package com.softech.ls360.api.gateway.service.impl;
 
 import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,6 +36,7 @@ import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentReques
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
+import com.softech.ls360.api.gateway.service.model.request.UserRequest;
 import com.softech.ls360.api.gateway.service.model.response.Attendance;
 import com.softech.ls360.api.gateway.service.model.response.ClassInfo;
 import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
@@ -588,6 +588,155 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	}
 	
 	
+	@Override
+	@Transactional
+	public LearnerEnrollmentStatistics getLearnerCourse(UserRequest userRequest) {
+		logger.info("Call for Learner's enrolled courses from " + getClass().getName());
+		
+		//validate get user from token	
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		String userName = auth.getName(); //get logged in username
+		logger.info("Auth User Name :: :: :: " + userName);
+		
+
+		    LearnerCourseStatistics lcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuid(userName, userRequest.getCourseGuid());
+		    
+		    if(lcs==null)
+		    	return null;
+		    
+		    Long enrollmentId = lcs.getLearnerEnrollment().getId();
+		    LearnerEnrollmentStatistics learnerCourse = new LearnerEnrollmentStatistics();
+			
+			//Long entitlementId = lcs.getLearnerEnrollment().getCustomerEntitlement().getId();
+			//Long courseId = lcs.getLearnerEnrollment().getCourse().getId();
+			
+			Long enrollmentSubscriptionID = null;
+			if(lcs.getLearnerEnrollment().getSubscription() != null)
+				enrollmentSubscriptionID = lcs.getLearnerEnrollment().getSubscription().getId();
+			
+			//Completion Certificate URL
+			if(lcs.isCompleted() != null)
+			if(lcs.isCompleted() && (lcs.getStatus().equalsIgnoreCase("completed") || lcs.getStatus().equalsIgnoreCase("reported")))
+				learnerCourse.setCertificateURI(certificateURL+enrollmentId);
+			else
+				learnerCourse.setCertificateURI("");
+			
+			
+			learnerCourse.setCompletionDate(lcs.getCompletionDate());
+			learnerCourse.setCourseGUID(lcs.getLearnerEnrollment().getCourse().getCourseGuid());
+			
+			learnerCourse.setCourseImage("");
+			
+			
+			learnerCourse.setCourseName(lcs.getLearnerEnrollment().getCourse().getName());
+			learnerCourse.setCourseProgress(lcs.getPercentComplete());
+			learnerCourse.setCourseStatus(lcs.getStatus());
+			
+			String courseType = lcs.getLearnerEnrollment().getCourse().getCourseType();
+			
+			
+			//Setting Classroom Course Statistics
+			if((courseType.equals("Classroom Course")) || courseType.equals("Webinar Course")){
+				learnerCourse.setCourseType(courseType);
+				
+				if(lcs.getLearnerEnrollment().getSynchronousClass() != null){
+				Long classId = lcs.getLearnerEnrollment().getSynchronousClass().getId();
+				com.softech.ls360.lms.repository.entities.Course crs = lcs.getLearnerEnrollment().getCourse();
+				ClassroomStatistics classroomStatistics = classroomCourseService.getClassroomStatistics(classId,crs);
+				learnerCourse.setClassroomStatistics(classroomStatistics);
+				
+				// set the recorded Class Launch URI link for vilt course
+				Calendar cal = Calendar.getInstance();
+				List<Object[]> attendance = vILTAttendanceService.findByEnrollmentIds(lcs.getLearnerEnrollment().getId());
+				Date classEndDate = lcs.getLearnerEnrollment().getSynchronousClass().getClassEndDate();
+					if(attendance.size()>0 && classEndDate!=null && cal.getTime().after(classEndDate) 
+							&& StringUtils.isNotBlank(lcs.getLearnerEnrollment().getCourse().getSupplementCourseId())){
+						learnerCourse.setRecordedClassLaunchURI( MessageFormat.format(recordedClassLaunchURI, lcs.getLearnerEnrollment().getCourse().getSupplementCourseId()));
+					}
+				}
+				
+			}
+			else{
+				learnerCourse.setCourseType("Online Course");
+				learnerCourse.setCourseSubType(courseType);
+			}
+			
+			learnerCourse.setLearnerInstructions(lcs.getLearnerEnrollment().getLearnerInstructions());
+			learnerCourse.setEnrollmentId(lcs.getLearnerEnrollment().getId());
+			learnerCourse.setExpiryDate(lcs.getLearnerEnrollment().getEndDate());
+			
+			LocalDateTime enrollmentEnddate = null;
+			LearnerEnrollment learnerEnrollment = lcs.getLearnerEnrollment();
+			if (learnerEnrollment != null) {
+				enrollmentEnddate = learnerEnrollment.getEndDate();
+				learnerCourse.setStartDate(learnerEnrollment.getStartDate().toString());
+				learnerCourse.setEndDate(enrollmentEnddate.toString());
+			}
+			
+			if (enrollmentEnddate != null) {
+				if(((lcs.getStatus().equals("notstarted")) || (lcs.getStatus().equals("inprogress"))))
+				if( LocalDateTime.now().isBefore(enrollmentEnddate)) {
+					learnerCourse.setIsExpired(false);
+				}
+				else {
+					learnerCourse.setIsExpired(true);
+				}		
+			}
+			
+			String mocType = lcs.getLearnerEnrollment().getCourse().getBusinessUnitName();
+			if(mocType!=null && mocType.equalsIgnoreCase("MOC On Demand")){
+				MOCDetail objmocDetail = new MOCDetail();
+				objmocDetail.setType(mocType);
+				objmocDetail.setEnrollmentStatus(lcs.getLearnerEnrollment().getMocStatus());
+				learnerCourse.setMocDetail(objmocDetail);
+			}
+				
+				
+			if(enrollmentSubscriptionID == null)
+				learnerCourse.setIsSubscriptionEnrollment(false);
+			else
+				learnerCourse.setIsSubscriptionEnrollment(true);
+			
+			learnerCourse.setLaunchURI(launchCourseURL+enrollmentId);
+			
+			learnerCourse.setSubscriptionTag("");
+			learnerCourse.setTimeSpent(TimeConverter.timeConversion(lcs.getTotalTimeInSeconds()));
+			
+			// View Assessment Link
+			learnerCourse.setViewAssessmentURI("");
+			
+			learnerCourse.setIsLocked(false);
+			
+			
+			
+			learnerCourse.setFirstAccessDate(lcs.getFirstAccessDate());
+			learnerCourse.setScore(lcs.getHighestPostTestScore());
+
+			
+			
+			// -- Start -- setup course Lab URL for all enrollment behalf if available in course's LabType_id field
+			if(lcs.getLearnerEnrollment().getCourse()!=null && lcs.getLearnerEnrollment().getCourse().getLabType()!=null &&
+						lcs.getLearnerEnrollment().getCourse().getLabType().getIsActive()){
+				if(!lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
+					try {
+						String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
+						String labName = lcs.getLearnerEnrollment().getCourse().getLabType().getLabName() ;
+						byte[] userToken = Base64.getEncoder().encode((userName + "-" + learnerCourse.getEnrollmentId() + "|" + labPassword).getBytes()); 
+						learnerCourse.setLabURL(laburl+"?labAccessKey="+ new String(userToken) +"");
+						learnerCourse.setLabName(labName);
+						learnerCourse.setIsLabThirdParty(false);
+					} catch (Exception e) {
+						logger.error(" >>>> ERROR >>>>");
+						logger.error("Error in making Course URL for enrollment id : " + learnerCourse.getEnrollmentId());
+						logger.error(e);
+					}
+				}else{
+					learnerCourse.setIsLabThirdParty(true);
+				}	
+			}
+		
+		return learnerCourse;
+	}
 	
 
 	@Override

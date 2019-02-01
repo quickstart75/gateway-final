@@ -2,6 +2,7 @@ package com.softech.ls360.api.gateway.endpoint.restful;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,11 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
@@ -26,11 +33,14 @@ import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentReques
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
 import com.softech.ls360.api.gateway.service.model.request.LearnersEnrollmentRequest;
+import com.softech.ls360.api.gateway.service.model.request.MagentoGetProductRequest;
 import com.softech.ls360.api.gateway.service.model.request.UpdateEnrollmentStatusRequest;
 import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
+import com.softech.ls360.api.gateway.service.model.request.UserRequest;
 import com.softech.ls360.api.gateway.service.model.response.CourseTimeSpentResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerClassroomDetailResponse;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
+import com.softech.ls360.api.gateway.service.model.response.LearnerEnrollmentStatistics;
 import com.softech.ls360.api.gateway.service.model.response.LearnersEnrollmentResponse;
 import com.softech.ls360.lms.api.model.request.LearnerEnrollmentsRequest;
 import com.softech.ls360.lms.api.model.response.LearnerEnrollmentsResponse;
@@ -53,6 +63,9 @@ public class EnrollmentRestEndpoint {
 	
 	@Inject
 	private LearnerEnrollmentService learnerEnrollmentService;
+	
+	@Value( "${api.magento.baseURL}" )
+    private String magentoBaseURL;
 	
 	@RequestMapping(value = "/customer/learner/enroll", method = RequestMethod.POST)
 	@ResponseBody
@@ -112,7 +125,56 @@ public class EnrollmentRestEndpoint {
 			
 	}
 	
+	@RequestMapping(value = "/learner/course", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> learnerCourse(@RequestBody UserRequest user
+			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		
+		
+		logger.info("Request received at " + getClass().getName() + " for learner enrolled courses");
+		if(user==null || user.getCourseGuid()==null || user.getCourseGuid().length()==0){
+			returnResponse.put("status", Boolean.FALSE);
+			returnResponse.put("message", "Failure");
+			returnResponse.put("result", "");
+			return returnResponse;
+		}
+		
+		
+		MagentoGetProductRequest mpRequest = new MagentoGetProductRequest();
+		mpRequest.setSku(user.getCourseGuid());
+		mpRequest.setStoreId(user.getStoreId());
+		
+		RestTemplate restTemplate2 = new RestTemplate();
+		HttpHeaders headers2 = new HttpHeaders();
+		headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+		HttpEntity requestData2 = new HttpEntity(mpRequest, headers2);
+		StringBuffer location2 = new StringBuffer();
+		location2.append(magentoBaseURL + "rest/default/V1/itskills-mycourses/getProductDetail");
+		ResponseEntity<Object> returnedData2=null;
+		LinkedHashMap<String, Object> mapAPiResponse=null;
 	
+	
+		 returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+		 List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();
+		 
+		 
+		 if(magentoAPiResponse!=null){
+			 mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
+			 if(mapAPiResponse!=null){
+				LinkedHashMap mapAPiResponseResult = (LinkedHashMap) mapAPiResponse.get("result");
+				
+				LearnerEnrollmentStatistics lcsVO = learnerCourseCountService.getLearnerCourse(user);
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				
+				mapAPiResponseResult.put("learnerEnrollments", lcsVO);
+				returnResponse.put("result", mapAPiResponseResult);
+				return returnResponse;
+			 }
+		 }
+		return null;
+	}
 	@RequestMapping(value = "/admin/vilt/enrollments", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<Object, Object> getViltLearnerEnrollment(@RequestBody LearnersEnrollmentRequest user
