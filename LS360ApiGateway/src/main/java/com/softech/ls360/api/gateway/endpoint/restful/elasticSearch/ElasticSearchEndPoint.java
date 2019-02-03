@@ -86,8 +86,13 @@ public class ElasticSearchEndPoint {
 			}
 			
 			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
-			
+			// if no enrollments and no subscription, return empty array
 			if(arrEnrollment.size()==0 && (request.getSubsCode()==null || request.getSubsCode().equals(""))){
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				returnResponse.put("courses", new ArrayList());
+				return returnResponse;
+			}else if( enrolledCourses_Subscription.equals("subscription") && (request.getSubsCode()==null || request.getSubsCode().equals(""))){
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
@@ -126,7 +131,7 @@ public class ElasticSearchEndPoint {
 			
 			//---------------------------------------
 			//---------------------------------------
-			List lstSearch = new ArrayList();
+			List<String> lstSearch = new ArrayList<String>();
 			if(request.getSearchText() != null){
 				lstSearch.add(request.getSearchText());
 			}
@@ -154,15 +159,29 @@ public class ElasticSearchEndPoint {
 			onjESearch.setCategories(lstCategories);
 			//---------------------------------------
 			//---------------------------------------
-			if(!enrolledCourses_Subscription.equals("all") && !enrolledCourses_Subscription.equals("subscription")){
-				List lstGuids = new ArrayList();
-				for(Object[] subArr: arrEnrollment){
-					if(subArr[0]!=null){
-						lstGuids.add(subArr[0].toString());
-					}
+			
+			List<String> lstAllGuids = new ArrayList<String>();
+			List<String> lstNew_StartedGuids = new ArrayList<String>();
+			List<String> lstCompletedGuids = new ArrayList<String>();
+			
+			for(Object[] subArr: arrEnrollment){
+				if(subArr[0]!=null){
+					lstAllGuids.add(subArr[0].toString());
 				}
-				onjESearch.setCourseGuids(lstGuids);
-			}else{
+				if(subArr[0]!=null && subArr[1]!=null && (subArr[1].toString().equalsIgnoreCase("notstarted") || subArr[1].toString().equalsIgnoreCase("inprogress"))){
+					lstNew_StartedGuids.add(subArr[0].toString());
+				}else if(subArr[0]!=null && subArr[1]!=null && subArr[1].toString().equalsIgnoreCase("completed")){
+					lstCompletedGuids.add(subArr[0].toString());
+				}
+			}
+			
+			if(enrolledCourses_Subscription.equals("all") ){
+				onjESearch.setCourseGuids(lstAllGuids);
+			}else if(enrolledCourses_Subscription.equals("new_started") ){
+				onjESearch.setCourseGuids(lstNew_StartedGuids);
+			}else if(enrolledCourses_Subscription.equals("completed") ){
+					onjESearch.setCourseGuids(lstCompletedGuids);
+			}else if(enrolledCourses_Subscription.equals("subscription")){
 				onjESearch.setCourseGuids(new ArrayList());
 			}
 			//--------------------------------------
