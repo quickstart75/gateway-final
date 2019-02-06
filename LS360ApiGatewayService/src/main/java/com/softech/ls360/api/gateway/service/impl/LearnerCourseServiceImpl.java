@@ -599,11 +599,13 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		logger.info("Auth User Name :: :: :: " + userName);
 		
 
-		    LearnerCourseStatistics lcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuid(userName, userRequest.getCourseGuid());
+		    List<LearnerCourseStatistics> lstlcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuid(userName, userRequest.getCourseGuid());
 		    
-		    if(lcs==null)
+		    if(lstlcs==null || lstlcs.size()==0){
 		    	return null;
-		    
+		    }
+		    // get the last enrollment of same course if exists multiples
+		    LearnerCourseStatistics lcs = lstlcs.get(lstlcs.size()-1);
 		    Long enrollmentId = lcs.getLearnerEnrollment().getId();
 		    LearnerEnrollmentStatistics learnerCourse = new LearnerEnrollmentStatistics();
 			

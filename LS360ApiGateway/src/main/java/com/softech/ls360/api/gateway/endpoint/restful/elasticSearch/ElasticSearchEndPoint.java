@@ -184,6 +184,39 @@ public class ElasticSearchEndPoint {
 			}else if(enrolledCourses_Subscription.equals("subscription")){
 				onjESearch.setCourseGuids(new ArrayList());
 			}
+			
+			
+			if(enrolledCourses_Subscription.equals("all") && (onjESearch.getCourseGuids()==null || onjESearch.getCourseGuids().size() ==0 )
+					&& (onjESearch.getSubscriptions() ==null || onjESearch.getSubscriptions().size()==0)){
+				
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				returnResponse.put("courses", new ArrayList());
+				return returnResponse;
+			}else if(enrolledCourses_Subscription.equals("subscription") 
+					&& ( onjESearch.getSubscriptions() == null || onjESearch.getSubscriptions().size()==0 )){
+				
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				returnResponse.put("courses", new ArrayList());
+				return returnResponse;
+				
+			}else if( enrolledCourses_Subscription.equals("new_started") && lstNew_StartedGuids.size()==0 
+					&& (onjESearch.getSubscriptions() ==null || onjESearch.getSubscriptions().size()==0)){
+				
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				returnResponse.put("courses", new ArrayList());
+				return returnResponse;
+				
+			}else if( enrolledCourses_Subscription.equals("completed") && lstCompletedGuids.size()==0 
+					&& (onjESearch.getSubscriptions() ==null || onjESearch.getSubscriptions().size()==0)){
+				
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				returnResponse.put("courses", new ArrayList());
+				return returnResponse;
+			}
 			//--------------------------------------
 			//---------------------------------------
 			List lstDuration = new ArrayList();
@@ -195,17 +228,19 @@ public class ElasticSearchEndPoint {
 			onjESearch.setDurations(lstDuration);
 			//---------------------------------------
 			//---------------------------------------
-			List lstpersonalization = new ArrayList();
-			List<Map<String, String>> lstRequestP = request.getPersonalization().getCompetencies();
-			for(Map<String, String> mapLT : lstRequestP){
-				for(Map.Entry entry : mapLT.entrySet()){
-					if(entry.getKey()!=null && entry.getKey().equals("value")){
-						lstpersonalization.add(entry.getValue());
+			
+			if(enrolledCourses_Subscription.equals("subscription")){
+				List lstpersonalization = new ArrayList();
+				List<Map<String, String>> lstRequestP = request.getPersonalization().getCompetencies();
+				for(Map<String, String> mapLT : lstRequestP){
+					for(Map.Entry entry : mapLT.entrySet()){
+						if(entry.getKey()!=null && entry.getKey().equals("value")){
+							lstpersonalization.add(entry.getValue());
+						}
 					}
 				}
+				onjESearch.getCategories().addAll(lstpersonalization);
 			}
-			onjESearch.getCategories().addAll(lstpersonalization);
-			
 			//-----------------------------------------
 			//-----------------------------------------
 			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
