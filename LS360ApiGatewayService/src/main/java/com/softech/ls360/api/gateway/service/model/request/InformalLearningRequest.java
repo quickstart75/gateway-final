@@ -1,5 +1,7 @@
 package com.softech.ls360.api.gateway.service.model.request;
 
+import java.util.List;
+
 public class InformalLearningRequest {
 	private int storeId;
 	private int websiteId;
@@ -15,6 +17,7 @@ public class InformalLearningRequest {
 	private InformalLearningFilter informalLearning;
 	private PersonalizationFilter personalization;
 	private String subsCode;
+	private List favorites;
 	
 	public String getSearchText() {
 		return searchText;
@@ -95,7 +98,10 @@ public class InformalLearningRequest {
 	public void setSubsCode(String subsCode) {
 		this.subsCode = subsCode;
 	}
-	
-
-	
+	public List getFavorites() {
+		return favorites;
+	}
+	public void setFavorites(List favorites) {
+		this.favorites = favorites;
+	}
 }

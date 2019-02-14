@@ -27,12 +27,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.service.CourseService;
-import com.softech.ls360.api.gateway.service.LearnerCourseService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearch;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearchAdvance;
@@ -46,9 +43,6 @@ public class ElasticSearchEndPoint {
 
 	@Inject
 	private CourseService courseService;
-	
-	@Inject
-	private LearnerCourseService learnerCourseService;
 	
 	@Inject
 	LearnerEnrollmentService learnerEnrollmentService;
@@ -71,8 +65,74 @@ public class ElasticSearchEndPoint {
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		
+		if(request.getSearchType().equalsIgnoreCase("favorites")){
+			/*RestTemplate restTemplate2 = new RestTemplate();
+			request.setEmailAddress(username);
+			
+			Map<String, String> requestMap = new HashMap<String, String>();
+			requestMap.put("emailAddress","josephwintersquickstart@gmail.com");
+			requestMap.put("storeId","2");
+			requestMap.put("favType","all");
+			requestMap.put("tabName","all");
+			requestMap.put("pageSize","1000");
+			requestMap.put("pageNumber","1");
+			HttpEntity requestData2 = new HttpEntity(requestMap, getHttpHeaders());
+			StringBuffer location2 = new StringBuffer();
+			location2.append(magentoBaseURL + "rest/default/V1/favCourse/getList");
+			ResponseEntity<Object> returnedData2=null;				
+			
+			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+			LinkedHashMap<String, Object> magentoAPiResponse = (LinkedHashMap<String, Object>)returnedData2.getBody();
+			List keys = new ArrayList(); 
+			 if(magentoAPiResponse!=null){
+					// LinkedHashMap<String, Object> mapAPiResponseResult = (LinkedHashMap<String, Object> ) magentoAPiResponse.get("result");
+				 List<Map<String, Object>> mapAPiResponseResult = (List<Map<String, Object>> ) magentoAPiResponse.get("result");
+				 for(Map lstResult : mapAPiResponseResult){
+						 keys.add(lstResult.get("ref_item"));
+					}
+			 }*/
+			 
+			ElasticSearchCourseRequest onjESearch = new ElasticSearchCourseRequest();
+			onjESearch.setPageNumber(request.getPageNumber());
+			onjESearch.setPageSize(request.getPageSize());
+			
+			//---------------------------------------
+			//---------------------------------------
+			List<String> lstSearch = new ArrayList<String>();
+			if(request.getSearchText() != null){
+				lstSearch.add(request.getSearchText());
+			}
+			onjESearch.setKeywords(lstSearch);
+			//---------------------------------------
+			//---------------------------------------
+			Map mapfilter = new HashMap();
+			mapfilter.put("_id", request.getFavorites());
+			onjESearch.setFilters(mapfilter);
+			//-----------------------------------------
+			List<String> lstfields = new ArrayList<String>();
+			lstfields.add("description");
+			onjESearch.setFields(lstfields);
+			
+			
+			RestTemplate restTemplate2 = new RestTemplate();
+			HttpHeaders headers2 = new HttpHeaders();
+			headers2.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+			   
+			HttpEntity requestData2 = new HttpEntity(onjESearch, headers2);
+			StringBuffer location2 = new StringBuffer();
+			location2.append(elasticSearchBaseURL +"/contents/customized_search");
+			ResponseEntity<Object> returnedData2=null;
+		
+			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+			LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
+			
+			returnResponse.put("status", Boolean.TRUE);
+			returnResponse.put("message", "Success");
+			returnResponse.put("favorites", magentoAPiResponse);
+			return returnResponse;
+		}
 		// COURSE --------------------------------------------------------------------------------------------------
-		if(request.getSearchType().equalsIgnoreCase("courses")){
+		else if(request.getSearchType().equalsIgnoreCase("courses")){
 			ElasticSearchCourseRequest onjESearch = new ElasticSearchCourseRequest();
 			//List<String> subscriptions = learnerCourseService.getSubscriptionId(username);
 			
@@ -106,7 +166,7 @@ public class ElasticSearchEndPoint {
 				HttpEntity requestData2 = new HttpEntity(request, getHttpHeaders());
 				StringBuffer location2 = new StringBuffer();
 				location2.append(magentoBaseURL + "rest/default/V1/itskills-mycourses/getUserSubscription");
-				ResponseEntity<Object> returnedData2=null;
+				ResponseEntity<Object> returnedData2=null;				
 				
 				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 				List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();

@@ -122,6 +122,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	@Value("${lab.password}")
 	private String labPassword;
 	
+	@Value( "${api.player.baseURL}" )
+    private String playerBaseURL;
+	
 	Integer storeId = 0;
 	
 	@Override
@@ -443,6 +446,10 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				ClassroomStatistics classroomStatistics = classroomCourseService.getClassroomStatistics(classId,crs);
 				learnerCourse.setClassroomStatistics(classroomStatistics);
 				
+				if(classroomStatistics!=null && classroomStatistics.getLabURL()!=null && classroomStatistics.getLabURL().toLowerCase().contains("lod.aspx")){
+					classroomStatistics.setLabURL(playerBaseURL + "/" + classroomStatistics.getLabURL() + "?enrollmentid=" +lcs.getLearnerEnrollment().getId());
+				}
+				
 				// set the recorded Class Launch URI link for vilt course
 				Calendar cal = Calendar.getInstance();
 				List<Object[]> attendance = vILTAttendanceService.findByEnrollmentIds(lcs.getLearnerEnrollment().getId());
@@ -540,9 +547,13 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			// -- Start -- setup course Lab URL for all enrollment behalf if available in course's LabType_id field
 			if(lcs.getLearnerEnrollment().getCourse()!=null && lcs.getLearnerEnrollment().getCourse().getLabType()!=null &&
 						lcs.getLearnerEnrollment().getCourse().getLabType().getIsActive()){
-				if(!lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
+				
+				String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
+				if(laburl.toLowerCase().contains("lod.aspx")){
+					laburl = playerBaseURL + "/" + laburl + "?enrollmentid=" +lcs.getLearnerEnrollment().getId();
+					learnerCourse.setLabURL(laburl);
+				}else if(!lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
 					try {
-						String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
 						String labName = lcs.getLearnerEnrollment().getCourse().getLabType().getLabName() ;
 						byte[] userToken = Base64.getEncoder().encode((userName + "-" + learnerCourse.getEnrollmentId() + "|" + labPassword).getBytes()); 
 						learnerCourse.setLabURL(laburl+"?labAccessKey="+ new String(userToken) +"");
@@ -645,6 +656,11 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				Long classId = lcs.getLearnerEnrollment().getSynchronousClass().getId();
 				com.softech.ls360.lms.repository.entities.Course crs = lcs.getLearnerEnrollment().getCourse();
 				ClassroomStatistics classroomStatistics = classroomCourseService.getClassroomStatistics(classId,crs);
+				
+				if(classroomStatistics!=null && classroomStatistics.getLabURL()!=null && classroomStatistics.getLabURL().toLowerCase().contains("lod.aspx")){
+					classroomStatistics.setLabURL(playerBaseURL + "/" + classroomStatistics.getLabURL() + "?enrollmentid=" +lcs.getLearnerEnrollment().getId());
+				}
+					
 				learnerCourse.setClassroomStatistics(classroomStatistics);
 				
 				// set the recorded Class Launch URI link for vilt course
@@ -719,9 +735,14 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			// -- Start -- setup course Lab URL for all enrollment behalf if available in course's LabType_id field
 			if(lcs.getLearnerEnrollment().getCourse()!=null && lcs.getLearnerEnrollment().getCourse().getLabType()!=null &&
 						lcs.getLearnerEnrollment().getCourse().getLabType().getIsActive()){
-				if(!lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
+				
+				String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
+				if(laburl.toLowerCase().contains("lod.aspx")){
+					laburl = playerBaseURL + "/" + laburl + "?enrollmentid=" +lcs.getLearnerEnrollment().getId();
+					learnerCourse.setLabURL(laburl);
+				}else if(!lcs.getLearnerEnrollment().getCourse().getLabType().getIsThirdParty()){
 					try {
-						String laburl = lcs.getLearnerEnrollment().getCourse().getLabType().getLabURL() ; 
+						
 						String labName = lcs.getLearnerEnrollment().getCourse().getLabType().getLabName() ;
 						byte[] userToken = Base64.getEncoder().encode((userName + "-" + learnerCourse.getEnrollmentId() + "|" + labPassword).getBytes()); 
 						learnerCourse.setLabURL(laburl+"?labAccessKey="+ new String(userToken) +"");

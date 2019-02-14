@@ -1,6 +1,7 @@
 package com.softech.ls360.api.gateway.service.model.request;
 
 import java.util.List;
+import java.util.Map;
 
 public class ElasticSearchCourseRequest {
 	private int pageSize;
@@ -11,6 +12,8 @@ public class ElasticSearchCourseRequest {
 	private List durations;
 	private List subscriptions;
 	private List keywords;
+	private Map filters;
+	private List fields;
 	
 	public List getCourseGuids() {
 		return courseGuids;
@@ -59,6 +62,18 @@ public class ElasticSearchCourseRequest {
 	}
 	public void setPageNumber(int pageNumber) {
 		this.pageNumber = pageNumber;
+	}
+	public Map getFilters() {
+		return filters;
+	}
+	public void setFilters(Map filters) {
+		this.filters = filters;
+	}
+	public List getFields() {
+		return fields;
+	}
+	public void setFields(List fields) {
+		this.fields = fields;
 	}
 	
 	
