@@ -14,6 +14,7 @@ public class ElasticSearchCourseRequest {
 	private List keywords;
 	private Map filters;
 	private List fields;
+	private List ids;
 	
 	public List getCourseGuids() {
 		return courseGuids;
@@ -75,6 +76,10 @@ public class ElasticSearchCourseRequest {
 	public void setFields(List fields) {
 		this.fields = fields;
 	}
-	
-	
+	public List getIds() {
+		return ids;
+	}
+	public void setIds(List ids) {
+		this.ids = ids;
+	}
 }

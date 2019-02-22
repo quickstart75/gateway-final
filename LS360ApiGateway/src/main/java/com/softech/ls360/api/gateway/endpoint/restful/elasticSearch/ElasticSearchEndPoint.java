@@ -91,7 +91,15 @@ public class ElasticSearchEndPoint {
 						 keys.add(lstResult.get("ref_item"));
 					}
 			 }*/
-			 
+			
+			if(request.getFavorites()==null && request.getFavorites().size()==0)
+			{
+				returnResponse.put("status", Boolean.TRUE);
+				returnResponse.put("message", "Success");
+				returnResponse.put("favorites", new LinkedHashMap<String, Object>());
+				return returnResponse;
+			}
+			
 			ElasticSearchCourseRequest onjESearch = new ElasticSearchCourseRequest();
 			onjESearch.setPageNumber(request.getPageNumber());
 			onjESearch.setPageSize(request.getPageSize());
@@ -109,6 +117,8 @@ public class ElasticSearchEndPoint {
 			mapfilter.put("_id", request.getFavorites());
 			onjESearch.setFilters(mapfilter);
 			//-----------------------------------------
+			
+			
 			List<String> lstfields = new ArrayList<String>();
 			lstfields.add("description");
 			onjESearch.setFields(lstfields);
@@ -126,9 +136,26 @@ public class ElasticSearchEndPoint {
 			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 			
+			
+			
+			//-----------------------------------------
+			//-----------------------------------------
+			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
+			Map<String, String> subMapEnrollment;
+			for(Object[] subArr: arrEnrollment){
+				subMapEnrollment = new HashMap<String,String>();
+				subMapEnrollment.put("status", subArr[1].toString());
+				mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
+			}
+			//-----------------------------------------
+			//-----------------------------------------
+			
+			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "Success");
 			returnResponse.put("favorites", magentoAPiResponse);
+			
 			return returnResponse;
 		}
 		// COURSE --------------------------------------------------------------------------------------------------
@@ -427,7 +454,10 @@ public class ElasticSearchEndPoint {
 				LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 				
 				if(request.getSearchType().equalsIgnoreCase("informalLearning")){
-					returnResponse.put("informalLearning", magentoAPiResponse);  
+					returnResponse.put("informalLearning", magentoAPiResponse);
+					
+					String[] sourceProvider = {"Youtube","StackOverflow","TechTarget","Microsoft","Logitrain","LinkedIn","VImeo"};
+					returnResponse.put("sourceProvider", sourceProvider);
 				}else if(request.getSearchType().equalsIgnoreCase("collaborate")){
 					returnResponse.put("collaborate", magentoAPiResponse);
 				}
