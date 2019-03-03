@@ -154,6 +154,11 @@ public class ElasticSearchFavoriteEndPoint {
 					
 					mapfilter.put("_id", request.getFavorites());
 					onjESearch.setFilters(mapfilter);
+					
+					List<String> sourceFilters = new ArrayList<String>();
+					sourceFilters.addAll(request.getInformalLearning().getSourceFilters());
+					
+					mapfilter.put("siteName", sourceFilters);
 					//onjESearch.setContentFilter(request.getInformalLearning().getSourceFilters());
 				}
 				

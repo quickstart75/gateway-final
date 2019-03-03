@@ -14,6 +14,17 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
 
 	
 	List<Subscription> findByVu360User_usernameAndSubscriptionStatus(String userName, String subscriptionStatus);
+	//List<Subscription> findByIdAndSubscriptionStatusAndOrderStatus(String userName, String subscriptionStatus, String orderStatus);
+/*	@Query(value = " SELECT S.ID, isnull(CE.ORDERSTATUS, '') FROM SUBSCRIPTION S " +
+			" inner join customerentitlement ce on s.CUSTOMERENTITLEMENT_ID = ce.id " +
+			" where s.id = ?1 ", nativeQuery = true)
+	List<Object[]> findSubscriptionOrderStatus(Long id);*/
+	
+	@Query(value = " SELECT S.ID, isnull(CE.ORDERSTATUS, ''), s.SUBSCRIPTION_NAME FROM SUBSCRIPTION S " +
+			" inner join customerentitlement ce on s.CUSTOMERENTITLEMENT_ID = ce.id " +
+			" where s.subscription_code = ?1 ", nativeQuery = true)
+	List<Object[]> findSubscriptionOrderStatus(String code);
+	
 	Subscription findBySubscriptionCode(String subscriptionCode);
 	Subscription findBySubscriptionCodeAndSubscriptionStatus(String subscriptionCode, String subscriptionStatus);
 	

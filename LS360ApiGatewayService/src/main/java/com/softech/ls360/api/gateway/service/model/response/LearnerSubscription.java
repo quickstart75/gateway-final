@@ -4,7 +4,7 @@ public class LearnerSubscription {
 	private String guid;
 	private String code;
 	private String type;
-	
+	private String status;
 	
 	
 	public String getType() {
@@ -25,6 +25,10 @@ public class LearnerSubscription {
 	public void setCode(String code) {
 		this.code = code;
 	}
-	
-	
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 }

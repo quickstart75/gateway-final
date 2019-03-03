@@ -40,6 +40,8 @@ private static final long serialVersionUID = 1L;
 	private Integer isSystemManagedTf;
 	private BigDecimal transactionAmount;
 	protected LocalDateTime contractCreationDate;
+	private String orderStatus;
+	
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="DISTRIBUTOR_ID")
@@ -211,5 +213,13 @@ private static final long serialVersionUID = 1L;
 	public void setContractCreationDate(LocalDateTime contractCreationDate) {
 		this.contractCreationDate = contractCreationDate;
 	}
-	
+
+	@Column(name="ORDERSTATUS")
+	public String getOrderStatus() {
+		return orderStatus;
+	}
+
+	public void setOrderStatus(String orderStatus) {
+		this.orderStatus = orderStatus;
+	}
 }

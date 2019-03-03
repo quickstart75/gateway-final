@@ -9,16 +9,18 @@ public class GlobalBatchImportParamSerialized implements Serializable {
     String customerEmail;
     String filePath;
     String action;
-
+    String websiteId;
+    
 	public GlobalBatchImportParamSerialized() {
 		super();
 	}
 	
-	public GlobalBatchImportParamSerialized(String customerEmail, String filePath, String action) {
+	public GlobalBatchImportParamSerialized(String customerEmail, String filePath, String action, String websiteId) {
 		super();
 		this.customerEmail = customerEmail;
 		this.filePath = filePath;
 		this.action = action;
+		this.websiteId = websiteId;
 	}
 	
 	
@@ -44,7 +46,12 @@ public class GlobalBatchImportParamSerialized implements Serializable {
 	public void setAction(String action) {
 		this.action = action;
 	}
-    
-    
 
+	public String getWebsiteId() {
+		return websiteId;
+	}
+
+	public void setWebsiteId(String websiteId) {
+		this.websiteId = websiteId;
+	}
 }

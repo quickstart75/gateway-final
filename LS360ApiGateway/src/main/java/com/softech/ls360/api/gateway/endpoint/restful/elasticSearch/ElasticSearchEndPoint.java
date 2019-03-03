@@ -36,6 +36,9 @@ import com.softech.ls360.api.gateway.service.model.request.ElasticSearchAdvance;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearchCourseRequest;
 import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
+import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
+import com.softech.ls360.lms.repository.entities.Subscription;
+import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
 @RestEndpoint
 @RequestMapping(value="/clip")
@@ -55,6 +58,9 @@ public class ElasticSearchEndPoint {
 		
 	@Value("${lms.recordedClassLaunchURI.url}")
 	private String recordedClassLaunchURI;
+	
+	@Inject
+	private SubscriptionRepository subscriptionRepository;
 	
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -145,11 +151,19 @@ public class ElasticSearchEndPoint {
 			Map<String, String> subMapEnrollment;
 			for(Object[] subArr: arrEnrollment){
 				subMapEnrollment = new HashMap<String,String>();
-				subMapEnrollment.put("status", subArr[1].toString());
+				// if orderstatus is completed in voicher payment case or should be null/empty in credit card payment
+				if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
+					subMapEnrollment.put("status", subArr[1].toString());
+				else
+					subMapEnrollment.put("status", subArr[2].toString());
+				
 				mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
 			}
 			//-----------------------------------------
 			//-----------------------------------------
+			
+			
+			
 			
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			returnResponse.put("status", Boolean.TRUE);
@@ -334,14 +348,38 @@ public class ElasticSearchEndPoint {
 			Map<String, String> subMapEnrollment;
 			for(Object[] subArr: arrEnrollment){
 				subMapEnrollment = new HashMap<String,String>();
-				subMapEnrollment.put("status", subArr[1].toString());
+				// if orderstatus is completed in voicher payment case or should be null/empty in credit card payment
+				if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
+					subMapEnrollment.put("status", subArr[1].toString());
+				else
+					subMapEnrollment.put("status", subArr[2].toString());
 				mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
 			}
 			
 			//ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 			//String json = ow.writeValueAsString(onjESearch);
 			
-			
+			List<LearnerSubscription> lstsubscription = new ArrayList<LearnerSubscription>();
+			/************ Subscription ******************/
+			if(request.getSubsCode()!=null && request.getSubsCode().length()>0){
+				
+				LearnerSubscription learnerSubscription = new LearnerSubscription();
+								
+				List<Object[]> colOrderStatus = subscriptionRepository.findSubscriptionOrderStatus(request.getSubsCode());
+				if(colOrderStatus.size()>0){
+					 for(Object[]  orderStatus : colOrderStatus){
+						if(orderStatus[1]==null || orderStatus[1].toString().equals("") || orderStatus[1].toString().equals("completed"))
+								learnerSubscription.setStatus("completed");
+						else
+							learnerSubscription.setStatus(orderStatus[1].toString());
+						
+						learnerSubscription.setGuid(orderStatus[2].toString());
+						learnerSubscription.setCode(request.getSubsCode());
+						learnerSubscription.setType("subscription");
+						lstsubscription.add(learnerSubscription);
+					 }
+				}
+			}
 			RestTemplate restTemplate2 = new RestTemplate();
 			HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
 			StringBuffer location2 = new StringBuffer();
@@ -351,6 +389,7 @@ public class ElasticSearchEndPoint {
 			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			magentoAPiResponse.put("requestData", onjESearch);
+			magentoAPiResponse.put("subscription", lstsubscription);
 			
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "Success");
@@ -380,11 +419,27 @@ public class ElasticSearchEndPoint {
 				 List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();
 				 mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
 			     
-				 //List<ElasticSerachCourseResponse> lst = (List<ElasticSerachCourseResponse>)mapAPiResponse.get("result");
 				 
+				 
+				//-----------------------------------------
+				//-----------------------------------------
+				 List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
+					Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+					Map<String, String> subMapEnrollment;
+					for(Object[] subArr: arrEnrollment){
+						subMapEnrollment = new HashMap<String,String>();
+						// if orderstatus is completed in voicher payment case or should be null/empty in credit card payment
+						if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
+							subMapEnrollment.put("status", subArr[1].toString());
+						else
+							subMapEnrollment.put("status", subArr[2].toString());
+						mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
+					}
+				 //----------------------------------------------------------------------
 				 if(request.getSearchType().equalsIgnoreCase("courses")){
 					returnResponse.put("courses", mapAPiResponse.get("result"));
 				}else if(request.getSearchType().equalsIgnoreCase("learningPaths")){
+					returnResponse.put("enrolledCourses", mapEnrollment);
 					returnResponse.put("learningPaths", mapAPiResponse.get("result"));
 				}
 			}catch(Exception ex) {

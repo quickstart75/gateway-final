@@ -33,6 +33,7 @@ public class MessageSenderServiceImpl implements MessageSenderService{
 	                	message.setString("customerEmail", product.getCustomerEmail());
 	    				message.setString("file", product.getFilePath());
 	    				message.setString("action", product.getAction());
+	    				message.setString("websiteId", product.getWebsiteId());
 	    				message.setStringProperty("objectType", "batchInfo");
 	                	return message;
 	                }

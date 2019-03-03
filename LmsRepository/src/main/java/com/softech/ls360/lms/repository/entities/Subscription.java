@@ -25,7 +25,7 @@ public class Subscription extends BaseEntity implements Serializable {
 	private LocalDateTime createDate;
 	private String subscriptionName;
 	private VU360User vu360User;
-
+	
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="CUSTOMERENTITLEMENT_ID")
 	public CustomerEntitlement getCustomerEntitlement() {
@@ -114,4 +114,6 @@ public class Subscription extends BaseEntity implements Serializable {
 	public void setVu360User(VU360User vu360User) {
 		this.vu360User = vu360User;
 	}
+	
+	
 }
