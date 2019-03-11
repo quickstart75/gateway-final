@@ -58,9 +58,9 @@ public class GlobalBatchImportRestEndPoint {
 		 logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>>0" );
 		 try {
 			 	logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 1" +  restRequest.getFilePath());
-	            GlobalBatchImportParamSerialized obj =new GlobalBatchImportParamSerialized(username, restRequest.getFilePath(),restRequest.getAction(), restRequest.getWebsiteId()+"");
+	            GlobalBatchImportParamSerialized obj =new GlobalBatchImportParamSerialized(username, restRequest.getFilePath(),restRequest.getAction(), restRequest.getWebsiteId());
 	            logger.info("---------------------------------------------------------------");
-	            logger.info(username + " " + restRequest.getFilePath()+ " " + restRequest.getAction()+ " " + restRequest.getWebsiteId()+"");
+	            logger.info(username + " " + restRequest.getFilePath()+ " " + restRequest.getAction()+ " " + restRequest.getWebsiteId());
 	            logger.info("---------------------------------------------------------------");
 	            messageSenderService.sendMessage(obj);
 	            logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 2" );
@@ -80,8 +80,6 @@ public class GlobalBatchImportRestEndPoint {
 	        	responseData.put("status", Boolean.FALSE.toString());
 	        	return responseData;
 	        }
-	        
-	       
-    }
+	}
 	
 }

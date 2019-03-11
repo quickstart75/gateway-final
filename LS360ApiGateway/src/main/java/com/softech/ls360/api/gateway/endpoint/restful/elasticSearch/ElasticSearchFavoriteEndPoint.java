@@ -372,9 +372,14 @@ public class ElasticSearchFavoriteEndPoint {
 				//-----------------------------------------
 				Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
 				Map<String, String> subMapEnrollment;
+				
 				for(Object[] subArr: arrEnrollment){
 					subMapEnrollment = new HashMap<String,String>();
-					subMapEnrollment.put("status", subArr[1].toString());
+					// if orderstatus is completed in voicher payment case or should be null/empty in credit card payment
+					if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
+						subMapEnrollment.put("status", subArr[1].toString());
+					else
+						subMapEnrollment.put("status", subArr[2].toString());
 					mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
 				}
 				

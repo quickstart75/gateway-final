@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.request.UserRequest;
 import com.softech.ls360.api.gateway.response.UserCourseAnalyticsResponse;
-import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.StatisticsService;
@@ -26,7 +25,7 @@ import com.softech.ls360.api.gateway.service.model.request.LearnerRequest;
 import com.softech.ls360.api.gateway.service.model.vo.VU360UserVO;
 import com.softech.ls360.lms.api.model.request.UserPermissionRequest;
 import com.softech.ls360.lms.repository.entities.Customer;
-import com.softech.ls360.lms.repository.entities.LearnerGroup;
+import com.softech.ls360.lms.repository.entities.Learner;
 
 @RestEndpoint
 @RequestMapping(value="/lms/customer")
@@ -123,6 +122,43 @@ public class CustomerRestEndPoint {
 		return map;
 	}
 
+	
+	
+	@RequestMapping(value = "/order-status", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> updateOrderStatus(@RequestBody Map<String, Object> request) throws Exception {
+		Map<String, Object> colmap = new HashMap<String, Object>();
+		
+		if(request.get("orderId")==null && request.get("email")==null && request.get("action")==null){
+			colmap.put("status", Boolean.FALSE);
+			colmap.put("message", "Data was Incorrect");
+			return colmap;
+		}
+		
+		String usreName = request.get("email").toString();
+		String orderId = request.get("orderId").toString();
+		String action = request.get("action").toString();
+		
+		Learner objLearner = learnerService.findByVu360UserUsername(usreName);
+		List<Object[]> arrOrder = customerService.getCustomerIdByOrderId(orderId);
+		
+		Long entitId=0l;
+		Long customerId=0l;
+				
+		for(Object[]  orderInfo : arrOrder){
+			customerId = Long.valueOf(orderInfo[0].toString());
+			entitId = Long.valueOf(orderInfo[1].toString());
+		}
+		
+		if(objLearner.getCustomer().getId().equals(customerId) && action.equalsIgnoreCase("completed")){
+			customerService.updateOrderStatusByCustomerentitlementId("completed", entitId);
+		}
+		
+		colmap.put("status", Boolean.TRUE);
+		colmap.put("message", "Order marked complete successfully! ");
+		colmap.put("result", null);
+		return colmap;
+	}
 //
 //	@RequestMapping(value = "/useranalyticsByCourse", method = RequestMethod.POST)
 //	@ResponseBody

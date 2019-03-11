@@ -13,5 +13,8 @@ public interface CustomerService {
 	List<Object[]> findEntitlementByCustomer(Long customerId);
 	List<Object[]> getEnrollmentsDetail(Long customerId);
 	
-	public List<Object[]> getLearnersByCustomer(Long customerId);
+	List<Object[]> getLearnersByCustomer(Long customerId);
+	
+	List<Object[]> getCustomerIdByOrderId(String orderId);
+	boolean updateOrderStatusByCustomerentitlementId(String status, Long entitlementId);
 }

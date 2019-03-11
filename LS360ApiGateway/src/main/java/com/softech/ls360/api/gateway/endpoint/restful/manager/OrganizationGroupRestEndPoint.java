@@ -177,6 +177,11 @@ public class OrganizationGroupRestEndPoint {
 	        	er.setGuid(objCE[6].toString());
 	        	er.setCode(objCE[7].toString());
 	        	
+	        	if(objCE[10]!=null && !objCE[10].toString().equals(""))
+	        		er.setOrderStatus(objCE[10].toString());
+	        	else
+	        		er.setOrderStatus("completed");
+	        	
 	        	try{
 	        		if(objCE[1].toString().equals("Course")  &&  objCE[8].toString().equals("Classroom Course")  &&  objCE[9] != null){
 	        			if(Long.valueOf(objCE[9].toString())>0){

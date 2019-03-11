@@ -67,4 +67,23 @@ public class CustomerServiceImpl implements CustomerService {
 		
 		 return lstED;
 	}
+	
+	@Override
+	public List<Object[]> getCustomerIdByOrderId(String orderId){
+		List<Object[]> arrCusomerId = customerRepository.getCustomerIdByOrderId(orderId);
+		if(arrCusomerId==null)
+			return null;
+		else
+			return arrCusomerId;
+	}
+	
+	@Override
+	public boolean updateOrderStatusByCustomerentitlementId(String status, Long entitlementId){
+		if(entitlementId!=null && entitlementId>0){
+			 customerRepository.updateCustomerentitlementStatus(status, entitlementId);
+			 customerRepository.updateEnrollmentOrderStatus(status, entitlementId);
+		}
+		 return true;
+	}
+	
 }

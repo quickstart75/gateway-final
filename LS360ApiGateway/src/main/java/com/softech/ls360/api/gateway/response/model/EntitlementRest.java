@@ -11,6 +11,8 @@ public class EntitlementRest {
     String startDate;
     String endDate;
     String totalSeats;
+    String orderStatus;
+    
     private ClassroomStatistics classroomStatistics; 
 	public String getName() {
 		return name;
@@ -66,5 +68,11 @@ public class EntitlementRest {
 	}
 	public void setClassroomStatistics(ClassroomStatistics classroomStatistics) {
 		this.classroomStatistics = classroomStatistics;
+	}
+	public String getOrderStatus() {
+		return orderStatus;
+	}
+	public void setOrderStatus(String orderStatus) {
+		this.orderStatus = orderStatus;
 	}
 }
