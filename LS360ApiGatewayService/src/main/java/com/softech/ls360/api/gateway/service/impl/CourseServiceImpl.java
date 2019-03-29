@@ -1,11 +1,7 @@
 package com.softech.ls360.api.gateway.service.impl;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.inject.Inject;
 
@@ -25,6 +21,12 @@ public class CourseServiceImpl implements CourseService{
 	
 	@Value("${lms.recordedClassLaunchURI.url}")
 	private String recordedClassLaunchURI;
+
+	@Value( "${asset.path.base}" )
+	private String assetBasePath;
+
+	@Value( "${asset.path.defaultCertificate}" )
+	private String defaultCertificatePath;
 	
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -50,6 +52,15 @@ public class CourseServiceImpl implements CourseService{
 	public List<Object> getCourseByGUIDs(List<String> guids){
 		List<Object> arrCourse = courseRepository.findByCourseGuid(guids);
 		return arrCourse;
+	}
+
+	public String getSampleCertificateByGuid(String guid) {
+		List<String> assets = courseRepository.getSampleCertificateByGuid(guid);
+		if(assets.size() > 0) {
+			return assetBasePath + assets.get(0);
+		} else {
+			return defaultCertificatePath;
+		}
 	}
 	
 	public List<Map<String, String>> findSlideAndLessonByGuids(List<String> lessonguids, List<String> slideguids, Long courseId){
@@ -119,4 +130,6 @@ public class CourseServiceImpl implements CourseService{
 		Object[] arrCO = courseRepository.getCourseMaterialByGuid(guid, searchText);
 		return arrCO;
 	}
+
+
 }

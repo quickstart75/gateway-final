@@ -6,6 +6,7 @@ import java.util.Map;
 
 public interface CourseService {
 	public Map<String, String> getCourseOutlineByGuids(List<String> guids);
+	public String getSampleCertificateByGuid(String guid);
 	List<Object> getCourseByGUIDs(List<String> guids);
 	
 	List<Map<String, String>> findSlideAndLessonByGuids(List<String> slideguids, List<String> lessonguids, Long courseId);

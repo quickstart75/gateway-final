@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,6 +29,15 @@ public class CourseRestEndPoint {
 		
 		Map<String, String> lstCourseOutlines = courseService.getCourseOutlineByGuids(courseRequest.getCourseGuids());
 		return lstCourseOutlines;
+		
+	}
+	
+	@RequestMapping(value = "/course/certificateSampleByGuid/{guid}", method = RequestMethod.GET)
+	@ResponseBody
+	public String getSampleCertificateByGuids(@PathVariable String guid) throws Exception {
+		
+		String location = courseService.getSampleCertificateByGuid(guid);
+		return location;
 		
 	}
 	
