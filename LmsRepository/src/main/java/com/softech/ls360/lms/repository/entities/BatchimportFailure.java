@@ -41,18 +41,26 @@ public class BatchimportFailure implements Serializable {
 	private Boolean notifyJms = null;
 
 
+	@Column(name = "websiteId")
+	private String websiteId = null;
+	
+	@Column(name = "storeId")
+	private String storeId = null;
+	
 	
 	public BatchimportFailure() {
 		super();
 	}
 
 
-	public BatchimportFailure(String filePath, String action, String managerId, Boolean notifyJms) {
+	public BatchimportFailure(String filePath, String action, String managerId, Boolean notifyJms, String websiteId, String storeId) {
 		super();
 		this.filePath = filePath;
 		this.action = action;
 		this.managerId = managerId;
 		this.notifyJms = notifyJms;
+		this.websiteId= websiteId;
+		this.storeId=storeId;
 	}
 
 
@@ -103,6 +111,26 @@ public class BatchimportFailure implements Serializable {
 
 	public void setNotifyJms(Boolean notifyJms) {
 		this.notifyJms = notifyJms;
+	}
+
+
+	public String getWebsiteId() {
+		return websiteId;
+	}
+
+
+	public void setWebsiteId(String websiteId) {
+		this.websiteId = websiteId;
+	}
+
+
+	public String getStoreId() {
+		return storeId;
+	}
+
+
+	public void setStoreId(String storeId) {
+		this.storeId = storeId;
 	}
 	
 	

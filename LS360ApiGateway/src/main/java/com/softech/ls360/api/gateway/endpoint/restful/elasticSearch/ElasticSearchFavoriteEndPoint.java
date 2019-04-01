@@ -36,6 +36,8 @@ import com.softech.ls360.api.gateway.service.model.request.ElasticSearchAdvance;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearchCourseRequest;
 import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
+import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
+import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
 @RestEndpoint
 @RequestMapping(value="/clip")
@@ -55,6 +57,9 @@ public class ElasticSearchFavoriteEndPoint {
 		
 	@Value("${lms.recordedClassLaunchURI.url}")
 	private String recordedClassLaunchURI;
+	
+	@Inject
+	private SubscriptionRepository subscriptionRepository;
 	
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -397,6 +402,28 @@ public class ElasticSearchFavoriteEndPoint {
 				magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 				magentoAPiResponse.put("requestData", onjESearch);
 				
+				//--------------------------------------------------------------------------------------
+				List<LearnerSubscription> lstsubscription = new ArrayList<LearnerSubscription>();
+				if(request.getSubsCode()!=null && request.getSubsCode().length()>0){
+					LearnerSubscription learnerSubscription = new LearnerSubscription();
+					
+					List<Object[]> colOrderStatus = subscriptionRepository.findSubscriptionOrderStatus(request.getSubsCode());
+					if(colOrderStatus.size()>0){
+						 for(Object[]  orderStatus : colOrderStatus){
+							if(orderStatus[1]==null || orderStatus[1].toString().equals("") || orderStatus[1].toString().equals("completed"))
+									learnerSubscription.setStatus("completed");
+							else
+								learnerSubscription.setStatus(orderStatus[1].toString());
+							
+							learnerSubscription.setGuid(orderStatus[2].toString());
+							learnerSubscription.setCode(request.getSubsCode());
+							learnerSubscription.setType("subscription");
+							lstsubscription.add(learnerSubscription);
+						 }
+					}
+				}	
+				//------------------------------------------------------------------------------------------
+				magentoAPiResponse.put("subscription", lstsubscription);
 				returnResponse.put("courses", magentoAPiResponse);
 			}
 		

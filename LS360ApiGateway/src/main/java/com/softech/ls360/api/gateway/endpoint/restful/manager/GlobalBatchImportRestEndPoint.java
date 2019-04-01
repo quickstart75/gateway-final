@@ -7,9 +7,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jms.UncategorizedJmsException;
@@ -24,8 +22,10 @@ import org.springframework.web.client.AsyncRestTemplate;
 
 import com.softech.ls360.api.gateway.request.GlobalBatchImportRestRequest;
 import com.softech.ls360.api.gateway.service.MessageSenderService;
+import com.softech.ls360.api.gateway.service.UserService;
 import com.softech.ls360.api.gateway.service.model.request.GlobalBatchImportParamSerialized;
 import com.softech.ls360.lms.repository.entities.BatchimportFailure;
+import com.softech.ls360.lms.repository.entities.VU360User;
 
 
 
@@ -34,11 +34,11 @@ import com.softech.ls360.lms.repository.entities.BatchimportFailure;
 @RequestMapping(value = "/lms/customer")
 public class GlobalBatchImportRestEndPoint {
 	
-	@Autowired
-	private Environment env;
-	
 	@Inject
 	MessageSenderService messageSenderService;
+	
+	@Inject
+	UserService userService;
 	
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -55,10 +55,12 @@ public class GlobalBatchImportRestEndPoint {
 		 headers.add("token", token);
 		 headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());   
 		 String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		 VU360User objUser = userService.findByUsername(username);
+		 
 		 logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>>0" );
 		 try {
 			 	logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> 1" +  restRequest.getFilePath());
-	            GlobalBatchImportParamSerialized obj =new GlobalBatchImportParamSerialized(username, restRequest.getFilePath(),restRequest.getAction(), restRequest.getWebsiteId());
+	            GlobalBatchImportParamSerialized obj =new GlobalBatchImportParamSerialized(objUser.getEmailAddress(), username, restRequest.getFilePath(),restRequest.getAction(), restRequest.getWebsiteId(), restRequest.getStoreId());
 	            logger.info("---------------------------------------------------------------");
 	            logger.info(username + " " + restRequest.getFilePath()+ " " + restRequest.getAction()+ " " + restRequest.getWebsiteId());
 	            logger.info("---------------------------------------------------------------");
@@ -70,7 +72,7 @@ public class GlobalBatchImportRestEndPoint {
 	        
 	        }catch(UncategorizedJmsException e){
 	        	logger.info("---In Batch import start >>>>>>>>>>>>>>>>>>>>> UncategorizedJmsException 3" + e.getMessage() );
-	        	BatchimportFailure objBIF = new BatchimportFailure(restRequest.getFilePath(), restRequest.getAction(), username, false);
+	        	BatchimportFailure objBIF = new BatchimportFailure(restRequest.getFilePath(), restRequest.getAction(), objUser.getEmailAddress(), false, restRequest.getWebsiteId(), restRequest.getStoreId());
 	        	messageSenderService.saveBatchimportFailure(objBIF);
 	        	responseData.put("status", Boolean.FALSE.toString());
 	        	responseData.put("message", "ActiveMQ is not working. Record is saved into database");

@@ -147,11 +147,15 @@ public class CustomerRestEndPoint {
 				
 		for(Object[]  orderInfo : arrOrder){
 			customerId = Long.valueOf(orderInfo[0].toString());
-			entitId = Long.valueOf(orderInfo[1].toString());
+			break;
 		}
 		
 		if(objLearner.getCustomer().getId().equals(customerId) && action.equalsIgnoreCase("completed")){
-			customerService.updateOrderStatusByCustomerentitlementId("completed", entitId);
+			for(Object[]  orderInfo : arrOrder){
+				entitId = Long.valueOf(orderInfo[1].toString());
+				if(entitId!=null && entitId>0)
+					customerService.updateOrderStatusByCustomerentitlementId("completed", entitId);
+			}
 		}
 		
 		colmap.put("status", Boolean.TRUE);
