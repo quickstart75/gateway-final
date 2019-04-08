@@ -7,20 +7,24 @@ public class GlobalBatchImportParamSerialized implements Serializable {
     private static final long serialVersionUID = 2L;
     
     String customerEmail;
+    String customerUsername;
     String filePath;
     String action;
     String websiteId;
+    String storeId;
     
 	public GlobalBatchImportParamSerialized() {
 		super();
 	}
 	
-	public GlobalBatchImportParamSerialized(String customerEmail, String filePath, String action, String websiteId) {
+	public GlobalBatchImportParamSerialized(String customerEmail, String customerUsername, String filePath, String action, String websiteId, String storeId) {
 		super();
 		this.customerEmail = customerEmail;
+		this.customerUsername = customerUsername;
 		this.filePath = filePath;
 		this.action = action;
 		this.websiteId = websiteId;
+		this.storeId= storeId;
 	}
 	
 	
@@ -54,4 +58,21 @@ public class GlobalBatchImportParamSerialized implements Serializable {
 	public void setWebsiteId(String websiteId) {
 		this.websiteId = websiteId;
 	}
+
+	public String getStoreId() {
+		return storeId;
+	}
+
+	public void setStoreId(String storeId) {
+		this.storeId = storeId;
+	}
+
+	public String getCustomerUsername() {
+		return customerUsername;
+	}
+
+	public void setCustomerUsername(String customerUsername) {
+		this.customerUsername = customerUsername;
+	}
+	
 }

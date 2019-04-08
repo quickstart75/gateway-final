@@ -30,9 +30,8 @@ import com.softech.ls360.lms.api.service.LmsApiUserGroupServics;
 import com.softech.ls360.lms.api.service.enrollment.LmsApiLearnerCoursesEnrollService;
 import com.softech.ls360.lms.api.service.user.LmsApiUserService;
 import com.softech.ls360.lms.repository.entities.Customer;
-import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.BulkEnrollmentResponse;
 import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.EnrollmentRestRequest;
-import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.user.AddUserResponse;
+import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.RegisterUserRequest;
 import com.softech.vu360.lms.webservice.message.lmsapi.types.user.User;
 
 @RestEndpoint
@@ -161,8 +160,43 @@ public class InviteUserRestEndPoint {
 		return returnResponse;
 	}
 
-		
 	
+	
+	
+	
+	@RequestMapping(value = "register", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> register(@RequestHeader("Authorization") String authorization, @RequestBody RegisterUserRequest user) throws Exception {
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		String token = authorization.substring("Bearer".length()).trim();
+		
+		Map<Object, Object> APIResponse = lmsApiLearnerCoursesEnrollService.register(user, token);
+		returnResponse.put("status", Boolean.TRUE);
+		returnResponse.put("message", "");
+		
+		if(APIResponse.get("result")!=null){
+			ResponseEntity returnedData =  (ResponseEntity) APIResponse.get("result");
+			returnResponse.put("result", returnedData.getBody());
+		}
+		return returnResponse;
+	}	
+	
+	@RequestMapping(value = "author", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> author(@RequestHeader("Authorization") String authorization, @RequestBody RegisterUserRequest user) throws Exception {
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		String token = authorization.substring("Bearer".length()).trim();
+		
+		Map<Object, Object> APIResponse = lmsApiLearnerCoursesEnrollService.author(user, token);
+		returnResponse.put("status", Boolean.TRUE);
+		returnResponse.put("message", "");
+		
+		if(APIResponse.get("result")!=null){
+			ResponseEntity returnedData =  (ResponseEntity) APIResponse.get("result");
+			returnResponse.put("result", returnedData.getBody());
+		}
+		return returnResponse;
+	}	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)

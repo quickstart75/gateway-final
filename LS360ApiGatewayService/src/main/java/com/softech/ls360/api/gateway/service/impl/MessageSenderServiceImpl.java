@@ -31,9 +31,11 @@ public class MessageSenderServiceImpl implements MessageSenderService{
 	                public Message createMessage(Session session) throws JMSException{
 	                	MapMessage message = session.createMapMessage();
 	                	message.setString("customerEmail", product.getCustomerEmail());
+	                	message.setString("customerUsername", product.getCustomerUsername());
 	    				message.setString("file", product.getFilePath());
 	    				message.setString("action", product.getAction());
 	    				message.setString("websiteId", product.getWebsiteId());
+	    				message.setString("storeId", product.getStoreId());
 	    				message.setStringProperty("objectType", "batchInfo");
 	                	return message;
 	                }

@@ -591,6 +591,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			learnerSubscription.setCode(subscription.getSubscriptionCode());
 			learnerSubscription.setType("subscription");
 			
+			if(subscription.getCustomerEntitlement()!=null)
+				learnerSubscription.setStatus(subscription.getCustomerEntitlement().getOrderStatus());
+			
 			lstsubscription.add(learnerSubscription);
 		}
 		

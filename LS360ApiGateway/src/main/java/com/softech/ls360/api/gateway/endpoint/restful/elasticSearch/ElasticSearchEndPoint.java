@@ -348,7 +348,7 @@ public class ElasticSearchEndPoint {
 			Map<String, String> subMapEnrollment;
 			for(Object[] subArr: arrEnrollment){
 				subMapEnrollment = new HashMap<String,String>();
-				// if orderstatus is completed in voicher payment case or should be null/empty in credit card payment
+				// if orderstatus is completed in voucher payment case or should be null/empty in credit card payment
 				if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
 					subMapEnrollment.put("status", subArr[1].toString());
 				else

@@ -34,4 +34,9 @@ public class UserServiceImpl implements UserService{
 		 
 		return true;
 	}
+	
+	@Override
+	public VU360User findByUsername(String userName){
+		return vu360UserRepository.findByUsername(userName);
+	}
 }

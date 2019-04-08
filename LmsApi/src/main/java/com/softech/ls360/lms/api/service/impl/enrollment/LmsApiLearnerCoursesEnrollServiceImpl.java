@@ -28,7 +28,7 @@ import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollm
 import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.EnrollmentRestRequest;
 import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.LearnerCoursesEnrollRequest;
 import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.LearnerCoursesEnrollResponse;
-import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.user.AddUserResponse;
+import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.enrollment.RegisterUserRequest;
 import com.softech.vu360.lms.webservice.message.lmsapi.types.enrollment.DuplicatesEnrollment;
 import com.softech.vu360.lms.webservice.message.lmsapi.types.enrollment.LearnerCourses;
 import com.softech.vu360.lms.webservice.message.lmsapi.types.enrollment.LearnerEnrollCourses;
@@ -191,4 +191,78 @@ public class LmsApiLearnerCoursesEnrollServiceImpl implements LmsApiLearnerCours
 
 	
 
+	@Override
+	public Map<Object, Object> register(RegisterUserRequest user, String token)
+			throws Exception {
+		// TODO Auto-generated method stub
+		 Map<Object, Object> responseData = new HashMap<Object, Object>();
+        try {
+        	RestTemplate restTemplate = new RestTemplate();
+        	
+        	HttpHeaders headers = new HttpHeaders();
+            headers.add("token", token);
+            headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+
+            HttpEntity requestData = new HttpEntity(user, headers);
+
+            StringBuffer location = new StringBuffer();
+            location.append(env.getProperty("lms.baseURL").trim()).append("rest/user/register");
+            
+            logger.info("---URL LMS Enrollment>>>>>>>>>>>>>>>>>>>>>0" + location.toString());
+            
+            logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>1");
+            ResponseEntity<Map> returnedData = restTemplate.postForEntity(location.toString(), requestData,Map.class);
+           
+            String s = returnedData.getBody().toString();
+            responseData.put("result", returnedData);
+            logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>3"+ s); 
+        }catch(Exception e){
+        	logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>4"+ e.getMessage()); 
+        	logger.info(e.getMessage());
+        	//return 
+        	 responseData.put("status", Boolean.FALSE.toString());
+        	 return responseData;
+        }
+        
+        responseData.put("status", Boolean.TRUE.toString());
+        return responseData;
+	}
+	
+	
+	@Override
+	public Map<Object, Object> author(RegisterUserRequest user, String token)
+			throws Exception {
+		// TODO Auto-generated method stub
+		 Map<Object, Object> responseData = new HashMap<Object, Object>();
+        try {
+        	RestTemplate restTemplate = new RestTemplate();
+        	
+        	HttpHeaders headers = new HttpHeaders();
+            headers.add("token", token);
+            headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+
+            HttpEntity requestData = new HttpEntity(user, headers);
+
+            StringBuffer location = new StringBuffer();
+            location.append(env.getProperty("lms.baseURL").trim()).append("rest/user/author");
+            
+            logger.info("---URL LMS Enrollment>>>>>>>>>>>>>>>>>>>>>0" + location.toString());
+            
+            logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>1");
+            ResponseEntity<Map> returnedData = restTemplate.postForEntity(location.toString(), requestData,Map.class);
+           
+            String s = returnedData.getBody().toString();
+            responseData.put("result", returnedData);
+            logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>3"+ s); 
+        }catch(Exception e){
+        	logger.info("---Ready to call LMS enrollments>>>>>>>>>>>>>>>>>>>>>4"+ e.getMessage()); 
+        	logger.info(e.getMessage());
+        	//return 
+        	 responseData.put("status", Boolean.FALSE.toString());
+        	 return responseData;
+        }
+        
+        responseData.put("status", Boolean.TRUE.toString());
+        return responseData;
+	}
 }
