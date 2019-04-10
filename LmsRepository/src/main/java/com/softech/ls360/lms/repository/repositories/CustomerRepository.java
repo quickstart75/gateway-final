@@ -30,6 +30,7 @@ public interface CustomerRepository extends CrudRepository<Customer, Long> {
 			" inner join COURSE_CUSTOMERENTITLEMENT cce on cce.CUSTOMERENTITLEMENT_ID=ce.id " +
 			" inner join Course c on c.id = cce.course_id " +
 			" inner join CUSTOMER customer1_ on ce.CUSTOMER_ID=customer1_.id where customer1_.id=?1 " +
+			" and  (ce.orderstatus is null or ce.orderstatus !='unpublish') "+
 			" union all " +
 			" select sk.name as name, 'subscription' as type, ce.seats as totalSeat, ce.NUMBERSEATSUSED as seatUsed,ce.startDate as startDate, DATEADD(day, ce.Numberdays, ce.startDate) as endDate, sk.guid as guid, s.SUBSCRIPTION_CODE as code, '' as coursetype, '' as classId, ce.orderstatus " +
 			" from customerentitlement ce " +
