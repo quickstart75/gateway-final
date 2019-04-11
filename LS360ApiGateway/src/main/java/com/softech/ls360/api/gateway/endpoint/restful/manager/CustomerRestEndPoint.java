@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import com.softech.ls360.api.gateway.service.StatisticsService;
 import com.softech.ls360.api.gateway.service.UserService;
 import com.softech.ls360.api.gateway.service.model.request.CourseDetail;
 import com.softech.ls360.api.gateway.service.model.request.LearnerRequest;
+import com.softech.ls360.api.gateway.service.model.vo.EnrollmentDetailVO;
 import com.softech.ls360.api.gateway.service.model.vo.VU360UserVO;
 import com.softech.ls360.lms.api.model.request.UserPermissionRequest;
 import com.softech.ls360.lms.repository.entities.Customer;
@@ -333,4 +335,30 @@ public class CustomerRestEndPoint {
         return map;
         
 	}
+	
+	
+	
+	
+	@RequestMapping(value = "/enrollmentsByCustomerID", method = RequestMethod.GET)
+	@ResponseBody
+	public Map getEnrollmentsByCustomerID() throws Exception {
+		
+		//Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		//String userName = auth.getName(); 
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		String userName = auth.getName(); //get logged in username
+		
+		Map<String, Object> col = new HashMap<String, Object>();
+		//String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = customerService.findByUsername(userName); 
+        List<EnrollmentDetailVO> lst = learnerService.getEnrollmentsByCustomerID(customer.getId());
+		
+        col.put("status", Boolean.TRUE);
+        col.put("result", lst);
+
+	     
+		
+	return col;
+}
 }

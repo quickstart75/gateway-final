@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.UserGroupService;
+import com.softech.ls360.api.gateway.service.model.vo.EnrollmentDetailVO;
 import com.softech.ls360.api.gateway.service.model.vo.EnrollmentVO;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Distributor;
@@ -113,9 +114,9 @@ public class LearnerServiceImpl implements LearnerService {
 	public List<Object[]> findUserCourseAnalyticsByUserNameByCourseGUIDs(String username, List<String> guids){
 		List<Object[]> courseAnalytics = learnerRepository.findUserCourseAnalyticsByUserNameByCourseGUIDs(username, guids);
 		return courseAnalytics;
-	}
-	
-	public List<Object[]> findSubscriptionNameByUsername(String username){
+	}	
+	   
+		public List<Object[]> findSubscriptionNameByUsername(String username){
 		List<Object[]> subscriptioname = subscriptionRepository.findSubscriptionNameByUsername(username);
 		return subscriptioname;
 	}
@@ -176,4 +177,42 @@ public class LearnerServiceImpl implements LearnerService {
 		 }
 		return lst;
 	}
+
+
+public List<EnrollmentDetailVO> getEnrollmentsByCustomerID(Long customerID){
+		
+		List<EnrollmentDetailVO> lst = new ArrayList<EnrollmentDetailVO>();
+		List<Object[]> dbcol = learnerRepository. getEnrollmentsByCustomerID(customerID);
+		
+		
+		 for(Object[]  obj : dbcol){
+			 EnrollmentDetailVO vo = new EnrollmentDetailVO();
+			 
+			 if(obj[0]!=null)
+			 vo.setFirstName(obj[0].toString());
+			 
+			 if(obj[1]!=null)
+				 vo.setLastName(obj[1].toString());
+			 
+			 if(obj[2]!=null)
+				 vo.setEmailAddress(obj[2].toString());
+			 
+			 if(obj[3]!=null)
+				 vo.setCourseName(obj[3].toString());
+			 
+			 if(obj[4]!=null)
+			 vo.setLearnerStatisticsStatus(obj[4].toString());
+
+			 if(obj[5]!=null)
+				 vo.setLearnerStatisticsCompletionDate(obj[5].toString());
+			
+		 	
+			
+			 lst.add(vo);
+		 }
+		return lst;
+	}
+     
+
+
 }

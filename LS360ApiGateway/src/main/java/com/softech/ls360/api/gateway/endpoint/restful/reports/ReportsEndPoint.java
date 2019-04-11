@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -12,14 +13,18 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
+import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.api.gateway.service.LearnerService;
+import com.softech.ls360.api.gateway.service.model.vo.EnrollmentDetailVO;
 import com.softech.ls360.api.gateway.service.model.vo.EnrollmentVO;
+import com.softech.ls360.lms.repository.entities.Customer;
 
 @RestEndpoint
 @RequestMapping(value="/reports")
@@ -29,6 +34,9 @@ public class ReportsEndPoint {
 	
 	@Inject
 	private LearnerService learnerService;
+	
+	@Inject
+	private CustomerService customerService; 
 	
 	@RequestMapping(value = "/emrollments", method = RequestMethod.GET)
 	@ResponseBody
@@ -76,19 +84,42 @@ public class ReportsEndPoint {
 			return null;
 	}
 
+
+	@RequestMapping(value = "/enrollmentsByCustomerID", method = RequestMethod.GET)
+	@ResponseBody
+	public Map getEnrollmentsByCustomerID(
+			 HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		//Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		//String userName = auth.getName(); 
+		
+		Map<String, Object> col = new HashMap<String, Object>();
+		//String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = customerService.findByUsername("st2__qasprint14@mailinator.com"); 
+        List<EnrollmentDetailVO> lst = learnerService.getEnrollmentsByCustomerID(customer.getId());
+		
+        col.put("status", Boolean.TRUE);
+        col.put("result", lst);
+
+	     
+		
+	return col;
+}
 	
-	long getDateDiff(String sDate, String eDate) {
-		try{
-			SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.ENGLISH);
-		    Date firstDate = sdf.parse(sDate);
-		    Date secondDate = sdf.parse(eDate);
-		 
-		    long diffInMillies = Math.abs(secondDate.getTime() - firstDate.getTime());
-		    long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-		    return diff;
-		}catch(Exception ex){
-			return -1;
-		}
-	   
+		
+
+long getDateDiff(String sDate, String eDate) {
+	try{
+		SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.ENGLISH);
+	    Date firstDate = sdf.parse(sDate);
+	    Date secondDate = sdf.parse(eDate);
+	 
+	    long diffInMillies = Math.abs(secondDate.getTime() - firstDate.getTime());
+	    long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+	    return diff;
+	}catch(Exception ex){
+		return -1;
 	}
+   
+}
 }
