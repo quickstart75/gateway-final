@@ -65,15 +65,7 @@ public interface LearnerRepository extends CrudRepository<Learner, Long> {
 			+" WHERE ENROLLMENTDATE BETWEEN :sDate AND :eDate ", nativeQuery = true)
 	public List<Object[]> getEnrollmentsByDates(@Param("sDate") String sDate, @Param("eDate") String eDate);
 	
-	
-	@Query(value="  SELECT TOP 1 CUSTOMER_ID"  
-                 +" FROM   CUSTOMERENTITLEMENT INNER JOIN"
-                 +" OrderLineItem ON CUSTOMERENTITLEMENT.ID = OrderLineItem.ENTITLEMENT_ID"               
-			     +" WHERE ORDERLINEITEM.ORDER_ID=:order_id", nativeQuery = true)
-	public String findCustomerIDByOrderID(@Param("order_id") String order_id);
-	
-	
-	@Query(value="   SELECT     VU360USER.FIRSTNAME,VU360USER.LASTNAME,VU360USER.EMAILADDRESS,COURSE.NAME,LEARNERCOURSESTATISTICS.STATUS,LEARNERCOURSESTATISTICS.COMPLETIONDATE"  
+	/*@Query(value="   SELECT     VU360USER.FIRSTNAME,VU360USER.LASTNAME,VU360USER.EMAILADDRESS,COURSE.NAME,LEARNERCOURSESTATISTICS.STATUS,LEARNERCOURSESTATISTICS.COMPLETIONDATE"  
                 +"   FROM       VU360USER INNER JOIN"
                 +"   LEARNER ON VU360USER.ID = LEARNER.VU360USER_ID INNER JOIN" 
                 +"   CUSTOMERENTITLEMENT ON LEARNER.CUSTOMER_ID = CUSTOMERENTITLEMENT.Customer_ID INNER JOIN"
@@ -81,45 +73,24 @@ public interface LearnerRepository extends CrudRepository<Learner, Long> {
                 +"   LEARNERCOURSESTATISTICS ON LEARNERENROLLMENT.ID = LEARNERCOURSESTATISTICS.LEARNERENROLLMENT_ID INNER JOIN"
                 +"   COURSE ON LEARNERENROLLMENT.COURSE_ID = COURSE.ID"
                 +"   WHERE CUSTOMERENTITLEMENT.CUSTOMER_ID=:customer_id", nativeQuery = true)
-	public List<Object[]> getEnrollmentsByCustomerID(@Param("customer_id") Long customer_id);
+	public List<Object[]> getEnrollmentsByCustomerID(@Param("customer_id") Long customer_id);*/
 	
-	
-	
-	
-	
-	@Query(value="  SELECT TOP 1  LEARNER.CUSTOMER_ID"  
-                +"	FROM            VU360USER INNER JOIN"
-                +"  LEARNER ON VU360USER.ID = LEARNER.VU360USER_ID"
-                +"  WHERE username=:emailAddress", nativeQuery = true)
-	public String findCustomerIDByEmailAddress(@Param("emailAddress") String emailAddress);
-	
-	
-	
-	@Modifying
-	@Transactional
-	@Query(value=" UPDATE LEARNERENROLLMENT SET ORDERSTATUS = 'ACTIVE' WHERE CUSTOMERENTITLEMENT_ID IN ( SELECT OrderLineItem.ENTITLEMENT_ID "  
-				+" FROM    CUSTOMERENTITLEMENT INNER JOIN OrderLineItem ON CUSTOMERENTITLEMENT.ID = OrderLineItem.ENTITLEMENT_ID"				
-				+" WHERE ORDERLINEITEM.ORDER_ID=:order_id )", nativeQuery = true)
-    public void updateLearnerEnrollmentByOrderID(@Param("order_id") String order_id); 
-
-
-	@Modifying
-	@Transactional
-	@Query(value= " UPDATE  CUSTOMERENTITLEMENT SET ORDERSTATUS = 'ACTIVE' WHERE ID IN (SELECT CUSTOMERENTITLEMENT.ID" 
-				 +" FROM    CUSTOMERENTITLEMENT INNER JOIN OrderLineItem ON CUSTOMERENTITLEMENT.ID = OrderLineItem.ENTITLEMENT_ID"
-				 +" WHERE  ORDERLINEITEM.ORDER_ID=:order_id )", nativeQuery = true)
-	public void updateCustomerEntitlementByOrderID(@Param("order_id") String order_id);
-	
-	
-	
-	@Query(value="  SELECT FIRSTNAME  FROM VU360USER "           
-            	+"  WHERE USERNAME=:userName", nativeQuery = true)
-    public String getUserDetail(@Param("userName") String userName);
-
 	
 
-	
-	
+		@Query(value="  SELECT V.FIRSTNAME, V.LASTNAME, V.EMAILADDRESS,C.NAME AS NAME, LCS.STATUS,LCS.COMPLETIONDATE"  
+				    +"  FROM VU360USER V INNER JOIN"  
+		            +"  LEARNER L ON L.VU360USER_ID = V.ID INNER JOIN" 
+		            +"  LEARNERENROLLMENT LE ON LE.LEARNER_ID = L.ID INNER JOIN" 
+		            +"  COURSE C ON C.ID = LE.COURSE_ID INNER JOIN" 
+		            +"  LEARNERCOURSESTATISTICS LCS ON LCS.LEARNERENROLLMENT_ID =LE.ID  INNER JOIN" 
+		            +"  CUSTOMERENTITLEMENT CUSENT ON L.CUSTOMER_ID = CUSENT.CUSTOMER_ID" 
+		            +"  WHERE " 
+		            +"  CUSENT.CUSTOMER_ID= :customer_id" 
+		            +"  GROUP BY " 
+		            +"  V.FIRSTNAME, V.LASTNAME, V.EMAILADDRESS,C.NAME , LCS.STATUS,LCS.COMPLETIONDATE ", nativeQuery = true)
+		public List<Object[]> getEnrollmentsByCustomerID(@Param("customer_id") Long customer_id);
+
+
 }
 
 
