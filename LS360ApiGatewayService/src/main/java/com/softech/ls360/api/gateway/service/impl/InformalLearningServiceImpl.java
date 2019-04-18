@@ -5,9 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.inject.Inject;
+
 import org.springframework.stereotype.Service;
+
+
 import com.softech.ls360.api.gateway.service.InformalLearningService;
 import com.softech.ls360.lms.repository.entities.InformalLearning;
+import com.softech.ls360.lms.repository.entities.InformalLearningActivity;
+import com.softech.ls360.lms.repository.repositories.InformalLearningActivityRepository;
 import com.softech.ls360.lms.repository.repositories.InformalLearningRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 
@@ -16,6 +21,9 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 
 	@Inject
 	private InformalLearningRepository informalLearningRepository;
+	
+	@Inject
+	private InformalLearningActivityRepository informalLearningActivityRepository;
 	
 	@Inject
 	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
@@ -69,16 +77,33 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 		return totalActivityTimeSpent;
 	}
 	
-private HashMap<String,Double> parseActivityAndTimeSpent(Object[] record,Long totalTimeSpent){
-		
-	HashMap<String,Double> activity = new HashMap<String,Double>();
-	activity.put("activityId", Double.parseDouble(record[0].toString()));
-	Long activityTimeSpent= Long.parseLong(record[1].toString());
-//	double timeSpent = ((activityTimeSpent * 100) /totalTimeSpent);
-	double timeSpent =  (( Double.parseDouble (activityTimeSpent.toString()) * 100 ) / Double.parseDouble (totalTimeSpent.toString()));
-	activity.put("percentage", Double.parseDouble (String.format ("%.1f",timeSpent)));
-	//activity.put("percentage", Double.parseDouble (String.format ("%.1f",((activityTimeSpent/totalTimeSpent) * 100))));
+	private HashMap<String,Double> parseActivityAndTimeSpent(Object[] record,Long totalTimeSpent){
+		HashMap<String,Double> activity = new HashMap<String,Double>();
+		activity.put("activityId", Double.parseDouble(record[0].toString()));
+		Long activityTimeSpent= Long.parseLong(record[1].toString());
+	//	double timeSpent = ((activityTimeSpent * 100) /totalTimeSpent);
+		double timeSpent =  (( Double.parseDouble (activityTimeSpent.toString()) * 100 ) / Double.parseDouble (totalTimeSpent.toString()));
+		activity.put("percentage", Double.parseDouble (String.format ("%.1f",timeSpent)));
+		//activity.put("percentage", Double.parseDouble (String.format ("%.1f",((activityTimeSpent/totalTimeSpent) * 100))));
+		return activity;
+	}
+
+
+	public void logInformalLearningActivity(InformalLearningActivity informalLearningActivity){
+		informalLearningActivityRepository.save(informalLearningActivity);
+	}
 	
-	return activity;
+	public InformalLearningActivity getInformalLearningActivity(com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest infLearRequest){
+		return informalLearningActivityRepository.findByItemGuidAndVu360userIdAndStoreId(infLearRequest.getItemGuid(), infLearRequest.getVu360userId(), infLearRequest.getStoreId());
+	}
+	
+	public InformalLearningActivity findById(long id){
+		return informalLearningActivityRepository.findOne(id);
+	}
+	
+	public boolean deleteInformalLearningActivity(long id){
+		InformalLearningActivity obj = informalLearningActivityRepository.findOne(id);
+		informalLearningActivityRepository.delete(obj);
+		return true;
 	}
 }
