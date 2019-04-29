@@ -2,6 +2,7 @@ package com.softech.ls360.api.gateway.endpoint.restful;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -100,6 +101,19 @@ public class InformalLearningActivityRestEndpoint {
 
 		return response;
 	}
+	
+	@RequestMapping(value = "informal-activity/list-by-guid", method = RequestMethod.POST, produces = "application/json")
+	@ResponseBody
+	public HashMap<String, Object> getInformalActivityListByItemGuid(@RequestHeader("Authorization") String authorization, @RequestBody InformalLearningActivityRequest request) throws Exception {
+		HashMap<String,Object> response = new HashMap<String,Object>();
+		
+		List lst = informalLearningService.getInformalActivityListByItemGuid(request);
+		response.put("status", Boolean.TRUE);
+		response.put("message", "success");
+		response.put("result", lst);
+		return response;
+	}
+	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
