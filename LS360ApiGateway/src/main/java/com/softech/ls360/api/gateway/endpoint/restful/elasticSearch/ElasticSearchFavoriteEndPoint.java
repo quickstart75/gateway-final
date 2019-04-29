@@ -1,6 +1,5 @@
 package com.softech.ls360.api.gateway.endpoint.restful.elasticSearch;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,6 +10,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,13 +30,13 @@ import org.springframework.web.client.RestTemplate;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.service.CourseService;
+import com.softech.ls360.api.gateway.service.InformalLearningActivityService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
-import com.softech.ls360.api.gateway.service.model.request.ElasticSearch;
-import com.softech.ls360.api.gateway.service.model.request.ElasticSearchAdvance;
+import com.softech.ls360.api.gateway.service.UserService;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearchCourseRequest;
-import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
 import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
+import com.softech.ls360.lms.repository.entities.VU360User;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
 @RestEndpoint
@@ -60,6 +60,12 @@ public class ElasticSearchFavoriteEndPoint {
 	
 	@Inject
 	private SubscriptionRepository subscriptionRepository;
+	
+	@Inject
+	InformalLearningActivityService informalLearningActivityService;
+	
+	@Autowired
+	UserService userService;
 	
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -180,6 +186,13 @@ public class ElasticSearchFavoriteEndPoint {
 				LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 				
 				if(request.getSearchType().equalsIgnoreCase("informalLearning")){
+					VU360User objUser = userService.findByUsername(username);  
+					Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getId());
+					Map<String, Object> lstInformal = new HashMap<String, Object>();
+					lstInformal.put("informalLearning", objInformalLearning);
+					magentoAPiResponse.put("markAsCompleted", lstInformal);
+				
+					
 					returnResponse.put("informalLearning", magentoAPiResponse);
 					
 					String[] sourceProvider = {"Youtube","StackOverflow","TechTarget","Microsoft","Logitrain","LinkedIn","VImeo"};

@@ -80,8 +80,13 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public boolean updateOrderStatusByCustomerentitlementId(String status, Long entitlementId){
 		if(entitlementId!=null && entitlementId>0){
-			 customerRepository.updateCustomerentitlementStatus(status, entitlementId);
-			 customerRepository.updateEnrollmentOrderStatus(status, entitlementId);
+			if(status.equals("canceled")){
+				 customerRepository.updateCustomerentitlementStatus(status, entitlementId);
+				 customerRepository.updateEnrollmentAndOrderStatus("Dropped", status, entitlementId);
+			}else{
+				 customerRepository.updateCustomerentitlementStatus(status, entitlementId);
+				 customerRepository.updateEnrollmentOrderStatus(status, entitlementId);
+			}
 		}
 		 return true;
 	}

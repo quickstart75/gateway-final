@@ -12,7 +12,7 @@ public class Filter {
 	List<Map> instructor;
 	Map<String, String> learningStyle;
 	Map<String, String> duration;
-	Map dateRange;
+	Map<String, String> dateRange;
 	List<Map> expertRole;
 	
 	Integer modalityType;
@@ -61,10 +61,10 @@ public class Filter {
 	public void setDuration(Map<String, String> duration) {
 		this.duration = duration;
 	}
-	public Map getDateRange() {
+	public Map<String, String> getDateRange() {
 		return dateRange;
 	}
-	public void setDateRange(Map dateRange) {
+	public void setDateRange(Map<String, String> dateRange) {
 		this.dateRange = dateRange;
 	}
 	public List<Map> getExpertRole() {

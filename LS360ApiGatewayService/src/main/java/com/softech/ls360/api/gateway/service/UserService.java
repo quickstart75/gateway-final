@@ -8,4 +8,5 @@ import com.softech.ls360.lms.repository.entities.VU360User;
 public interface UserService {
 	boolean changePermission(List<VU360UserVO> lstUserVO);
 	VU360User findByUsername(String userName);
+	VU360User findById(Long vu360userId);
 }

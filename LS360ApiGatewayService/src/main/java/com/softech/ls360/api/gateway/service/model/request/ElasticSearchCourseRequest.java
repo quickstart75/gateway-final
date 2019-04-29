@@ -15,6 +15,7 @@ public class ElasticSearchCourseRequest {
 	private Map filters;
 	private List fields;
 	private List ids;
+	private List summary;
 	
 	public List getCourseGuids() {
 		return courseGuids;
@@ -82,4 +83,11 @@ public class ElasticSearchCourseRequest {
 	public void setIds(List ids) {
 		this.ids = ids;
 	}
+	public List getSummary() {
+		return summary;
+	}
+	public void setSummary(List summary) {
+		this.summary = summary;
+	}
+	
 }

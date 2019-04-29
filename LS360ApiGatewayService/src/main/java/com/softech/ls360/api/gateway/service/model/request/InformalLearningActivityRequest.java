@@ -13,6 +13,10 @@ public class InformalLearningActivityRequest {
     private Date updateddate;
     private String storeId;
     
+	private int pageSize;
+	private int pageNumber;
+
+	
 	public long getId() {
 		return id;
 	}
@@ -66,6 +70,18 @@ public class InformalLearningActivityRequest {
 	}
 	public void setStoreId(String storeId) {
 		this.storeId = storeId;
+	}
+	public int getPageSize() {
+		return pageSize;
+	}
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+	public int getPageNumber() {
+		return pageNumber;
+	}
+	public void setPageNumber(int pageNumber) {
+		this.pageNumber = pageNumber;
 	}
 
 	

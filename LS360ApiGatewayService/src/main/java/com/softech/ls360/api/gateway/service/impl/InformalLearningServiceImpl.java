@@ -6,12 +6,17 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-
 import com.softech.ls360.api.gateway.service.InformalLearningService;
+import com.softech.ls360.api.gateway.service.UserService;
+import com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest;
+import com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityUserResponse;
 import com.softech.ls360.lms.repository.entities.InformalLearning;
 import com.softech.ls360.lms.repository.entities.InformalLearningActivity;
+import com.softech.ls360.lms.repository.entities.VU360User;
 import com.softech.ls360.lms.repository.repositories.InformalLearningActivityRepository;
 import com.softech.ls360.lms.repository.repositories.InformalLearningRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
@@ -27,6 +32,12 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 	
 	@Inject
 	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
+	
+	@Value( "${api.humhub.baseURL}" )
+    private String humhubBaseURL;
+	
+	@Autowired
+	private UserService userService;
 	
 	@Override
 	public void logInformalLearning(InformalLearning informalLearning) {
@@ -105,5 +116,32 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 		InformalLearningActivity obj = informalLearningActivityRepository.findOne(id);
 		informalLearningActivityRepository.delete(obj);
 		return true;
+	}
+	
+	
+	
+	public List<InformalLearningActivityUserResponse> getInformalActivityListByItemGuid(InformalLearningActivityRequest request){
+		List<InformalLearningActivity> lstInfo = informalLearningActivityRepository.findByItemGuidAndStoreId(request.getItemGuid(), request.getStoreId());
+		
+		List<InformalLearningActivityUserResponse> LstInformalResp = new ArrayList<InformalLearningActivityUserResponse>();
+		InformalLearningActivityUserResponse objInforResponse;
+		for(InformalLearningActivity  objInformal : lstInfo){
+			objInforResponse = new InformalLearningActivityUserResponse();
+			objInforResponse.setComments(objInformal.getComments());
+			
+			if(objInformal.getVu360userId() > 0){
+				VU360User objUser = userService.findById(objInformal.getVu360userId()); 
+				objInforResponse.setFirstName(objUser.getFirstName());
+				objInforResponse.setLastName(objUser.getLastName());
+				objInforResponse.setUrl(humhubBaseURL + "u/" + objUser.getEmailAddress());
+			}else{
+				objInforResponse.setUrl("");
+			}
+			
+			objInforResponse.setProfileImg("");
+			LstInformalResp.add(objInforResponse);
+		}
+		
+		return LstInformalResp;
 	}
 }

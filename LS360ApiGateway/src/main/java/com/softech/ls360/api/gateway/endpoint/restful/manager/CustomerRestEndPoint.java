@@ -158,6 +158,12 @@ public class CustomerRestEndPoint {
 				if(entitId!=null && entitId>0)
 					customerService.updateOrderStatusByCustomerentitlementId("completed", entitId);
 			}
+		}else if(objLearner.getCustomer().getId().equals(customerId) && action.equalsIgnoreCase("canceled")){
+			for(Object[]  orderInfo : arrOrder){
+				entitId = Long.valueOf(orderInfo[1].toString());
+				if(entitId!=null && entitId>0)
+					customerService.updateOrderStatusByCustomerentitlementId("canceled", entitId);
+			}
 		}
 		
 		colmap.put("status", Boolean.TRUE);

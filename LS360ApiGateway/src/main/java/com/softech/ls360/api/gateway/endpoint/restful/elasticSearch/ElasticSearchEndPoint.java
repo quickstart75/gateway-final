@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,14 +31,17 @@ import org.springframework.web.client.RestTemplate;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.service.CourseService;
+import com.softech.ls360.api.gateway.service.ElasticSearchService;
+import com.softech.ls360.api.gateway.service.InformalLearningActivityService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
+import com.softech.ls360.api.gateway.service.UserService;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearch;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearchAdvance;
 import com.softech.ls360.api.gateway.service.model.request.ElasticSearchCourseRequest;
 import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
 import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
-import com.softech.ls360.lms.repository.entities.Subscription;
+import com.softech.ls360.lms.repository.entities.VU360User;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
 @RestEndpoint
@@ -62,6 +66,15 @@ public class ElasticSearchEndPoint {
 	@Inject
 	private SubscriptionRepository subscriptionRepository;
 	
+	@Inject
+	ElasticSearchService elasticSearchService;
+	
+	@Autowired
+	UserService userService;
+	
+	@Inject
+	InformalLearningActivityService informalLearningActivityService;
+	
 	private static final Logger logger = LogManager.getLogger();
 	
 	@RequestMapping(value = "/content/search", method = RequestMethod.POST)
@@ -72,34 +85,7 @@ public class ElasticSearchEndPoint {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		
 		if(request.getSearchType().equalsIgnoreCase("favorites")){
-			/*RestTemplate restTemplate2 = new RestTemplate();
-			request.setEmailAddress(username);
-			
-			Map<String, String> requestMap = new HashMap<String, String>();
-			requestMap.put("emailAddress","josephwintersquickstart@gmail.com");
-			requestMap.put("storeId","2");
-			requestMap.put("favType","all");
-			requestMap.put("tabName","all");
-			requestMap.put("pageSize","1000");
-			requestMap.put("pageNumber","1");
-			HttpEntity requestData2 = new HttpEntity(requestMap, getHttpHeaders());
-			StringBuffer location2 = new StringBuffer();
-			location2.append(magentoBaseURL + "rest/default/V1/favCourse/getList");
-			ResponseEntity<Object> returnedData2=null;				
-			
-			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
-			LinkedHashMap<String, Object> magentoAPiResponse = (LinkedHashMap<String, Object>)returnedData2.getBody();
-			List keys = new ArrayList(); 
-			 if(magentoAPiResponse!=null){
-					// LinkedHashMap<String, Object> mapAPiResponseResult = (LinkedHashMap<String, Object> ) magentoAPiResponse.get("result");
-				 List<Map<String, Object>> mapAPiResponseResult = (List<Map<String, Object>> ) magentoAPiResponse.get("result");
-				 for(Map lstResult : mapAPiResponseResult){
-						 keys.add(lstResult.get("ref_item"));
-					}
-			 }*/
-			
-			if(request.getFavorites()==null && request.getFavorites().size()==0)
-			{
+			if(request.getFavorites()==null && request.getFavorites().size()==0){
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("favorites", new LinkedHashMap<String, Object>());
@@ -162,7 +148,18 @@ public class ElasticSearchEndPoint {
 			//-----------------------------------------
 			//-----------------------------------------
 			
+			VU360User objUser = userService.findByUsername(username);  
+			Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getId());
+			Map<String, Object> lstInformal = new HashMap<String, Object>();
+			lstInformal.put("informalLearning", objInformalLearning);
+			returnResponse.put("markAsCompleted", lstInformal);
 			
+			Map<String, Map<String, String>> objInformalLearningCount = informalLearningActivityService.getInformalLearningActivityCount(request.getStoreId());
+			Map<String, Object> lstInformalCont = new HashMap<String, Object>();
+			lstInformalCont.put("informalLearning", objInformalLearningCount);
+			returnResponse.put("viewer", lstInformalCont);
+			
+			//-----------------------------------------
 			
 			
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
@@ -178,11 +175,11 @@ public class ElasticSearchEndPoint {
 			//List<String> subscriptions = learnerCourseService.getSubscriptionId(username);
 			
 			
-			String enrolledCourses_Subscription = "";
+			String filterEnrolledOrSubscription = "";
 			Map mapStatus = request.getFilter().getCourseStatus();
 			for(Map.Entry entry : request.getFilter().getCourseStatus().entrySet()){
 				if(entry.getKey()!=null && entry.getKey().equals("value")){
-					enrolledCourses_Subscription=entry.getValue().toString();
+					filterEnrolledOrSubscription=entry.getValue().toString();
 				}
 			}
 			
@@ -193,16 +190,18 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
 				return returnResponse;
-			}else if( enrolledCourses_Subscription.equals("subscription") && (request.getSubsCode()==null || request.getSubsCode().equals(""))){
+			}else if( filterEnrolledOrSubscription.equals("subscription") && (request.getSubsCode()==null || request.getSubsCode().equals(""))){
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
 				return returnResponse;
 			}
 			
+			
+			//-------------------------get subscription id from magento-------------------------------------------------------------------------------------
 			if(request.getSubsCode()!=null && request.getSubsCode().length()>0 
-					&& (enrolledCourses_Subscription.equals("all") || enrolledCourses_Subscription.equals("subscription"))){
-				RestTemplate restTemplate2 = new RestTemplate();
+					&& (filterEnrolledOrSubscription.equals("all") || filterEnrolledOrSubscription.equals("subscription"))){
+				/*RestTemplate restTemplate2 = new RestTemplate();
 				request.setEmailAddress(username);
 				HttpEntity requestData2 = new HttpEntity(request, getHttpHeaders());
 				StringBuffer location2 = new StringBuffer();
@@ -223,9 +222,15 @@ public class ElasticSearchEndPoint {
 							 onjESearch.setSubscriptions(lstSub);
 						 }
 					 }
-				 }
+				 }*/
+				Map requestmap = new HashMap();
+				requestmap.put("emailAddress", username);
+				requestmap.put("storeId", request.getStoreId());
+				requestmap.put("websiteId", request.getWebsiteId());
+				requestmap.put("subsCode", request.getSubsCode());
+				onjESearch.setSubscriptions(elasticSearchService.getMagentoSubscriptionIdByUsername(requestmap));
 			}
-			//------------------------------------------------------------------------------------
+			//-----------end-----------get subscription id from magento-------------------------------------------------------------------------------------
 
 			onjESearch.setPageNumber(request.getPageNumber());
 			onjESearch.setPageSize(request.getPageSize());
@@ -276,25 +281,27 @@ public class ElasticSearchEndPoint {
 				}
 			}
 			
-			if(enrolledCourses_Subscription.equals("all") ){
+			
+			
+			if(filterEnrolledOrSubscription.equals("all") ){
 				onjESearch.setCourseGuids(lstAllGuids);
-			}else if(enrolledCourses_Subscription.equals("new_started") ){
+			}else if(filterEnrolledOrSubscription.equals("new_started") ){
 				onjESearch.setCourseGuids(lstNew_StartedGuids);
-			}else if(enrolledCourses_Subscription.equals("completed") ){
-					onjESearch.setCourseGuids(lstCompletedGuids);
-			}else if(enrolledCourses_Subscription.equals("subscription")){
+			}else if(filterEnrolledOrSubscription.equals("completed") ){
+				onjESearch.setCourseGuids(lstCompletedGuids);
+			}else if(filterEnrolledOrSubscription.equals("subscription")){
 				onjESearch.setCourseGuids(new ArrayList());
 			}
 			
 			
-			if(enrolledCourses_Subscription.equals("all") && (onjESearch.getCourseGuids()==null || onjESearch.getCourseGuids().size() ==0 )
+			if(filterEnrolledOrSubscription.equals("all") && (onjESearch.getCourseGuids()==null || onjESearch.getCourseGuids().size() == 0 )
 					&& (onjESearch.getSubscriptions() ==null || onjESearch.getSubscriptions().size()==0)){
 				
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
 				return returnResponse;
-			}else if(enrolledCourses_Subscription.equals("subscription") 
+			}else if(filterEnrolledOrSubscription.equals("subscription") 
 					&& ( onjESearch.getSubscriptions() == null || onjESearch.getSubscriptions().size()==0 )){
 				
 				returnResponse.put("status", Boolean.TRUE);
@@ -302,7 +309,7 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("courses", new ArrayList());
 				return returnResponse;
 				
-			}else if( enrolledCourses_Subscription.equals("new_started") && lstNew_StartedGuids.size()==0 
+			}else if( filterEnrolledOrSubscription.equals("new_started") && lstNew_StartedGuids.size()==0 
 					&& (onjESearch.getSubscriptions() ==null || onjESearch.getSubscriptions().size()==0)){
 				
 				returnResponse.put("status", Boolean.TRUE);
@@ -310,7 +317,7 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("courses", new ArrayList());
 				return returnResponse;
 				
-			}else if( enrolledCourses_Subscription.equals("completed") && lstCompletedGuids.size()==0 
+			}else if( filterEnrolledOrSubscription.equals("completed") && lstCompletedGuids.size()==0 
 					&& (onjESearch.getSubscriptions() ==null || onjESearch.getSubscriptions().size()==0)){
 				
 				returnResponse.put("status", Boolean.TRUE);
@@ -330,7 +337,7 @@ public class ElasticSearchEndPoint {
 			//---------------------------------------
 			//---------------------------------------
 			
-			if(enrolledCourses_Subscription.equals("subscription")){
+			if(filterEnrolledOrSubscription.equals("subscription")){
 				List lstpersonalization = new ArrayList();
 				List<Map<String, String>> lstRequestP = request.getPersonalization().getCompetencies();
 				for(Map<String, String> mapLT : lstRequestP){
@@ -358,6 +365,96 @@ public class ElasticSearchEndPoint {
 			
 			//ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 			//String json = ow.writeValueAsString(onjESearch);
+
+			
+			//---------------------------------------------------------------------------------------------------
+			Map dateRange = new HashMap();
+			for(Map.Entry entry : request.getFilter().getDateRange().entrySet()){
+				if(entry.getKey()!=null && entry.getKey().equals("from") && entry.getValue()!=null && !entry.getValue().equals(""))
+					dateRange.put(entry.getKey(), entry.getValue() + " 00:00:00");
+				else if(entry.getKey()!=null && entry.getKey().equals("to") && entry.getValue()!=null && !entry.getValue().equals(""))
+					dateRange.put(entry.getKey(), entry.getValue() + " 23:59:59");
+			}
+			
+			
+/*			if(filterEnrolledOrSubscription.equals("all") ){
+				onjESearch.setCourseGuids(lstAllGuids);
+			}else if(filterEnrolledOrSubscription.equals("new_started") ){
+				onjESearch.setCourseGuids(lstNew_StartedGuids);
+			}else if(filterEnrolledOrSubscription.equals("completed") ){
+				onjESearch.setCourseGuids(lstCompletedGuids);
+			}else if(filterEnrolledOrSubscription.equals("subscription")){
+				onjESearch.setCourseGuids(new ArrayList());
+			}*/
+			
+			
+			if(dateRange.get("to")!=null && !dateRange.get("to").equals("") && dateRange.get("from")!=null && !dateRange.get("from").equals("")){
+				List allSubscriptionVILTGuids = new ArrayList();
+				List lstDummy = new ArrayList();	lstDummy.add("111111222222223333333555555555555");
+				
+				if(onjESearch.getSubscriptions()!=null && onjESearch.getSubscriptions().size()>0  && 
+						filterEnrolledOrSubscription.equals("all") || filterEnrolledOrSubscription.equals("subscription")){
+					
+					allSubscriptionVILTGuids = elasticSearchService.getSubscriptionViltCourses(onjESearch, request.getStoreId());
+					boolean flag = true;
+					
+					if(allSubscriptionVILTGuids!=null && allSubscriptionVILTGuids.size()>0){
+						if(filterEnrolledOrSubscription.equals("all")){
+							allSubscriptionVILTGuids.removeAll(lstAllGuids);
+						}
+						List filteredguids = elasticSearchService.getSubscriptionsGuidsByClassDates(dateRange.get("from").toString(), dateRange.get("to").toString(), allSubscriptionVILTGuids);
+						onjESearch.setCourseGuids(filteredguids);
+						flag = false;
+					}
+					
+					
+					if(lstAllGuids!=null && lstAllGuids.size()>0){
+						List filteredguids = elasticSearchService.getEnrollmentCourseGuidsByClassDates(dateRange.get("from").toString(), dateRange.get("to").toString(), lstAllGuids, username);
+						onjESearch.getCourseGuids().addAll(filteredguids);
+						flag = false;
+					}
+					
+					if(flag){
+						onjESearch.setCourseGuids(new ArrayList());
+					}
+					
+				}else if(filterEnrolledOrSubscription.equals("new_started") ){
+					System.out.println("aaaaa  aaa aaa aaaa");
+					if(lstNew_StartedGuids!=null && lstNew_StartedGuids.size()>0){
+						List filteredguids = elasticSearchService.getEnrollmentCourseGuidsByClassDates(dateRange.get("from").toString(), dateRange.get("to").toString(), lstNew_StartedGuids, username);
+						onjESearch.setCourseGuids(filteredguids);
+					}else{
+						onjESearch.setCourseGuids(new ArrayList());
+					}
+				}else if(filterEnrolledOrSubscription.equals("completed") ){
+					if(lstCompletedGuids!=null && lstCompletedGuids.size()>0){
+						List filteredguids = elasticSearchService.getEnrollmentCourseGuidsByClassDates(dateRange.get("from").toString(), dateRange.get("to").toString(), lstCompletedGuids, username);
+						onjESearch.setCourseGuids(filteredguids);
+					}else{
+						onjESearch.setCourseGuids(new ArrayList());
+					}
+				}
+				if(onjESearch.getCourseGuids()== null || onjESearch.getCourseGuids().size()==0){
+					onjESearch.setCourseGuids(lstDummy);
+				}
+				// no need of all subscription courses
+				onjESearch.setSubscriptions(null);
+			}
+			//---------------------------------------------------------------------------------------------------
+			
+			RestTemplate restTemplate2 = new RestTemplate();
+			HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
+			StringBuffer location2 = new StringBuffer();
+			location2.append(elasticSearchBaseURL +"/course_api/search/default/" + request.getStoreId());
+			ResponseEntity<Object> returnedData3=null;
+			returnedData3 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
+			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
+			magentoAPiResponse.put("requestData", onjESearch);
+			
+			
+			
+			
 			
 			List<LearnerSubscription> lstsubscription = new ArrayList<LearnerSubscription>();
 			/************ Subscription ******************/
@@ -380,15 +477,6 @@ public class ElasticSearchEndPoint {
 					 }
 				}
 			}
-			RestTemplate restTemplate2 = new RestTemplate();
-			HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
-			StringBuffer location2 = new StringBuffer();
-			location2.append(elasticSearchBaseURL +"/course_api/search/default/" + request.getStoreId());
-			ResponseEntity<Object> returnedData3=null;
-			returnedData3 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
-			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
-			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
-			magentoAPiResponse.put("requestData", onjESearch);
 			magentoAPiResponse.put("subscription", lstsubscription);
 			
 			returnResponse.put("status", Boolean.TRUE);
@@ -513,6 +601,19 @@ public class ElasticSearchEndPoint {
 					
 					String[] sourceProvider = {"Youtube","StackOverflow","TechTarget","Microsoft","Logitrain","LinkedIn","VImeo"};
 					returnResponse.put("sourceProvider", sourceProvider);
+					
+					VU360User objUser = userService.findByUsername(username);  
+					Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getId());
+					Map<String, Object> lstInformal = new HashMap<String, Object>();
+					lstInformal.put("informalLearning", objInformalLearning);
+					returnResponse.put("markAsCompleted", lstInformal);
+					
+					Map<String, Map<String, String>> objInformalLearningCount = informalLearningActivityService.getInformalLearningActivityCount(request.getStoreId());
+					Map<String, Object> lstInformalCont = new HashMap<String, Object>();
+					lstInformalCont.put("informalLearning", objInformalLearningCount);
+					returnResponse.put("viewer", lstInformalCont);
+					
+					
 				}else if(request.getSearchType().equalsIgnoreCase("collaborate")){
 					returnResponse.put("collaborate", magentoAPiResponse);
 				}
