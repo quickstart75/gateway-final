@@ -576,6 +576,16 @@ public class ElasticSearchEndPoint {
 					lstcustomField.add("description");
 					onjESearch.setCustom_fields(lstcustomField);
 				}else if (request.getSearchType().equalsIgnoreCase("informalLearning")){
+					// add in summery for for content Type
+					List<String> lstSummery = new ArrayList<String>();
+					lstSummery.add("contentType"); lstSummery.add("siteName");
+					onjESearch.setSummary(lstSummery);
+					
+					// add Custom fields for for content Type
+					List<String> lstCustomFields = new ArrayList<String>();
+					lstCustomFields.add("contentType");
+					onjESearch.setCustom_fields(lstCustomFields);
+					
 					List<String> lstOrigin = new ArrayList<String>();
 					lstOrigin.add("other");
 					onjESearch.setOrigins(lstOrigin);

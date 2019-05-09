@@ -126,6 +126,39 @@ public class CustomerRestEndPoint {
 
 	
 	
+	@RequestMapping(value = "/validateHierarchy", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> validateHierarchy(@RequestBody Map<String, Object> request) throws Exception {
+		Map<String, Object> colmap = new HashMap<String, Object>();
+		Map<String, Object> colmap2 = new HashMap<String, Object>();
+		
+		String customerUsername = request.get("customerUsername").toString();
+		String learnerUsername = request.get("learnerUsername").toString();
+		
+		if((customerUsername == null || customerUsername.equals("")) 
+				&& (learnerUsername == null || learnerUsername.equals("")) ){
+			colmap.put("status", Boolean.FALSE);
+			colmap.put("message", "Data was Incorrect");
+			return colmap;
+		}
+		
+		Customer customer = customerService.findByUsername(customerUsername);
+		Customer customer2 = customerService.findByUsername(learnerUsername);
+		
+		
+		if(customer.getId().longValue()==customer2.getId().longValue()){
+			colmap2.put("exist", Boolean.TRUE);
+		}else{
+			colmap2.put("exist", Boolean.FALSE);
+		}
+		
+		colmap.put("status", Boolean.TRUE);
+		colmap.put("message", "");
+		colmap.put("result", colmap2);
+		return colmap;
+	}
+	
+	
 	@RequestMapping(value = "/order-status", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> updateOrderStatus(@RequestBody Map<String, Object> request) throws Exception {
@@ -201,6 +234,7 @@ public class CustomerRestEndPoint {
 //		return map;
 //	}
 
+	
 	
 	/**
 	 * @Desc :: This end point use update User statuses like locked/unlocked and/or disabled/enable
