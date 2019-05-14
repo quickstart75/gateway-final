@@ -132,6 +132,11 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	}
 	
 	@Override
+	public void updateLearnerEnrollmentStatisticsStatus(String status, List<Long> enrollmentIds){
+		learnerEnrollmentRepository.updateLearnerCourseStatisticsStatus( status, enrollmentIds);
+	}
+	
+	@Override
 	public List<String> getEnrolledCoursesGUIDByCustomer(long customerId){
 		List<String> lstCourseguids = new ArrayList<String>();
 		List<Object[]> lstEnrollment = learnerEnrollmentRepository.findByLearner_Customer_Id(customerId);

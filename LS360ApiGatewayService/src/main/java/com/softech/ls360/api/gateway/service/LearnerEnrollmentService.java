@@ -28,4 +28,5 @@ public interface LearnerEnrollmentService {
 	boolean saveLearnerEnrollmentInstruction(List<LearnerInstruction> instructionRequest);
 	boolean isAllowMOCSubscriptionEnrollment(String username, Long subscriptionId);
 	List<Object[]> getEnrolledCoursesInfoByUsername(String username);
+	void updateLearnerEnrollmentStatisticsStatus(String status, List<Long> enrollmentIds);
 }
