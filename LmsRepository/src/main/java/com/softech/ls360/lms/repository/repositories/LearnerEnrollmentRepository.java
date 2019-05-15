@@ -35,7 +35,7 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
 
 	@Modifying
 	@Transactional
-   	@Query(value="update LearnerCourseStatistics set STATUS=:status  where ID in :ids", nativeQuery = true )
+   	@Query(value="update LearnerCourseStatistics set STATUS=:status  where LEARNERENROLLMENT_ID in :ids", nativeQuery = true )
    	void updateLearnerCourseStatisticsStatus(@Param("status") String status, @Param("ids") List<Long> id);
 
 	

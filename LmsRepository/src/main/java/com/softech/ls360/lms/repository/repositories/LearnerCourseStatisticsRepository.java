@@ -256,7 +256,7 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     List<Object[]> getEnrolledCoursesInfoByUsername(@Param("username") String username);
     
     @EntityGraph(value = "LearnerCourseStatistics.LearnerEnrollments", type = EntityGraphType.LOAD)
-    List<LearnerCourseStatistics> findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuid(String userName, String guid);
+    List<LearnerCourseStatistics> findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuidAndLearnerEnrollment_enrollmentStatus(String userName, String guid, String enrollmentStatus);
 
     
 }
