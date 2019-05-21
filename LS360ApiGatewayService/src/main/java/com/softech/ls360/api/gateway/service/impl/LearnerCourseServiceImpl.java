@@ -613,7 +613,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		logger.info("Auth User Name :: :: :: " + userName);
 		
 
-		    List<LearnerCourseStatistics> lstlcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuid(userName, userRequest.getCourseGuid());
+		    List<LearnerCourseStatistics> lstlcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuidAndLearnerEnrollment_enrollmentStatus(userName, userRequest.getCourseGuid(), "Active");
 		    
 		    if(lstlcs==null || lstlcs.size()==0){
 		    	return null;
