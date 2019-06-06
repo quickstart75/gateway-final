@@ -7,18 +7,26 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.request.UserRequest;
 import com.softech.ls360.api.gateway.response.UserCourseAnalyticsResponse;
 import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.api.gateway.service.LearnerService;
+import com.softech.ls360.api.gateway.service.LmsRoleLmsFeatureService;
 import com.softech.ls360.api.gateway.service.StatisticsService;
 import com.softech.ls360.api.gateway.service.UserService;
 import com.softech.ls360.api.gateway.service.model.request.CourseDetail;
@@ -28,11 +36,17 @@ import com.softech.ls360.api.gateway.service.model.vo.VU360UserVO;
 import com.softech.ls360.lms.api.model.request.UserPermissionRequest;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Learner;
+import com.softech.ls360.lms.repository.entities.LmsRole;
+import com.softech.ls360.lms.repository.entities.VU360User;
+import com.softech.vu360.lms.webservice.message.lmsapi.serviceoperations.user.AddUserResponse;
 
 @RestEndpoint
 @RequestMapping(value="/lms/customer")
 public class CustomerRestEndPoint {
 
+	@Autowired
+	private Environment env;
+	
 	@Inject
 	private LearnerService learnerService;
 	
@@ -44,6 +58,9 @@ public class CustomerRestEndPoint {
 	
 	@Inject
 	private CustomerService customerService;
+	
+	@Inject
+	private LmsRoleLmsFeatureService lmsRoleLmsFeatureService;
 	
 	@RequestMapping(value = "/useranalytics", method = RequestMethod.POST)
 	@ResponseBody
@@ -146,11 +163,36 @@ public class CustomerRestEndPoint {
 		Customer customer2 = customerService.findByUsername(learnerUsername);
 		
 		
-		if(customer.getId().longValue()==customer2.getId().longValue()){
-			colmap2.put("exist", Boolean.TRUE);
-		}else{
-			colmap2.put("exist", Boolean.FALSE);
+		if(customer == null && customer2 == null ){
+			colmap.put("status", Boolean.FALSE);
+			colmap.put("message", "Data was Incorrect");
+			return colmap;
 		}
+		
+		boolean isInSameHirarchi = false, possibleOrgChange = true;
+		
+		if(customer.getId().longValue()==customer2.getId().longValue()){
+			isInSameHirarchi = true;
+		}
+		
+		List<String> lstRoleType = lmsRoleLmsFeatureService.getRoleTypesByUsername(learnerUsername);
+		
+		for(String role : lstRoleType){
+			if(!role.equalsIgnoreCase("ROLE_LEARNER")){
+				possibleOrgChange = false;
+			}
+		}
+		
+		if(isInSameHirarchi || possibleOrgChange)
+			colmap2.put("allowCheckout", Boolean.TRUE );
+		else //if(isInSameHirarchi && possibleOrgChange)
+			colmap2.put("allowCheckout", Boolean.FALSE );
+		
+		
+		if(possibleOrgChange && !isInSameHirarchi)
+			colmap2.put("orgChange", Boolean.TRUE );
+		else //if(isInSameHirarchi && possibleOrgChange)
+			colmap2.put("orgChange", Boolean.FALSE );
 		
 		colmap.put("status", Boolean.TRUE);
 		colmap.put("message", "");
@@ -158,6 +200,27 @@ public class CustomerRestEndPoint {
 		return colmap;
 	}
 	
+	
+	@RequestMapping(value = "/org-change", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> changeLearnerHierarchy(@RequestBody Map<String, Object> request) throws Exception {
+		HashMap<String,Object> response = new HashMap<String,Object>();
+		RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+        //headers.add("token", token);
+        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
+
+        HttpEntity requestData = new HttpEntity(request, headers);
+
+        StringBuffer location = new StringBuffer();
+        location.append(env.getProperty("lms.baseURL").trim()).append("rest/user/org-change");
+       // logger.info("---User End Point >>>>>>>>>>>>>>>>>>>>>0" + location.toString());
+       
+        ResponseEntity<Map> returnedData = restTemplate.postForEntity(location.toString(), requestData, Map.class);
+        response = (HashMap<String, Object>) returnedData.getBody();
+       
+        return response;
+	}
 	
 	@RequestMapping(value = "/order-status", method = RequestMethod.POST)
 	@ResponseBody

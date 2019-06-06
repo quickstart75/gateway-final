@@ -1,5 +1,7 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
@@ -29,4 +31,7 @@ public class LmsRoleLmsFeatureServiceImpl implements LmsRoleLmsFeatureService{
 		return false;
 	}
 
+	public List<String> getRoleTypesByUsername(String usrename){
+		return lmsRoleLmsFeatureRepository.getRoleTypesByUsername(usrename);
+	}
 }

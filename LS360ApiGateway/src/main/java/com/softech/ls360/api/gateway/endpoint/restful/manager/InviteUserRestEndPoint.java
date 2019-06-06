@@ -181,6 +181,9 @@ public class InviteUserRestEndPoint {
 		return returnResponse;
 	}	
 	
+	
+	
+	
 	@RequestMapping(value = "author", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<Object, Object> author(@RequestHeader("Authorization") String authorization, @RequestBody RegisterUserRequest user) throws Exception {
@@ -197,6 +200,9 @@ public class InviteUserRestEndPoint {
 		}
 		return returnResponse;
 	}	
+	
+	
+	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)

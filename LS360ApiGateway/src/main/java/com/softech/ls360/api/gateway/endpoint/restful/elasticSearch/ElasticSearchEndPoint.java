@@ -419,7 +419,6 @@ public class ElasticSearchEndPoint {
 					}
 					
 				}else if(filterEnrolledOrSubscription.equals("new_started") ){
-					System.out.println("aaaaa  aaa aaa aaaa");
 					if(lstNew_StartedGuids!=null && lstNew_StartedGuids.size()>0){
 						List filteredguids = elasticSearchService.getEnrollmentCourseGuidsByClassDates(dateRange.get("from").toString(), dateRange.get("to").toString(), lstNew_StartedGuids, username);
 						onjESearch.setCourseGuids(filteredguids);
