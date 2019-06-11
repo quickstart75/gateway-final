@@ -829,7 +829,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				objE.setClassId( "classId_" + enrollment.getSynchronousClass().getId());
 			}
 			objE.setEnrollmentId(enrollment.getId());
-			objE.setEmail(enrollment.getLearner().getVu360User().getUsername());
+			objE.setEmail(enrollment.getLearner().getVu360User().getEmailAddress());
 			objE.setName(enrollment.getLearner().getVu360User().getFirstName() + " " +enrollment.getLearner().getVu360User().getLastName());
 			
 			Attendance objAttendance = new Attendance();
@@ -955,7 +955,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			
 			objE.setCourseName(enrollment.getCourse().getName());
 			objE.setName(enrollment.getLearner().getVu360User().getFirstName() + " " +enrollment.getLearner().getVu360User().getLastName());
-			objE.setEmail(enrollment.getLearner().getVu360User().getUsername());
+			objE.setEmail(enrollment.getLearner().getVu360User().getEmailAddress());
 			
 			if(enrollment.getMocStatus() == null)
 				objE.setStatus("Unassigned");
