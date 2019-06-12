@@ -43,11 +43,11 @@ public class SalesEnablementRestEndpoint {
 
 	@RequestMapping(value="test/mock", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<Object, Object> getMockData(@RequestParam Map<Object, Object> data){
+	public Map<Object, Object> getMockData(@RequestBody Map<Object, Object> data){
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		returnResponse.put("name","test");
-		returnResponse.put("testParam",data.get("param"));
+		returnResponse.put("requestBody",data);
 //		returnResponse.put("name2","test3");
 		
 			
@@ -60,34 +60,25 @@ public class SalesEnablementRestEndpoint {
 	public Map<Object, Object> salesEnablementGlobalAPI(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
-		
 		RestTemplate restTemplate2 = new RestTemplate();
-
 		HttpHeaders headers=new HttpHeaders();
 		
 		// Adding header for request
 		headers.add("Authorization", authorization);
 		headers.add("Accept", "application/json;charset=UTF-8");
-
-		System.err.println("done ----------"+data);
-		// Adding parameters
-		MultiValueMap<String, Object> map = new LinkedMultiValueMap();
-		
-//		returnResponse.put("data",new HashMap<Object, Object> ().put("data", data.get("requestBody")));
-		
-		//Adding parameters in Http Entity
-		HttpEntity<MultiValueMap<String, Object>> entity=new HttpEntity<>(map,headers);
-		
+		Map objMap = new HashMap();
+		objMap = (Map) data.get("requestBody");
+		HttpEntity entity=new HttpEntity<>(objMap ,headers);
 		ResponseEntity<Map> responseFromURL=null;
 		
 		try  {
 			//Sending Request
-			responseFromURL = restTemplate2.exchange(data.get("endPoint").toString(), HttpMethod.POST, entity, Map.class);
-			
+			//responseFromURL = restTemplate2.exchange(data.get("endPoint").toString(), HttpMethod.POST, entity, Map.class);
+			ResponseEntity<Map> returnedData = restTemplate2.postForEntity(data.get("endPoint").toString(), entity, Map.class);
 			//Setting response to send 
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "success");
-			returnResponse.put("result", responseFromURL.getBody());
+			returnResponse.put("result", returnedData.getBody());
 //			returnResponse.put("token", authorization);
 			
 		}catch(Exception ex) {
