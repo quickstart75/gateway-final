@@ -57,15 +57,18 @@ public class SalesEnablementRestEndpoint {
 	
 	@RequestMapping(value="salesEnablement/global", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<Object, Object> salesEnablementGlobalAPI(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
+	public Map<Object, Object> salesEnablementGlobal(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		RestTemplate restTemplate2 = new RestTemplate();
 		HttpHeaders headers=new HttpHeaders();
+		String token = authorization.substring("Bearer".length()).trim();
 		
 		// Adding header for request
 		headers.add("Authorization", authorization);
+		headers.add("token", token);
 		headers.add("Accept", "application/json;charset=UTF-8");
+		
 		Map objMap = new HashMap();
 		objMap = (Map) data.get("requestBody");
 		HttpEntity entity=new HttpEntity<>(objMap ,headers);
@@ -76,29 +79,63 @@ public class SalesEnablementRestEndpoint {
 			//responseFromURL = restTemplate2.exchange(data.get("endPoint").toString(), HttpMethod.POST, entity, Map.class);
 			ResponseEntity<Map> returnedData = restTemplate2.postForEntity(data.get("endPoint").toString(), entity, Map.class);
 			//Setting response to send 
-			returnResponse.put("status", Boolean.TRUE);
-			returnResponse.put("message", "success");
-			returnResponse.put("result", returnedData.getBody());
+			//returnResponse.put("status", Boolean.TRUE);
+			//returnResponse.put("message", "success");
+			//returnResponse.put("result", returnedData.getBody());
 //			returnResponse.put("token", authorization);
+			return returnedData.getBody();
 			
 		}catch(Exception ex) {
-			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-			
-//			logger.error(ex.printStackTrace());
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~salesEnablement/global~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + ex);
 			//Setting response to send 
-//			returnResponse.put("status", Boolean.FALSE);
-//			returnResponse.put("message", "failed");
-//			returnResponse.put("result", responseFromURL.getBody());
-//			return returnResponse;
+			returnResponse.put("status", Boolean.FALSE);
+			returnResponse.put("message", ex);
+			returnResponse.put("result", "");
 			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			return returnResponse;
+			
 		}
-
-		
-		
-		
-		return returnResponse;
+		//return returnResponse;
 	}
 	
+	
+	
+	@RequestMapping(value="salesEnablement/global-api", method = RequestMethod.POST)
+	@ResponseBody
+	public Object salesEnablementGlobalAPI(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
+		
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		RestTemplate restTemplate2 = new RestTemplate();
+		HttpHeaders headers=new HttpHeaders();
+		String token = authorization.substring("Bearer".length()).trim();
+		
+		// Adding header for request
+		headers.add("Authorization", authorization);
+		headers.add("token", token);
+		headers.add("Accept", "application/json;charset=UTF-8");
+		
+		Map objMap = new HashMap();
+		objMap = (Map) data.get("requestBody");
+		HttpEntity entity=new HttpEntity<>(objMap ,headers);
+		ResponseEntity<Map> responseFromURL=null;
+		
+		try  {
+			//Sending Request
+			Object returnedData = restTemplate2.postForObject(data.get("endPoint").toString(), entity, Object.class);
+			//Setting response to send 
+			return returnedData;
+		}catch(Exception ex) {
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~salesEnablement/global~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + ex);
+			//Setting response to send 
+			returnResponse.put("status", Boolean.FALSE);
+			returnResponse.put("message", ex);
+			returnResponse.put("result", "");
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			return returnResponse;
+			
+		}
+		
+	}
 	
 }
 
