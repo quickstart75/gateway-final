@@ -12,6 +12,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -132,6 +133,75 @@ public class SalesEnablementRestEndpoint {
 			returnResponse.put("result", "");
 			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 			return returnResponse;
+			
+		}
+		
+	}
+	@RequestMapping(value="salesEnablement/global-exchange", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Object salesEnablementExchange(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
+		
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		
+		RestTemplate restTemplate = new RestTemplate();
+		String token = authorization.substring("Bearer".length()).trim();
+		
+		HttpHeaders headers=new HttpHeaders();
+	
+		headers.add("token", token);
+		headers.add("Authorization", authorization);
+		headers.add("Accept", "application/json;charset=UTF-8");
+		
+		
+		HttpEntity<Object> entity=new HttpEntity<>(data.get("requestBody"),headers);
+		ResponseEntity<Object> responseFromURL=null;
+		
+		try  {
+			
+//			HttpMethod method= (data.get("type").equals("GET")  ?  HttpMethod.GET : HttpMethod.POST);
+//			System.out.println(data.get("requestBody").getClass().equals(String.class));
+			responseFromURL = restTemplate.exchange(data.get("endPoint").toString(), getMethod(data.get("type").toString()), entity, Object.class);
+			
+			returnResponse.put("status", Boolean.TRUE);
+			returnResponse.put("message", "success");
+			returnResponse.put("result", responseFromURL.getBody());
+			
+		}catch(Exception ex) {
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			
+			//Setting response to send 
+			returnResponse.put("status", Boolean.FALSE);
+			returnResponse.put("message", ex.getMessage());
+			returnResponse.put("result", "");
+
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		}
+
+		
+		
+		
+		return returnResponse;
+	}
+	
+	private HttpMethod getMethod(String method) {
+		
+		switch (method.toUpperCase()) {
+		
+		case "GET":
+			return HttpMethod.GET;
+		
+		case "POST":
+			return HttpMethod.POST;
+			
+		case "PUT":
+			return HttpMethod.PUT;
+			
+		case "DELETE":
+			return HttpMethod.DELETE;
+			
+			
+		default:
+			return HttpMethod.POST;
 			
 		}
 		
