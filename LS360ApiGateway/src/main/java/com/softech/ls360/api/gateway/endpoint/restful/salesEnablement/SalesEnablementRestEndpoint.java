@@ -1,8 +1,10 @@
 package com.softech.ls360.api.gateway.endpoint.restful.salesEnablement;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.enterprise.inject.New;
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
@@ -26,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.LearnerService;
+import com.softech.ls360.api.gateway.service.model.learner.profile.LearnerProfile;
 
 @RestEndpoint
 @RequestMapping(value="/")
@@ -40,23 +43,56 @@ public class SalesEnablementRestEndpoint {
 	@Autowired
     Environment env;
 	
-	
-
-	@RequestMapping(value="test/mock", method = RequestMethod.POST)
+	@RequestMapping(value="salesEnablement/global", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Map<Object, Object> getMockData(@RequestBody Map<Object, Object> data){
+	public Object salesEnablementExchange(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
-		returnResponse.put("name","test");
-		returnResponse.put("requestBody",data);
-//		returnResponse.put("name2","test3");
 		
+		RestTemplate restTemplate = new RestTemplate();
+		String token = authorization.substring("Bearer".length()).trim();
+		
+		HttpHeaders headers=new HttpHeaders();
+	
+		headers.add("token", token);
+		headers.add("Authorization", authorization);
+		headers.add("Accept", "application/json;charset=UTF-8");
+		
+		HttpEntity<Object> entity=new HttpEntity<>(data.get("requestBody"),headers);
+		ResponseEntity<Object> responseFromURL=null;
+		
+		try  {
 			
+//			HttpMethod method= (data.get("type").equals("GET")  ?  HttpMethod.GET : HttpMethod.POST);
+//			System.out.println(data.get("requestBody").getClass().equals(String.class));
+			responseFromURL = restTemplate.exchange(data.get("endPoint").toString(), getMethod(data.get("type").toString()), entity, Object.class);
+			
+			returnResponse.put("status", Boolean.TRUE);
+			returnResponse.put("message", "success");
+			returnResponse.put("result", responseFromURL.getBody());
+			
+		}catch(Exception ex) {
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			
+			//Setting response to send 
+			returnResponse.put("status", Boolean.FALSE);
+			returnResponse.put("message", ex.getMessage());
+			returnResponse.put("result", "");
+
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		}
+
+		
+		
+		
 		return returnResponse;
 	}
 	
 	
-	@RequestMapping(value="salesEnablement/global", method = RequestMethod.POST)
+	
+	
+	
+	@RequestMapping(value="salesEnablement/global-postForEntity", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<Object, Object> salesEnablementGlobal(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
 		
@@ -101,7 +137,7 @@ public class SalesEnablementRestEndpoint {
 	
 	
 	
-	@RequestMapping(value="salesEnablement/global-api", method = RequestMethod.POST)
+	@RequestMapping(value="salesEnablement/global-postForObject", method = RequestMethod.POST)
 	@ResponseBody
 	public Object salesEnablementGlobalAPI(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
 		
@@ -137,49 +173,77 @@ public class SalesEnablementRestEndpoint {
 		}
 		
 	}
-	@RequestMapping(value="salesEnablement/global-exchange", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	
+	
+	
+	
+	
+	
+	
+
+
+	@RequestMapping(value="test/mock-map", method = RequestMethod.POST)
 	@ResponseBody
-	public Object salesEnablementExchange(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
+	public Object getMockDataForMap(@RequestBody Map<Object, Object> data){
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		returnResponse.put("name","test");
+		returnResponse.put("requestBody",data);
+//		returnResponse.put("name2","test3");
 		
-		RestTemplate restTemplate = new RestTemplate();
-		String token = authorization.substring("Bearer".length()).trim();
-		
-		HttpHeaders headers=new HttpHeaders();
+			
+		return returnResponse;
+	}
 	
-		headers.add("token", token);
-		headers.add("Authorization", authorization);
-		headers.add("Accept", "application/json;charset=UTF-8");
+	@RequestMapping(value="test/mock-list", method = RequestMethod.POST)
+	@ResponseBody
+	public Object getMockDataForList(@RequestBody List<Object> data){
 		
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		returnResponse.put("name","test");
+		returnResponse.put("requestBody",data.toString());
+//		returnResponse.put("name2","test3");
 		
-		HttpEntity<Object> entity=new HttpEntity<>(data.get("requestBody"),headers);
-		ResponseEntity<Object> responseFromURL=null;
+			
+		return returnResponse;
+	}
+	@RequestMapping(value="test/mock-object", method = RequestMethod.POST)
+	@ResponseBody
+	public Object getMockDataForObject(@RequestBody Object data){
 		
-		try  {
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		returnResponse.put("name","test");
+		returnResponse.put("requestBody",data);
+//		returnResponse.put("name2","test3");
+		
 			
-//			HttpMethod method= (data.get("type").equals("GET")  ?  HttpMethod.GET : HttpMethod.POST);
-//			System.out.println(data.get("requestBody").getClass().equals(String.class));
-			responseFromURL = restTemplate.exchange(data.get("endPoint").toString(), getMethod(data.get("type").toString()), entity, Object.class);
-			
-			returnResponse.put("status", Boolean.TRUE);
-			returnResponse.put("message", "success");
-			returnResponse.put("result", responseFromURL.getBody());
-			
-		}catch(Exception ex) {
-			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-			
-			//Setting response to send 
-			returnResponse.put("status", Boolean.FALSE);
-			returnResponse.put("message", ex.getMessage());
-			returnResponse.put("result", "");
+		return returnResponse;
+	}
 
-			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		}
+	/*
+	 * @RequestMapping(value="test/mock-string", method = RequestMethod.POST)
+	 * 
+	 * @ResponseBody public Object getMockDataForObject(@RequestBody String data){
+	 * 
+	 * Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+	 * returnResponse.put("name","test"); returnResponse.put("requestBody",data); //
+	 * returnResponse.put("name2","test3");
+	 * 
+	 * 
+	 * return returnResponse; }
+	 */
+	
 
+	@RequestMapping(value="test/mock-learner", method = RequestMethod.POST)
+	@ResponseBody
+	public Object getMockDataForLearner(@RequestBody LearnerProfile data){
 		
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		returnResponse.put("name","test");
+		returnResponse.put("requestBody",data);
+//		returnResponse.put("name2","test3");
 		
-		
+			
 		return returnResponse;
 	}
 	
@@ -206,6 +270,7 @@ public class SalesEnablementRestEndpoint {
 		}
 		
 	}
+	
 	
 }
 
