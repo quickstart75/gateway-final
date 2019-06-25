@@ -6,10 +6,13 @@ import java.util.Map;
 
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -182,7 +186,7 @@ public class SalesEnablementRestEndpoint {
 	
 
 
-	@RequestMapping(value="test/mock-map", method = RequestMethod.POST)
+	@RequestMapping(value="test/mock-map", method = RequestMethod.DELETE)
 	@ResponseBody
 	public Object getMockDataForMap(@RequestBody Map<Object, Object> data){
 		
@@ -195,7 +199,7 @@ public class SalesEnablementRestEndpoint {
 		return returnResponse;
 	}
 	
-	@RequestMapping(value="test/mock-list", method = RequestMethod.POST)
+	@RequestMapping(value="test/mock-list", method = RequestMethod.PUT)
 	@ResponseBody
 	public Object getMockDataForList(@RequestBody List<Object> data){
 		
@@ -212,8 +216,8 @@ public class SalesEnablementRestEndpoint {
 	public Object getMockDataForObject(@RequestBody Object data){
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
-		returnResponse.put("name","test");
-		returnResponse.put("requestBody",data);
+		returnResponse.put("demo","test");
+		returnResponse.put("demo_2",data);
 //		returnResponse.put("name2","test3");
 		
 			
@@ -234,13 +238,13 @@ public class SalesEnablementRestEndpoint {
 	 */
 	
 
-	@RequestMapping(value="test/mock-learner", method = RequestMethod.POST)
+	@RequestMapping(value="test/mock-learner", method = RequestMethod.GET)
 	@ResponseBody
-	public Object getMockDataForLearner(@RequestBody LearnerProfile data){
+	public Object getMockDataForLearner(){
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		returnResponse.put("name","test");
-		returnResponse.put("requestBody",data);
+		returnResponse.put("requestBody","get Method called");
 //		returnResponse.put("name2","test3");
 		
 			
@@ -271,6 +275,109 @@ public class SalesEnablementRestEndpoint {
 		
 	}
 	
+	// ================== GENRIC TESTING ======================
+	
+	@RequestMapping(value="/switch/{url}/**", method = RequestMethod.POST)
+	@ResponseBody
+	public Object switch_post(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data, @PathVariable("url") String url, HttpServletRequest request){
+		return switch_p(authorization, data, url, request,"POST");
+	}
+	
+	@RequestMapping(value="/switch/{url}/**", method = RequestMethod.PUT)
+	@ResponseBody
+	public Object switch_put(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data, @PathVariable("url") String url, HttpServletRequest request){
+		return switch_p(authorization, data, url, request,"PUT");
+	}
+	
+	@RequestMapping(value="/switch/{url}/**", method = RequestMethod.DELETE)
+	@ResponseBody
+	public Object switch_delete(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data, @PathVariable("url") String url, HttpServletRequest request){
+		return switch_p(authorization, data, url, request,"DELETE");
+	}
+	
+	@RequestMapping(value="/switch/{url}/**", method = RequestMethod.GET)
+	@ResponseBody
+	public Object switch_get(@RequestHeader("Authorization") String authorization, @PathVariable("url") String url, HttpServletRequest request){
+		return switch_p(authorization, null, url, request,"GET");
+	}
+	
+	
+	
+	public Object switch_p(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data, @PathVariable("url") String url, HttpServletRequest request,String method){
+			
+//		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+
+		String endPoint=getURL(url, request.getRequestURI());
+		return callAndResponse(authorization,data,endPoint,method);
+	}
+	
+	
+	public Object callAndResponse(String authorization, Map<Object, Object> data,String endPoint,String method){
+		
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		
+		RestTemplate restTemplate = new RestTemplate();
+		String token = authorization.substring("Bearer".length()).trim();
+		
+		HttpHeaders headers=new HttpHeaders();
+	
+		headers.add("token", token);
+		headers.add("Authorization", authorization);
+		headers.add("Accept", "application/json;charset=UTF-8");
+		
+		HttpEntity<Object> entity;
+		if(method.equals("GET")) {
+			entity=new HttpEntity<>(headers);
+		}
+		else {
+			entity=new HttpEntity<>(data,headers);
+		}
+		ResponseEntity<Object> responseFromURL=null;
+		
+		try  {
+			responseFromURL = restTemplate.exchange(endPoint, getMethod(method), entity, Object.class);
+			return responseFromURL.getBody();
+		}catch(Exception ex) {
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			
+			//Setting response to send 
+			returnResponse.put("status", Boolean.FALSE);
+			returnResponse.put("message", ex.getMessage());
+			returnResponse.put("result", "");
+			
+			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			return returnResponse;
+		}
+
+		
+		
+		
+		
+	}
+
+	/**
+	 * @param server take the string for the reference of the server
+	 * @param requestURL the requested URL of the API
+	 * @return URL to call for the response data
+	 */
+	public String getURL(String server,String requestURL) {
+		
+		Map<String, String> property=new HashMap<String, String>();
+		property.put("learning", "api.elasticSearch.baseURL");
+		property.put("local", "api.switch.demo");
+		property.put("gateway", "api.gateway.url");
+		
+		String path=env.getProperty(property.get(server));
+		
+		String end=""+path.charAt(path.length()-1);
+		path+=(end.equals("/") ? "" : "/");
+		
+		
+		String subPath = path+
+				StringUtils.removeStart(requestURL, "/LS360ApiGateway/services/rest/switch/"+server+"/");
+		System.out.println(subPath);
+		return subPath;
+	}
 	
 }
 
