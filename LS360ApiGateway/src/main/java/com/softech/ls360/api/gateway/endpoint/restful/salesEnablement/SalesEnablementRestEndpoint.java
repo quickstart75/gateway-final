@@ -1,14 +1,20 @@
 package com.softech.ls360.api.gateway.endpoint.restful.salesEnablement;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpResponseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +34,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.LearnerService;
 import com.softech.ls360.api.gateway.service.model.learner.profile.LearnerProfile;
@@ -49,7 +60,7 @@ public class SalesEnablementRestEndpoint {
 	
 	@RequestMapping(value="salesEnablement/global", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Object salesEnablementExchange(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data){
+	public Object salesEnablementExchange(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data) throws IOException, ClassNotFoundException{
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		
@@ -61,16 +72,15 @@ public class SalesEnablementRestEndpoint {
 		headers.add("token", token);
 		headers.add("Authorization", authorization);
 		headers.add("Accept", "application/json;charset=UTF-8");
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		
 		HttpEntity<Object> entity=new HttpEntity<>(data.get("requestBody"),headers);
+		
 		ResponseEntity<Object> responseFromURL=null;
 		
 		try  {
 			
-//			HttpMethod method= (data.get("type").equals("GET")  ?  HttpMethod.GET : HttpMethod.POST);
-//			System.out.println(data.get("requestBody").getClass().equals(String.class));
 			responseFromURL = restTemplate.exchange(data.get("endPoint").toString(), getMethod(data.get("type").toString()), entity, Object.class);
-			
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "success");
 			returnResponse.put("result", responseFromURL.getBody());
@@ -78,23 +88,31 @@ public class SalesEnablementRestEndpoint {
 		}catch(Exception ex) {
 			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 			
-			//Setting response to send 
-			returnResponse.put("status", Boolean.FALSE);
-			returnResponse.put("message", ex.getMessage());
-			returnResponse.put("result", "");
+			
+			if(ex instanceof HttpStatusCodeException) {
+				HttpStatusCodeException code=(HttpStatusCodeException) ex;
+				
+				returnResponse.put("status", Boolean.FALSE);
+				returnResponse.put("message", code.getStatusCode());
+				returnResponse.put("result", new ObjectMapper().readTree(code.getResponseBodyAsString()));
+			}
+			else {
+				//Setting response to send 
+				ex.printStackTrace();
+				returnResponse.put("status", Boolean.FALSE);
+				returnResponse.put("message", ex.getMessage());
+				returnResponse.put("result", "");
+			}
 
 			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		}
-
+		
+		
 		
 		
 		
 		return returnResponse;
 	}
-	
-	
-	
-	
 	
 	@RequestMapping(value="salesEnablement/global-postForEntity", method = RequestMethod.POST)
 	@ResponseBody
@@ -274,110 +292,18 @@ public class SalesEnablementRestEndpoint {
 		}
 		
 	}
+//	W class MyErrorHandler implements ResponseErrorHandler {
+//		  @Override
+//		  public void handleError(ClientHttpResponse response) throws IOException {
+//		    // your error handling here
+//		  }
+//
+//		  @Override
+//		  public boolean hasError(ClientHttpResponse response) throws IOException {
+//		     ...
+//		  }
+//		}
 	
-	// ================== GENRIC TESTING ======================
-	
-	@RequestMapping(value="/switch/{url}/**", method = RequestMethod.POST)
-	@ResponseBody
-	public Object switch_post(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data, @PathVariable("url") String url, HttpServletRequest request){
-		return switch_p(authorization, data, url, request,"POST");
-	}
-	
-	@RequestMapping(value="/switch/{url}/**", method = RequestMethod.PUT)
-	@ResponseBody
-	public Object switch_put(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data, @PathVariable("url") String url, HttpServletRequest request){
-		return switch_p(authorization, data, url, request,"PUT");
-	}
-	
-	@RequestMapping(value="/switch/{url}/**", method = RequestMethod.DELETE)
-	@ResponseBody
-	public Object switch_delete(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data, @PathVariable("url") String url, HttpServletRequest request){
-		return switch_p(authorization, data, url, request,"DELETE");
-	}
-	
-	@RequestMapping(value="/switch/{url}/**", method = RequestMethod.GET)
-	@ResponseBody
-	public Object switch_get(@RequestHeader("Authorization") String authorization, @PathVariable("url") String url, HttpServletRequest request){
-		return switch_p(authorization, null, url, request,"GET");
-	}
-	
-	
-	
-	public Object switch_p(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data, @PathVariable("url") String url, HttpServletRequest request,String method){
-			
-//		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
-
-		String endPoint=getURL(url, request.getRequestURI());
-		return callAndResponse(authorization,data,endPoint,method);
-	}
-	
-	
-	public Object callAndResponse(String authorization, Map<Object, Object> data,String endPoint,String method){
-		
-		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
-		
-		RestTemplate restTemplate = new RestTemplate();
-		String token = authorization.substring("Bearer".length()).trim();
-		
-		HttpHeaders headers=new HttpHeaders();
-	
-		headers.add("token", token);
-		headers.add("Authorization", authorization);
-		headers.add("Accept", "application/json;charset=UTF-8");
-		
-		HttpEntity<Object> entity;
-		if(method.equals("GET")) {
-			entity=new HttpEntity<>(headers);
-		}
-		else {
-			entity=new HttpEntity<>(data,headers);
-		}
-		ResponseEntity<Object> responseFromURL=null;
-		
-		try  {
-			responseFromURL = restTemplate.exchange(endPoint, getMethod(method), entity, Object.class);
-			return responseFromURL.getBody();
-		}catch(Exception ex) {
-			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-			
-			//Setting response to send 
-			returnResponse.put("status", Boolean.FALSE);
-			returnResponse.put("message", ex.getMessage());
-			returnResponse.put("result", "");
-			
-			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-			return returnResponse;
-		}
-
-		
-		
-		
-		
-	}
-
-	/**
-	 * @param server take the string for the reference of the server
-	 * @param requestURL the requested URL of the API
-	 * @return URL to call for the response data
-	 */
-	public String getURL(String server,String requestURL) {
-		
-		Map<String, String> property=new HashMap<String, String>();
-		property.put("learning", "api.elasticSearch.baseURL");
-		property.put("local", "api.switch.demo");
-		property.put("gateway", "api.gateway.url");
-		
-		String path=env.getProperty(property.get(server));
-		
-		String end=""+path.charAt(path.length()-1);
-		path+=(end.equals("/") ? "" : "/");
-		
-		
-		String subPath = path+
-				StringUtils.removeStart(requestURL, "/LS360ApiGateway/services/rest/switch/"+server+"/");
-		System.out.println(subPath);
-		return subPath;
-	}
 	
 }
 
