@@ -10,7 +10,7 @@ import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-	"organizationGroupID",
+	"organizationGroupId",
 	"organizationGroup",
     "userGroup",
     "userCount",
@@ -19,7 +19,7 @@ import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 })
 public class OrganizationResponse {
 
-	@JsonProperty("organizationGroupID")
+	@JsonProperty("organizationGroupId")
 	long id;
 	
 	@JsonProperty("organizationGroup")
@@ -51,7 +51,7 @@ public class OrganizationResponse {
 		this.entitlementRest = entitlementRest;
 	}
 	
-	@JsonProperty("organizationGroupID")
+	@JsonProperty("organizationGroupId")
 	public Long getId() {
 		return id;
 	}
