@@ -82,7 +82,7 @@ public class UserGroupRestEndPoint {
         }
         
         
-        return new OrganizationResponse(customer.getName(),lstRestUserGroup, "","", null);
+        return new OrganizationResponse(customer.getId(),customer.getName(),lstRestUserGroup, "","", null);
         
 	}
 	

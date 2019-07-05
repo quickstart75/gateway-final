@@ -44,6 +44,7 @@ import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
 import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
 import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
+import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 
 @RestEndpoint
 @RequestMapping(value="/lms")
@@ -62,6 +63,10 @@ public class OrganizationGroupRestEndPoint {
 	
 	@Inject
     protected ClassroomCourseService classroomCourseService;
+	
+	@Inject
+	private LearnerGroupMemberRepository learnerGroupMemberRepository;
+	
 	
 	@Autowired
     Environment env;
@@ -199,7 +204,7 @@ public class OrganizationGroupRestEndPoint {
         }
         
        // return new OrganizationResponse(customer.getName(),lstRestUserGroup, userCount + "", lstRestUserGroup.size()+"", lstEntitlementRest);
-        return new OrganizationResponse(customer.getName(), lstRestUserGroup, lstallemails.size() + "", lstUserGroup.size() + "", lstEntitlementRest);
+        return new OrganizationResponse(customer.getId(),customer.getName(), lstRestUserGroup, lstallemails.size() + "", lstUserGroup.size() + "", lstEntitlementRest);
 	}
 	
 	@RequestMapping(value = "/customer/organizationgroup", method = RequestMethod.PUT)
@@ -231,6 +236,28 @@ public class OrganizationGroupRestEndPoint {
 	        }
 	        return responseData;
 	}
+	@RequestMapping(value = "/customer/learner-organizationdetails", method = RequestMethod.GET)
+	@ResponseBody
+	public Object getOrganizationgroup()  {
+		Map<Object,Object> returnResponse=new HashMap<Object,Object>();
+		try{
+			
+			
+			String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		    Customer customer = customerService.findByUsername(userName);
+			
+		    returnResponse.put("id",customer.getId());
+		    
+		    returnResponse.put("label",customer.getFirstName());
+		    Object object =learnerGroupMemberRepository.getLearnerGroupByUsername(userName) ;		   
+		    returnResponse.put("teams",object);
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+        return returnResponse;
+	}
+	
 	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody

@@ -10,6 +10,7 @@ import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+	"organizationGroupID",
 	"organizationGroup",
     "userGroup",
     "userCount",
@@ -18,6 +19,8 @@ import com.softech.ls360.api.gateway.response.model.UserGroupRest;
 })
 public class OrganizationResponse {
 
+	@JsonProperty("organizationGroupID")
+	long id;
 	
 	@JsonProperty("organizationGroup")
 	String name;
@@ -38,8 +41,9 @@ public class OrganizationResponse {
 		super();
 	}
 	
-	public OrganizationResponse(String name, List<UserGroupRest> userGroup, String userCount, String userGroupCount, List<EntitlementRest> entitlementRest) {
+	public OrganizationResponse(long id,String name, List<UserGroupRest> userGroup, String userCount, String userGroupCount, List<EntitlementRest> entitlementRest) {
 		super();
+		this.id=id;
 		this.name = name;
 		this.userGroup = userGroup;
 		this.userCount = userCount;
@@ -47,6 +51,14 @@ public class OrganizationResponse {
 		this.entitlementRest = entitlementRest;
 	}
 	
+	@JsonProperty("organizationGroupID")
+	public Long getId() {
+		return id;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
+	}
 	@JsonProperty("organizationGroup")
 	public String getName() {
 		return name;
