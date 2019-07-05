@@ -1,6 +1,7 @@
 package com.softech.ls360.lms.repository.repositories;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,6 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.entities.LearnerGroupMember;
 import com.softech.ls360.lms.repository.entities.LearnerGroupMemberPK;
 import com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection;
@@ -64,9 +66,16 @@ public interface LearnerGroupMemberRepository extends CrudRepository<LearnerGrou
 	public List<EnrollmentCoursesProjection> getEnrollmentCourses(@Param("learnerGroupIds") List<Long> learnerGroupIds);
 	
 	
+	@Query(" select lg.id as id, lg.name as label  "
+			+" from LearnerGroupMember lp "
+			+" join Learner l on l.id = lp.learner.id "
+			+" join VU360User vu on vu.id = l.vu360User.id "
+			+" join  LearnerGroup lg on lg.id = lp.learnerGroup.id "
+			+" where vu.username  =:username ")
+	public List<Map> getLearnerGroupByUsername(@Param("username") String username);
+	
 	
 	public LearnerGroupMember findFirstByLearner_Vu360User_Username(String username);
-	
 	public List<LearnerGroupMember> findByLearnerGroupIdAndLearnerIdIn(Long learnerGroupId , Long[] learnerId);
 	@Modifying
 	@Transactional
