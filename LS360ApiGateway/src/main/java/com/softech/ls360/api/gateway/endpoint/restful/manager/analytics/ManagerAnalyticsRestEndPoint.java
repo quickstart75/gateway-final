@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
+import com.softech.ls360.api.gateway.service.CustomerService;
 import com.softech.ls360.api.gateway.service.LearnerCourseStatisticsService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.response.EngagementTeamByMonthResponse;
@@ -27,6 +30,7 @@ import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithCourseUserRest;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithUserRest;
+import com.softech.ls360.lms.repository.entities.Customer;
 import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
 
@@ -42,6 +46,9 @@ public class ManagerAnalyticsRestEndPoint {
 	
 	@Autowired
 	private LearnerCourseStatisticsService learnerCourseStatisticsService;
+	
+	@Inject
+	private CustomerService customerService;
 	
 	@Value( "${megasite.distributor.id}" )
     private String megasiteDistributorId;
@@ -167,6 +174,26 @@ public class ManagerAnalyticsRestEndPoint {
 		map.put("status", Boolean.TRUE);
         map.put("message", "success");
         map.put("result", responseMap);
+		return map;
+	}
+	
+	@RequestMapping(value = "/vpa-orders", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	// Report: 
+	public Map<Object, Object>   getVPAReport(@RequestBody Map<String, Object> order){
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		//Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		//String userName = auth.getName(); 
+		String managerusername = order.get("managerusername").toString();
+		String vpaCode = order.get("vpaCode").toString();
+		
+		Customer customer = customerService.findByUsername(managerusername);
+		List  response = customerService.getVPAOrdersByCustomer(vpaCode, customer.getId(), managerusername);
+		
+
+		map.put("status", Boolean.TRUE);
+        map.put("message", "success");
+        map.put("result", response);
 		return map;
 	}
 }
