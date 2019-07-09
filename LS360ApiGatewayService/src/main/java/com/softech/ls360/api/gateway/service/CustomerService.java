@@ -17,4 +17,6 @@ public interface CustomerService {
 	
 	List<Object[]> getCustomerIdByOrderId(String orderId);
 	boolean updateOrderStatusByCustomerentitlementId(String status, Long entitlementId);
+	
+	List getVPAOrdersByCustomer(String vpaCode, Long customerId, String managerusername);
 }
