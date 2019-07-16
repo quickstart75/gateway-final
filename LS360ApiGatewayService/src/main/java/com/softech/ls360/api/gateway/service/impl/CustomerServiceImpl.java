@@ -96,75 +96,89 @@ public class CustomerServiceImpl implements CustomerService {
 		 return true;
 	}
 	
-	public List getVPAOrdersByCustomer(String vpaCode, Long customerId, String managerusername){
-		List<Object[]> objResult  = customerRepository.getVPAOrdersByCustomer(customerId, vpaCode);
+	public List getVPAOrdersByCustomer(String vpaCode, Long customerId, String managerusername, String teamId){
+		
+		VU360User objUsers = userService.findByUsername(managerusername);
+		List<Object[]> objResult;
+		
+		if(!teamId.equals("")){
+			objResult  = customerRepository.getVPAOrdersByCustomerByTeam(customerId, vpaCode, teamId);
+		}else{	
+			objResult  = customerRepository.getVPAOrdersByCustomer(customerId, vpaCode);
+		}	
 		Map<String, String> colmap;
 		
 		List<Map<String, String>> lst = new ArrayList<Map<String, String>>();
 		
-		//HashMap<String, Map<Integer, Map<String, String>>> hm = new HashMap<String, Map<Integer, Map<String, String>>>();
 		for(Object[]  orderInfo : objResult){
 			colmap = new HashMap<String, String>();
-			//Map<Integer, Map<String, String>> colmapinner = new HashMap<Integer, Map<String, String>>();
-			colmap.put("orderId", orderInfo[1].toString());
-			colmap.put("firstName", orderInfo[3].toString());
-			colmap.put("lastName", orderInfo[4].toString());
-			colmap.put("email", orderInfo[5].toString());
-			colmap.put("courseName", orderInfo[6].toString());
-			colmap.put("orderDate", orderInfo[1].toString());
+			
+			if(orderInfo[1]!=null)
+				colmap.put("orderId", orderInfo[1].toString());
+			
+			if(orderInfo[3]!=null)
+				colmap.put("firstName", orderInfo[3].toString());
+			
+			if(orderInfo[4]!=null)
+				colmap.put("lastName", orderInfo[4].toString());
+			
+			if(orderInfo[5]!=null)
+				colmap.put("email", orderInfo[5].toString());
+			
+			if(orderInfo[6]!=null)
+				colmap.put("courseName", orderInfo[6].toString());
+			
+			if(orderInfo[7]!=null)
+				colmap.put("orderDate", orderInfo[7].toString());
+			
+			if(orderInfo[8]!=null)
+				colmap.put("guid", orderInfo[8].toString());
+			
 			colmap.put("ClassDate", "");
-			//colmapinner.put(Integer.parseInt(orderInfo[2].toString()), colmap);
-			//hm.put( orderInfo[0].toString(), colmapinner );
 			lst.add( colmap );
 		}
 		
-		VU360User objUsers = userService.findByUsername(managerusername);
-		
-		List<Object[]> objResultSubCount  = customerRepository.getVPAOrdersByCustomerForSubscriptionCount(customerId, vpaCode);
-		for(Object[]  orderInfo : objResultSubCount){
-			int count  = Integer.parseInt(orderInfo[2].toString());
-			
-			for(int i=1; i<=count;i++){
-				colmap = new HashMap<String, String>();
-				
-				if(orderInfo[1]!=null)
-					colmap.put("orderId", orderInfo[1].toString());
-				
-				colmap.put("firstName", objUsers.getFirstName());
-				colmap.put("lastName", objUsers.getLastName());
-				colmap.put("email", objUsers.getEmailAddress());
-				
-				if(orderInfo[3]!=null)
-					colmap.put("courseName", orderInfo[3].toString());
-				
-				if(orderInfo[4]!=null)
-					colmap.put("orderDate", orderInfo[4].toString());
-				
-				colmap.put("ClassDate", "");
-				lst.add( colmap );
-			}
-		}
-		
-		
-		/*
-		for (Map.Entry<String, Map<Integer, Map<String, String>>>entry : hm.entrySet()) {
-			Map<Integer, Map<String, String>> mapInner = entry.getValue();
 
-			for (Map.Entry<Integer, Map<String, String>> innerEntry : mapInner.entrySet()) {
-				Integer count = innerEntry.getKey();
-				 for(int i=0;i<count;i++){
-			        	Map map = innerEntry.getValue();
-			        	map.put("firstName", objUsers.getFirstName());
-			        	map.put("lastName", objUsers.getLastName());
-			        	map.put("email", objUsers.getEmailAddress());
-			        	lst.add(map);
-			        }
+		if(teamId.equals("")){
+			List<Object[]> objResultSubCount  = customerRepository.getVPAOrdersByCustomerForSubscriptionCount(customerId, vpaCode);
+			for(Object[]  orderInfo : objResultSubCount){
+				int count  = Integer.parseInt(orderInfo[2].toString());
+				
+				for(int i=1; i<=count;i++){
+					colmap = new HashMap<String, String>();
+					
+					if(orderInfo[1]!=null)
+						colmap.put("orderId", orderInfo[1].toString());
+					
+					colmap.put("firstName", objUsers.getFirstName());
+					colmap.put("lastName", objUsers.getLastName());
+					colmap.put("email", objUsers.getEmailAddress());
+					
+					if(orderInfo[3]!=null)
+						colmap.put("courseName", orderInfo[3].toString());
+					
+					if(orderInfo[4]!=null)
+						colmap.put("orderDate", orderInfo[4].toString());
+					
+					if(orderInfo[5]!=null)
+						colmap.put("guid", orderInfo[5].toString());
+					
+					colmap.put("ClassDate", "");
+					lst.add( colmap );
+				}
 			}
 		}
-		*/
+		
+	
 		
 		// courses -------------------------------------------------------------------------------------------------
-		List<Object[]> objResultCourse  = customerRepository.getVPAOrdersByCustomerForCourse(customerId, vpaCode);
+		List<Object[]> objResultCourse;
+		if(!teamId.equals("")){
+			objResultCourse = customerRepository.getVPAOrdersByCustomerForCourseByTeam(customerId, vpaCode, teamId);
+		}else{
+			objResultCourse  = customerRepository.getVPAOrdersByCustomerForCourse(customerId, vpaCode);
+		}
+		
 		for(Object[]  orderInfo : objResultCourse){
 			colmap = new HashMap<String, String>();
 			
@@ -181,35 +195,46 @@ public class CustomerServiceImpl implements CustomerService {
 			if(orderInfo[5]!=null)
 				colmap.put("orderDate", orderInfo[5].toString());
 			
-			colmap.put("ClassDate", "");
+			if(orderInfo[7]!=null)
+				colmap.put("guid", orderInfo[7].toString());
+			
+			if(orderInfo[8] != null && orderInfo[9]!=null)
+				colmap.put("ClassDate", orderInfo[8].toString() + " - " + orderInfo[9].toString());
+			else
+				colmap.put("ClassDate", "");
+			
 			lst.add( colmap );
 		}
 		
-		List<Object[]> objResultCourseCount  = customerRepository.getVPAOrdersByCustomerForCourseCount(customerId, vpaCode);
-		for(Object[]  orderInfo : objResultCourseCount){
-			int count  = Integer.parseInt(orderInfo[2].toString());
-			
-			for(int i=1; i<=count;i++){
-				colmap = new HashMap<String, String>();
+		if(teamId.equals("")){
+			List<Object[]> objResultCourseCount  = customerRepository.getVPAOrdersByCustomerForCourseCount(customerId, vpaCode);
+			for(Object[]  orderInfo : objResultCourseCount){
+				int count  = Integer.parseInt(orderInfo[2].toString());
 				
-				if(orderInfo[1]!=null)
-					colmap.put("orderId", orderInfo[1].toString());
-				
-				colmap.put("firstName", objUsers.getFirstName());
-				colmap.put("lastName", objUsers.getLastName());
-				colmap.put("email", objUsers.getEmailAddress());
-				
-				if(orderInfo[3]!=null)
-					colmap.put("courseName", orderInfo[3].toString());
-				
-				if(orderInfo[4]!=null)
-					colmap.put("orderDate", orderInfo[4].toString());
-				
-				colmap.put("ClassDate", "");
-				lst.add( colmap );
+				for(int i=1; i<=count;i++){
+					colmap = new HashMap<String, String>();
+					
+					if(orderInfo[1]!=null)
+						colmap.put("orderId", orderInfo[1].toString());
+					
+					colmap.put("firstName", objUsers.getFirstName());
+					colmap.put("lastName", objUsers.getLastName());
+					colmap.put("email", objUsers.getEmailAddress());
+					
+					if(orderInfo[3]!=null)
+						colmap.put("courseName", orderInfo[3].toString());
+					
+					if(orderInfo[4]!=null)
+						colmap.put("orderDate", orderInfo[4].toString());
+					
+					if(orderInfo[5]!=null)
+						colmap.put("guid", orderInfo[5].toString());
+					
+					colmap.put("ClassDate", "");
+					lst.add( colmap );
+				}
 			}
 		}
-		
 		
 		return lst;
 	}
