@@ -182,14 +182,19 @@ public class ManagerAnalyticsRestEndPoint {
 	// Report: 
 	public Map<Object, Object>   getVPAReport(@RequestBody Map<String, Object> order){
 		Map<Object, Object> map = new HashMap<Object, Object>();
-		//Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
-		//String userName = auth.getName(); 
+		List  response;
+		
 		String managerusername = order.get("managerusername").toString();
 		String vpaCode = order.get("vpaCode").toString();
+		Object teamId = order.get("teamId");
 		
 		Customer customer = customerService.findByUsername(managerusername);
-		List  response = customerService.getVPAOrdersByCustomer(vpaCode, customer.getId(), managerusername);
 		
+		if(teamId!=null && !teamId.toString().equals("")){
+			response = customerService.getVPAOrdersByCustomer(vpaCode, customer.getId(), managerusername, teamId.toString());
+		}else{
+			response = customerService.getVPAOrdersByCustomer(vpaCode, customer.getId(), managerusername, "");
+		}
 
 		map.put("status", Boolean.TRUE);
         map.put("message", "success");
