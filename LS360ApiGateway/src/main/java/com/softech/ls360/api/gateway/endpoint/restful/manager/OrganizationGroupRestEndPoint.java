@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.request.OrganizationRequest;
@@ -240,22 +241,27 @@ public class OrganizationGroupRestEndPoint {
 	@ResponseBody
 	public Object getOrganizationgroup()  {
 		Map<Object,Object> returnResponse=new HashMap<Object,Object>();
+		Map<Object,Object> returnResponseMain=new HashMap<Object,Object>();
 		try{
-			
-			
 			String userName = SecurityContextHolder.getContext().getAuthentication().getName();
 		    Customer customer = customerService.findByUsername(userName);
 			
 		    returnResponse.put("id",customer.getId());
 		    
 		    returnResponse.put("label",customer.getFirstName());
-		    Object object =learnerGroupMemberRepository.getLearnerGroupByUsername(userName) ;		   
+		    Object object =learnerGroupMemberRepository.getLearnerGroupByUsername(userName) ;	
 		    returnResponse.put("teams",object);
+		    
+		    returnResponseMain.put("status", Boolean.TRUE);
+		    returnResponseMain.put("message", "Success");
+		    returnResponseMain.put("result", returnResponse);
+		    
 		}catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
+			returnResponseMain.put("status", Boolean.FALSE);
+		    returnResponseMain.put("message", "Error");
+		    returnResponseMain.put("result", e.getMessage());
 		}
-        return returnResponse;
+        return returnResponseMain;
 	}
 	
 	
