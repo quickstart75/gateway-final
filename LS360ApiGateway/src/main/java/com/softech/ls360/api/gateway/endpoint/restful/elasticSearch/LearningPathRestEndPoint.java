@@ -50,12 +50,12 @@ public class LearningPathRestEndPoint {
 		levelMap.put("126", "Cloud Computing");
 		DummyData.put("level0",levelMap);
 		
-//		catTag[]:
+//		              []:
 		List<String> catTag=new ArrayList<String>();
 		catTag.add("Virtual Classroom");
 		catTag.add("1 Courses");
 		catTag.add("5 Days");
-		DummyData.put("catTag",catTag);
+		DummyData.put("catTags",catTag);
 		
 		//duration[]:
 		List<String> duration=new ArrayList<String>();
@@ -120,18 +120,16 @@ public class LearningPathRestEndPoint {
 		Map<Object, Object> c_id=new HashMap<Object, Object>();
 		c_id.put("status", "completed");
 		enrolledCourses.put("18da0e51ee584a02b46e4ae9f875c607", c_id);
-		learningPath.put("enrolledCourses", enrolledCourses);
-
-		Map<Object, Object> finalResult=new HashMap<Object, Object>();
-		finalResult.put("learningPaths", learningPath);
 		
-		mainResponseData.put("result", finalResult);
+	
+		mainResponseData.put("enrolledCourses", enrolledCourses);
+		mainResponseData.put("learningPaths", learningPath);
 		mainResponseData.put("status", Boolean.TRUE);
 		mainResponseData.put("message", "success");
 		
 		return mainResponseData;
 	}
-	public Map<Object,Object> getData(){
+	public Map<Object,Object> getData(String Studentuuid){
 		
 		ObjectMapper mapper = new ObjectMapper();
 		Map<Object, Object> carMap=null;
