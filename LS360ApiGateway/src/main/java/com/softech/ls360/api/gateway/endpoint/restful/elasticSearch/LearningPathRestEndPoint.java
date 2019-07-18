@@ -108,6 +108,7 @@ public class LearningPathRestEndPoint {
 
 		DummyData2.put("courseSku",courseSku2);
 		
+		
 		//Adding to learning paths[]
 		learningPaths.add(DummyData2);
 		
