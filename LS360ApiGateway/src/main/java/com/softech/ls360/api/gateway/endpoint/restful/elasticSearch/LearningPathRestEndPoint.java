@@ -112,7 +112,7 @@ public class LearningPathRestEndPoint {
 		learningPaths.add(DummyData2);
 		
 		//================Dummy END ==================
-		learningPath.put("LearningPaths", learningPaths);
+		learningPath.put("learningPaths", learningPaths);
 		
 		
 		//enrolledCourses:
@@ -122,8 +122,10 @@ public class LearningPathRestEndPoint {
 		enrolledCourses.put("18da0e51ee584a02b46e4ae9f875c607", c_id);
 		learningPath.put("enrolledCourses", enrolledCourses);
 
+		Map<Object, Object> finalResult=new HashMap<Object, Object>();
+		finalResult.put("learningPaths", learningPath);
 		
-		mainResponseData.put("result", learningPath);
+		mainResponseData.put("result", finalResult);
 		mainResponseData.put("status", Boolean.TRUE);
 		mainResponseData.put("message", "success");
 		
