@@ -93,7 +93,7 @@ public class LearningPathRestEndPoint {
 		catTag2.add("Self-Paced Learning");
 		catTag2.add("3 Courses");
 		catTag2.add("5 Days");
-		DummyData2.put("catTag",catTag2);
+		DummyData2.put("catTags",catTag2);
 		
 		//duration[]:
 		List<String> duration2=new ArrayList<String>();
