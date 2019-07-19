@@ -7,10 +7,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
@@ -26,6 +33,14 @@ public class LearningPathRestEndPoint {
 		Map<Object, Object> learningPath=new HashMap<Object, Object>();
 		List<Map<Object, Object>> learningPaths=new ArrayList<>();
 		
+		//Getting response from GraphQL
+		Map<Object,Object> graphQLResponse=(Map<Object, Object>) getGraphQLData("123",false);
+		
+		
+		
+		
+		
+		
 	    // LearningPath :
 	    learningPath.put("pageSize", 50);
 	    learningPath.put("pageNumber", 1);
@@ -33,86 +48,109 @@ public class LearningPathRestEndPoint {
 	    learningPath.put("totalPages", 1);
 		
 	    
-	    //DummyData 1:
-  		Map<Object, Object> DummyData=new HashMap<Object, Object>();
+	    List<Object> mocLearningPaths=(List<Object>) graphQLResponse.get("mocLearningPaths");
+  		
+	    
+	    //recordData 1:
+	    for(Object row : mocLearningPaths ) {
+	    	
+	    	Map<Object, Object> record=(Map<Object, Object>) row;
+	    	
+	    	
+  		Map<Object, Object> recordData=new HashMap<Object, Object>();
   		
 	    //LearningPaths[]:
-		DummyData.put("catId","895");
-		DummyData.put("catName","Microsoft Mobility Certification");
-		DummyData.put("catDesc","he mobility certification category focuses on technologies like Windows System Center, System Center Configuration Manager, Microsoft Intune, Azure Rights Management, and Azure Active Directory. It is an ideal certification path for those looking to specialize in mobility management solutions.");
-		DummyData.put("catColor","");
-		DummyData.put("catImage","https://www.quickstart.com/pub/static/frontend/Infortis/custom/en_US/Magento_Catalog/images/product/placeholder/image.jpg");
-		DummyData.put("catUrl","https://www.quickstart.com/find-training/learning-paths/microsoft-certifications/microsoft-mobility-certification.html");
+		recordData.put("catId",record.get("uuid"));
+		recordData.put("catName",record.get("name"));
+		recordData.put("catDesc",record.get("description"));
+		recordData.put("catColor","");
+		recordData.put("catImage","https://www.quickstart.com/pub/static/frontend/Infortis/custom/en_US/Magento_Catalog/images/product/placeholder/image.jpg");
+		recordData.put("catUrl","https://www.quickstart.com/find-training/learning-paths/microsoft-certifications/microsoft-mobility-certification.html");
 		
 		//Level 0:
+		List<Map<Object, Object>> combination=(List<Map<Object, Object>>) record.get("combination");
 		Map<Object, Object> levelMap=new HashMap<Object, Object>();
-		levelMap.put("125", "IT Ops & Management");
-		levelMap.put("126", "Cloud Computing");
-		DummyData.put("level0",levelMap);
+		for(Map comb : combination) {
+			
+			levelMap.put(comb.get("uuid"), comb.get("name"));
+			
+		}
+		recordData.put("level0",levelMap);
 		
-//		              []:
+//		catTags[]:
 		List<String> catTag=new ArrayList<String>();
 		catTag.add("Virtual Classroom");
 		catTag.add("1 Courses");
 		catTag.add("5 Days");
-		DummyData.put("catTags",catTag);
+		recordData.put("catTags",catTag);
 		
 		//duration[]:
 		List<String> duration=new ArrayList<String>();
 		duration.add("5 Days");
-		DummyData.put("durations",duration);
+		recordData.put("durations",duration);
 		
 		//courseSku:
 		Map<Object, Object> courseSku=new HashMap<Object, Object>();
-		courseSku.put("f9fe5f6ca04c4904b5f41028771ee931", "f9fe5f6ca04c4904b5f41028771ee931");
-		DummyData.put("courseSku",courseSku);
+		List<Map<Object, Object>> instructions=(List<Map<Object, Object>>) record.get("instructions");
+		for(Map inst : instructions) {
+			
+			courseSku.put(inst.get("guid"), inst.get("difficulty"));
+			
+		}
+		
+		recordData.put("courseSku",courseSku);
 		
 		//Adding to learning paths[]
-		learningPaths.add(DummyData);
-
-		//========================================
-		//DummyData 2:
-  		Map<Object, Object> DummyData2=new HashMap<Object, Object>();
+		learningPaths.add(recordData);
+	    }
+	    
+	    
+	    
+	    
+//		========================================
+//		recordData 2:
+//  		Map<Object, Object> recordData2=new HashMap<Object, Object>();
+//  		
+//	    //LearningPaths[]:
+//		recordData2.put("catId","900");
+//		recordData2.put("catName","Microsoft Azure Fundamentals");
+//		recordData2.put("catDesc","Quickstart’s Azure Fundamentals learning path has been designed to cater to system administrators, database administrators, and developers. If you have the experience of working in a local environment and now want to switch to the cloud, this is a great learning path for you.");
+//		recordData2.put("catColor","");
+//		recordData2.put("catImage","https://www.quickstart.com/pub/static/frontend/Infortis/custom/en_US/Magento_Catalog/images/product/placeholder/image.jpg");
+//		recordData2.put("catUrl","https://www.quickstart.com/find-training/learning-paths/microsoft-azure-mastery/microsoft-azure-fundamentals.html");
+//		
+//		//Level 0:
+//		Map<Object, Object> levelMap2=new HashMap<Object, Object>();
+//		levelMap2.put("126", "Cloud Computing");
+//		recordData2.put("level0",levelMap2);
+//		
+////		catTag[]:
+//		List<String> catTag2=new ArrayList<String>();
+//		catTag2.add("Virtual Classroom");
+//		catTag2.add("Self-Paced Learning");
+//		catTag2.add("3 Courses");
+//		catTag2.add("5 Days");
+//		recordData2.put("catTags",catTag2);
+//		
+//		//duration[]:
+//		List<String> duration2=new ArrayList<String>();
+//		duration2.add("5 Days");
+//		recordData2.put("durations",duration2);
+//		
+//		//courseSku:
+//		Map<Object, Object> courseSku2=new HashMap<Object, Object>();
+//		courseSku2.put("1ab68b4b59624231a1c62bf06fa3174a", "1ab68b4b59624231a1c62bf06fa3174a");
+//		courseSku2.put("2498638504b046168020018208544bf5", "2498638504b046168020018208544bf5");
+//		courseSku2.put("87dd9ccd25344351a9dbbe0cca128bf6", "87dd9ccd25344351a9dbbe0cca128bf6");
+//
+//		recordData2.put("courseSku",courseSku2);
+//		
+//		
+//		//Adding to learning paths[]
+//		learningPaths.add(recordData2);
+//		
+//		//================Dummy END ==================
   		
-	    //LearningPaths[]:
-		DummyData2.put("catId","900");
-		DummyData2.put("catName","Microsoft Azure Fundamentals");
-		DummyData2.put("catDesc","Quickstart’s Azure Fundamentals learning path has been designed to cater to system administrators, database administrators, and developers. If you have the experience of working in a local environment and now want to switch to the cloud, this is a great learning path for you.");
-		DummyData2.put("catColor","");
-		DummyData2.put("catImage","https://www.quickstart.com/pub/static/frontend/Infortis/custom/en_US/Magento_Catalog/images/product/placeholder/image.jpg");
-		DummyData2.put("catUrl","https://www.quickstart.com/find-training/learning-paths/microsoft-azure-mastery/microsoft-azure-fundamentals.html");
-		
-		//Level 0:
-		Map<Object, Object> levelMap2=new HashMap<Object, Object>();
-		levelMap2.put("126", "Cloud Computing");
-		DummyData2.put("level0",levelMap2);
-		
-//		catTag[]:
-		List<String> catTag2=new ArrayList<String>();
-		catTag2.add("Virtual Classroom");
-		catTag2.add("Self-Paced Learning");
-		catTag2.add("3 Courses");
-		catTag2.add("5 Days");
-		DummyData2.put("catTags",catTag2);
-		
-		//duration[]:
-		List<String> duration2=new ArrayList<String>();
-		duration2.add("5 Days");
-		DummyData2.put("durations",duration2);
-		
-		//courseSku:
-		Map<Object, Object> courseSku2=new HashMap<Object, Object>();
-		courseSku2.put("1ab68b4b59624231a1c62bf06fa3174a", "1ab68b4b59624231a1c62bf06fa3174a");
-		courseSku2.put("2498638504b046168020018208544bf5", "2498638504b046168020018208544bf5");
-		courseSku2.put("87dd9ccd25344351a9dbbe0cca128bf6", "87dd9ccd25344351a9dbbe0cca128bf6");
-
-		DummyData2.put("courseSku",courseSku2);
-		
-		
-		//Adding to learning paths[]
-		learningPaths.add(DummyData2);
-		
-		//================Dummy END ==================
 		learningPath.put("learningPaths", learningPaths);
 		
 		
@@ -130,11 +168,48 @@ public class LearningPathRestEndPoint {
 		
 		return mainResponseData;
 	}
+	
+	
+	public Object getGraphQLData(String uuid,boolean singleRecord) {
+		Map<Object, Object> requestBody=new HashMap<Object, Object>();
+		
+		RestTemplate restTemplate=new RestTemplate();
+		String query= "{mocLearningPaths(student_uuid:"+uuid+", instructions_types:[\"course\", \"course1\"], learning_path_id:\"1\"){uuid name combination{ uuid name type } description instructions{ uuid title type level guid source modailty duration difficulty } } } ";
+		//headers
+		HttpHeaders header=new HttpHeaders();
+		System.out.println(query);
+		header.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		requestBody.put("query", query);
+		//request parameter
+		HttpEntity<Object> request=new HttpEntity<>(requestBody,header);
+		
+		ResponseEntity<Map> responseFromURL=null;
+		try {
+			responseFromURL=restTemplate.exchange("http://3.92.170.103:5555/", HttpMethod.POST, request, Map.class);
+			
+			if(!singleRecord)
+				return responseFromURL.getBody().get("data");
+			else {
+				Map<String,Object> data=(Map<String, Object>) responseFromURL.getBody().get("data");
+				List<Object> moc= (List<Object>) data.get("mocLearningPaths");
+				Map<Object,Object> record=(Map<Object, Object>) moc.get(0);
+				return record;
+			}
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+		
+	
+	}
+
 	public Map<Object,Object> getData(String Studentuuid){
 		
 		ObjectMapper mapper = new ObjectMapper();
 		Map<Object, Object> carMap=null;
-		
+//		"query":"{mocLearningPaths(student_uuid:\"123\", instructions_types:[\"course\", \"course1\"], learning_path_id:\"1\"){uuid name combination{ uuid name type } description instructions{ uuid title type level guid source modailty duration } } } "
 		try {
 			carMap = mapper.readValue(new File ("C:\\Users\\Zain.Noushad\\Desktop\\demo1.json"),Map.class);
 		} catch (IOException e) {
@@ -144,4 +219,128 @@ public class LearningPathRestEndPoint {
 		
 		return carMap;
 	}
+	
+	
+	//================================Learning Path Detail
+	
+
+	@RequestMapping(value = "/learningpath-details", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public Object getCourseData(@RequestHeader String authorization,  @RequestBody Map<Object, Object> data) {
+		Map<Object, Object> responseBody=new HashMap<Object, Object>();
+		
+		Map<Object, Object> magentoRequest=new HashMap<>();
+		
+		
+		
+		
+		Map<Object,Object> graphQlData= (Map<Object,Object>) getGraphQLData("1",true);
+		List<String> magentoRequestGuuid=new ArrayList<String>();
+		List<Map> instruction=(List<Map>) graphQlData.get("instructions");
+		
+		Map<String,List<String>> levelWiseGuuid=new HashMap<>();
+		
+		for(Map<Object,Object> record : instruction ) {
+			magentoRequestGuuid.add(record.get("guid").toString());
+			
+			if(levelWiseGuuid.get(record.get("level").toString())==null) {
+				
+				List<String> levelGuuid=new ArrayList<String>();
+				levelGuuid.add(record.get("guid").toString()); 
+				levelWiseGuuid.put( record.get("level").toString() , levelGuuid);
+				
+				magentoRequest.put("productSkus", "");
+			}
+			else {
+				levelWiseGuuid.get(record.get("level").toString()).add(record.get("guid").toString());
+			}
+			
+		}
+		
+		
+		//Getting Magento Response
+		magentoRequest.put("productSkus", magentoRequestGuuid);
+		magentoRequest.put("storeId", "2");
+		Map<Object,Object> magentoResponse=( Map<Object,Object>) getMagentoData(magentoRequest);
+		
+		
+		//Setting level0 Data :
+		Map<Object, Object> level0=new HashMap<Object, Object>();
+		Map<Object, Object> AllLevelRecord=new HashMap<>();
+		
+		for(String key : levelWiseGuuid.keySet()) {
+			
+			
+			Map<Object,Object> singleLevelRecord=new HashMap<Object,Object>();
+			
+			//Iteration on level guuids
+			singleLevelRecord.put("catName", "");
+			singleLevelRecord.put("catDesc", "");
+			singleLevelRecord.put("catColor", "");
+			
+//			Map<Object, Object> guuidRecord=new HashMap<Object, Object>();
+			
+			singleLevelRecord.put("catProducts", magentoResponse);
+				
+			singleLevelRecord.put("catProductCount", magentoResponse.keySet().size())	;
+			singleLevelRecord.put("catStats", null);	
+				
+			
+			AllLevelRecord.put(key, singleLevelRecord);
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		Map<Object, Object> result=new HashMap<Object, Object>();
+		
+		result.put("catName", "");
+		result.put("catDesc", "");
+		result.put("catColor", "");
+		result.put("level0", AllLevelRecord);
+		
+		
+		responseBody.put("status", Boolean.TRUE);
+		responseBody.put("message", "success");
+		
+		List<Object> resultList=new ArrayList<Object>();
+		resultList.add(result);
+		responseBody.put("result", resultList);
+		responseBody.put("subscription", new ArrayList<>());
+		
+		return responseBody ;
+	}
+	public Object getMagentoData(Map<Object,Object> data) {
+		
+		
+		RestTemplate restTemplate=new RestTemplate();
+		//headers
+		HttpHeaders header=new HttpHeaders();
+		
+		header.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		
+		//request parameter
+		HttpEntity<Object> request=new HttpEntity<>(data,header);
+		
+		ResponseEntity<Map> responseFromURL=null;
+		try {
+			responseFromURL=restTemplate.exchange("https://qa.quickstart.com/rest/default/V1/careerpath/getlistbysku", HttpMethod.POST, request, Map.class);
+			 List<Object> result=(List<Object>) responseFromURL.getBody().get("result");
+			 return result.get(0);
+			 
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+		
+	
+	}
+
 }
