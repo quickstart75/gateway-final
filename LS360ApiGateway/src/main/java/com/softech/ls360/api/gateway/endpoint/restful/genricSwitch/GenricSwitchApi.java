@@ -125,9 +125,10 @@ public class GenricSwitchApi {
 	public String getURL(String server,String requestURL) {
 		
 		Map<String, String> property=new HashMap<String, String>();
-		property.put("adaptive_learning", "api.elasticSearch.baseURL");
+		property.put("elastic_content", "api.elasticSearch.baseURL");
 		property.put("local", "api.switch.demo");
 		property.put("gateway", "api.gateway.url");
+		property.put("recommendation", "api.recommendation.engine");
 		
 		String path=env.getProperty(property.get(server));
 		
