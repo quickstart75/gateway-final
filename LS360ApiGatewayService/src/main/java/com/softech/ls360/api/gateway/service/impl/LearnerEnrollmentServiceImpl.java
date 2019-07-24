@@ -524,4 +524,39 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		List<Object[]> lst = learnerCourseStatisticsRepository.getEnrolledCoursesInfoByUsername(username);
 		return lst;
 	}
+
+	@Override
+	public Map<Object, Object> getEnrollmentCoursesMapWithstatus(String username) {
+		
+		Map<Object,Object> response=new HashMap<Object, Object>();
+		
+		List<String> lstAllGuids = new ArrayList<String>(); 			// All
+		List<String> lstNew_StartedGuids = new ArrayList<String>();		// New Started
+		List<String> lstCompletedGuids = new ArrayList<String>();		// Completed
+		
+		List<Object[]> arrEnrollment = learnerCourseStatisticsRepository.getEnrolledCoursesInfoByUsername(username);
+		
+		for(Object[] subArr: arrEnrollment){
+
+	        if(subArr[0]!=null){
+	        	lstAllGuids.add(subArr[0].toString());
+	        }
+	        if(subArr[0]!=null && subArr[1]!=null && (subArr[1].toString().equalsIgnoreCase("notstarted") || subArr[1].toString().equalsIgnoreCase("inprogress"))){
+	
+	              lstNew_StartedGuids.add(subArr[0].toString());
+	
+	        }
+	        else if(subArr[0]!=null && subArr[1]!=null && subArr[1].toString().equalsIgnoreCase("completed")){
+	        	
+	              lstCompletedGuids.add(subArr[0].toString());
+	        }
+	
+		}
+	
+		response.put("all", lstAllGuids);
+		response.put("new_started", lstNew_StartedGuids);
+		response.put("completed", lstCompletedGuids);
+		
+		return response;
+	}
 }

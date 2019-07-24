@@ -29,4 +29,5 @@ public interface LearnerEnrollmentService {
 	boolean isAllowMOCSubscriptionEnrollment(String username, Long subscriptionId);
 	List<Object[]> getEnrolledCoursesInfoByUsername(String username);
 	void updateLearnerEnrollmentStatisticsStatus(String status, List<Long> enrollmentIds);
+	Map<Object, Object> getEnrollmentCoursesMapWithstatus(String username);
 }
