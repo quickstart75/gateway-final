@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -72,6 +73,9 @@ public class ElasticSearchEndPoint {
 	
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	static Environment env;
 	
 	@Inject
 	InformalLearningActivityService informalLearningActivityService;
@@ -942,7 +946,7 @@ public class ElasticSearchEndPoint {
 		HttpEntity<Object> request=new HttpEntity<>(requestBody,header);
 		ResponseEntity<Map> responseFromURL=null;
 		try {
-			responseFromURL=restTemplate.exchange("http://3.92.170.103:5555/", HttpMethod.POST, request, Map.class);
+			responseFromURL=restTemplate.exchange(env.getProperty("api.recommendation.engine"), HttpMethod.POST, request, Map.class);
 			
 			Map<String,Object> data=(Map<String, Object>) responseFromURL.getBody().get("data");
 			Map<String, Object> objrecommendation = (Map<String, Object>) data.get("recommendation");

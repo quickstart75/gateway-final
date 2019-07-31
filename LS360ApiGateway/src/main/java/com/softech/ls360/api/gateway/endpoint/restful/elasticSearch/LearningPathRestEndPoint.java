@@ -65,15 +65,19 @@ public class LearningPathRestEndPoint {
 		//Getting response from GraphQL
 //		Map<Object,Object> graphQLResponse=(Map<Object,Object>) 
 		
-	    // LearningPath :
-	    learningPath.put("pageSize", 50);	// not defined
-	    learningPath.put("pageNumber", 1);	// not defined
-	    learningPath.put("total", 22);		// not defined
-	    learningPath.put("totalPages", 1);	// not defined
+	   
 		
 	    
 	    List<Map> mocLearningPaths=(List<Map>) getGraphQLData(data.get("uuid").toString(),"",false);
   		
+	    
+	    
+	    // LearningPath :
+	    learningPath.put("pageSize", 1000);	// not defined
+	    learningPath.put("pageNumber", 1);	// not defined
+	    learningPath.put("total", mocLearningPaths.size());
+	    learningPath.put("totalPages", 1);	// not defined
+	    
 	    
 	    //recordData 1:
 	    for (int i = 0; i < mocLearningPaths.size(); i++) {
@@ -285,7 +289,7 @@ public class LearningPathRestEndPoint {
 	}
 
 
-	public Object getGraphQLData(String uuid,String learningPathId,boolean singleRecord) {
+	public Object getGraphQLData(Object uuid,Object learningPathId,boolean singleRecord) {
 		
 		
 		Map<Object, Object> requestBody=new HashMap<Object, Object>();
@@ -334,7 +338,9 @@ public class LearningPathRestEndPoint {
 		Map<Object, Object> responseBody=new HashMap<Object, Object>();
 		Map<Object, Object> magentoRequest=new HashMap<>();
 		
-		Map<Object,Object> graphQlData= (Map<Object,Object>) getGraphQLData(data.get("uuid").toString(),data.get("learningPathId").toString(),true);
+		Map<Object, Object> getProductsBy=(Map<Object, Object>) data.get("getProductsBy");
+		
+		Map<Object,Object> graphQlData= (Map<Object,Object>) getGraphQLData(getProductsBy.get("uuid").toString(),getProductsBy.get("learningPathId"),true);
 		List<String> magentoRequestGuuid=new ArrayList<String>();
 		List<Map> instruction=(List<Map>) graphQlData.get("instructions");
 		
@@ -372,10 +378,10 @@ public class LearningPathRestEndPoint {
 		List<Object> mId= new ArrayList<Object>();
 		
 		magentoRequest.put("productSkus",magentoRequestGuuid);
-		magentoRequest.put("storeId", data.get("storeId"));
+		magentoRequest.put("storeId", getProductsBy.get("storeId"));
 		magentoRequest.put("email", username);
-		magentoRequest.put("websiteId", data.get("websiteId"));
-		magentoRequest.put("subsCode", data.get("subsCode"));
+		magentoRequest.put("websiteId", getProductsBy.get("websiteId"));
+		magentoRequest.put("subsCode", getProductsBy.get("subsCode"));
 		
 		Map<Object,Object> magentoResponse= ( Map<Object,Object>) getMagentoData(magentoRequest);
 		
@@ -444,7 +450,7 @@ public class LearningPathRestEndPoint {
 		List<Object> resultList=new ArrayList<Object>();
 		resultList.add(result);
 		responseBody.put("result", resultList);
-		responseBody.put("subscription", getSubscribtion(data.get("subsCode").toString()));
+		responseBody.put("subscription", getSubscribtion(getProductsBy.get("subsCode").toString()));
 		
 		return responseBody ;
 	}
