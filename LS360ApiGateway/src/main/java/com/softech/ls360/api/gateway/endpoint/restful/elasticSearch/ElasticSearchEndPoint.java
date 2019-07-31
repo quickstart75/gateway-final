@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -128,8 +129,6 @@ public class ElasticSearchEndPoint {
 			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 			
-			
-			
 			//-----------------------------------------
 			//-----------------------------------------
 			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
@@ -201,28 +200,7 @@ public class ElasticSearchEndPoint {
 			//-------------------------get subscription id from magento-------------------------------------------------------------------------------------
 			if(request.getSubsCode()!=null && request.getSubsCode().length()>0 
 					&& (filterEnrolledOrSubscription.equals("all") || filterEnrolledOrSubscription.equals("subscription"))){
-				/*RestTemplate restTemplate2 = new RestTemplate();
-				request.setEmailAddress(username);
-				HttpEntity requestData2 = new HttpEntity(request, getHttpHeaders());
-				StringBuffer location2 = new StringBuffer();
-				location2.append(magentoBaseURL + "rest/default/V1/itskills-mycourses/getUserSubscription");
-				ResponseEntity<Object> returnedData2=null;				
 				
-				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
-				List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();
-				 
-				 if(magentoAPiResponse!=null){
-					 LinkedHashMap<String, Object> mapAPiResponse  = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
-			     
-					 if(mapAPiResponse!=null){
-						 LinkedHashMap mapAPiResponseResult = (LinkedHashMap ) mapAPiResponse.get("result");
-						 if(mapAPiResponseResult.get("subscriptionCatId")!=null){
-							 List lstSub = new ArrayList();
-							 lstSub.add(mapAPiResponseResult.get("subscriptionCatId"));
-							 onjESearch.setSubscriptions(lstSub);
-						 }
-					 }
-				 }*/
 				Map requestmap = new HashMap();
 				requestmap.put("emailAddress", username);
 				requestmap.put("storeId", request.getStoreId());
@@ -280,8 +258,6 @@ public class ElasticSearchEndPoint {
 					lstCompletedGuids.add(subArr[0].toString());
 				}
 			}
-			
-			
 			
 			if(filterEnrolledOrSubscription.equals("all") ){
 				onjESearch.setCourseGuids(lstAllGuids);
@@ -363,10 +339,6 @@ public class ElasticSearchEndPoint {
 				mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
 			}
 			
-			//ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-			//String json = ow.writeValueAsString(onjESearch);
-
-			
 			//---------------------------------------------------------------------------------------------------
 			Map dateRange = new HashMap();
 			for(Map.Entry entry : request.getFilter().getDateRange().entrySet()){
@@ -375,19 +347,7 @@ public class ElasticSearchEndPoint {
 				else if(entry.getKey()!=null && entry.getKey().equals("to") && entry.getValue()!=null && !entry.getValue().equals(""))
 					dateRange.put(entry.getKey(), entry.getValue() + " 23:59:59");
 			}
-			
-			
-/*			if(filterEnrolledOrSubscription.equals("all") ){
-				onjESearch.setCourseGuids(lstAllGuids);
-			}else if(filterEnrolledOrSubscription.equals("new_started") ){
-				onjESearch.setCourseGuids(lstNew_StartedGuids);
-			}else if(filterEnrolledOrSubscription.equals("completed") ){
-				onjESearch.setCourseGuids(lstCompletedGuids);
-			}else if(filterEnrolledOrSubscription.equals("subscription")){
-				onjESearch.setCourseGuids(new ArrayList());
-			}*/
-			
-			
+						
 			if(dateRange.get("to")!=null && !dateRange.get("to").equals("") && dateRange.get("from")!=null && !dateRange.get("from").equals("")){
 				List allSubscriptionVILTGuids = new ArrayList();
 				List lstDummy = new ArrayList();	lstDummy.add("111111222222223333333555555555555");
@@ -440,6 +400,10 @@ public class ElasticSearchEndPoint {
 				onjESearch.setSubscriptions(null);
 			}
 			//---------------------------------------------------------------------------------------------------
+			if(onjESearch.getSubscriptions() != null && !request.getUuid().equals("")){
+				List<String> mocLearningPaths = this.getGraphQLData(request.getUuid());
+				onjESearch.setSubsCourseGuids(mocLearningPaths);
+			}
 			
 			RestTemplate restTemplate2 = new RestTemplate();
 			HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
@@ -450,9 +414,6 @@ public class ElasticSearchEndPoint {
 			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			magentoAPiResponse.put("requestData", onjESearch);
-			
-			
-			
 			
 			
 			List<LearnerSubscription> lstsubscription = new ArrayList<LearnerSubscription>();
@@ -958,6 +919,51 @@ public class ElasticSearchEndPoint {
 	return returnResponse;
 	}
 	
+	
+	
+	
+	
+	
+	public static List<String> getGraphQLData(String uuid) {
+		Map<Object, Object> requestBody=new HashMap<Object, Object>();
+		RestTemplate restTemplate=new RestTemplate();
+		List arrGuids = new ArrayList();
+		
+		String query;
+		query="{recommendation(student_uuid:\""+ uuid +"\", instructions_types:[\"course\"]){ instructions {guid} } } ";
+
+		//headers
+		HttpHeaders header=new HttpHeaders();
+		System.out.println(query);
+		header.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		requestBody.put("query", query);
+		//request parameter
+		HttpEntity<Object> request=new HttpEntity<>(requestBody,header);
+		ResponseEntity<Map> responseFromURL=null;
+		try {
+			responseFromURL=restTemplate.exchange("http://3.92.170.103:5555/", HttpMethod.POST, request, Map.class);
+			
+			Map<String,Object> data=(Map<String, Object>) responseFromURL.getBody().get("data");
+			Map<String, Object> objrecommendation = (Map<String, Object>) data.get("recommendation");
+			
+			if(objrecommendation != null){
+				List<LinkedHashMap<String, String>> lstInstruction = (List<LinkedHashMap<String, String>>) objrecommendation.get("instructions");
+				for(LinkedHashMap<String, String> guid : lstInstruction){
+					if(guid != null){
+						arrGuids.add(guid.get("guid"));
+					}
+				}
+			}
+			return arrGuids;
+			
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	
+	}
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)

@@ -18,6 +18,7 @@ public class InformalLearningRequest {
 	private PersonalizationFilter personalization;
 	private String subsCode;
 	private List favorites;
+	private String uuid;
 	
 	public String getSearchText() {
 		return searchText;
@@ -104,4 +105,11 @@ public class InformalLearningRequest {
 	public void setFavorites(List favorites) {
 		this.favorites = favorites;
 	}
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	
 }

@@ -16,6 +16,7 @@ public class ElasticSearchCourseRequest {
 	private List fields;
 	private List ids;
 	private List summary;
+	private List subsCourseGuids;
 	
 	public List getCourseGuids() {
 		return courseGuids;
@@ -88,6 +89,12 @@ public class ElasticSearchCourseRequest {
 	}
 	public void setSummary(List summary) {
 		this.summary = summary;
+	}
+	public List getSubsCourseGuids() {
+		return subsCourseGuids;
+	}
+	public void setSubsCourseGuids(List subsCourseGuids) {
+		this.subsCourseGuids = subsCourseGuids;
 	}
 	
 }
