@@ -129,6 +129,8 @@ public class GenricSwitchApi {
 		property.put("local", "api.switch.demo");
 		property.put("gateway", "api.gateway.url");
 		property.put("recommendation", "api.recommendation.engine");
+		property.put("skilltree", "api.recommendation.skilltree");
+		
 		
 		String path=env.getProperty(property.get(server));
 		
