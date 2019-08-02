@@ -62,7 +62,7 @@ public class LearningPathRestEndPoint {
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
 		
-		//Getting response from GraphQL
+//		Getting response from GraphQL
 //		Map<Object,Object> graphQLResponse=(Map<Object,Object>) 
 		
 	   
@@ -70,7 +70,6 @@ public class LearningPathRestEndPoint {
 	    
 	    List<Map> mocLearningPaths=(List<Map>) getGraphQLData(data.get("uuid").toString(),"",false);
   		
-	    
 	    
 	    // LearningPath :
 	    learningPath.put("pageSize", 1000);	// not defined
@@ -355,20 +354,24 @@ public class LearningPathRestEndPoint {
 		Map<String,List<String>> levelWiseGuuid=new HashMap<>();
 		
 		for(Map<Object,Object> record : instruction ) {
-			magentoRequestGuuid.add(record.get("guid").toString());
+			
+			
+			String gguid=(record.get("guid")==null) ? "" : record.get("guid").toString();
+			
+			magentoRequestGuuid.add(gguid);
 			if(record.get("difficulty")==null) {
 				record.replace("difficulty", 0);
 			}
 			if(levelWiseGuuid.get(getDifficulty(record.get("difficulty")))==null) {
 				
 				List<String> levelGuuid=new ArrayList<String>();
-				levelGuuid.add(record.get("guid").toString()); 
+				levelGuuid.add(gguid); 
 				levelWiseGuuid.put( getDifficulty(record.get("difficulty")) , levelGuuid);
 				
 				magentoRequest.put("productSkus", "");
 			}
 			else {
-				levelWiseGuuid.get(getDifficulty(record.get("difficulty"))).add(record.get("guid").toString());
+				levelWiseGuuid.get(getDifficulty(record.get("difficulty"))).add(gguid);
 			}
 			
 		}
@@ -411,8 +414,12 @@ public class LearningPathRestEndPoint {
 			
 			if(magentoResponse!=null) {
 				
-				for(String magentoProduct : levelWiseGuuid.get(key))
-					catProducts.put(magentoProduct, magentoResponse.get(magentoProduct));
+				for(String magentoProduct : levelWiseGuuid.get(key)) {
+					
+					if(!(magentoResponse.get(magentoProduct) instanceof List<?>))
+						catProducts.put(magentoProduct, magentoResponse.get(magentoProduct));
+				
+				}
 				
 				singleLevelRecord.put("catProductCount", magentoResponse.keySet().size());
 				singleLevelRecord.put("catProducts", catProducts);
