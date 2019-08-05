@@ -74,8 +74,8 @@ public class ElasticSearchEndPoint {
 	@Autowired
 	UserService userService;
 	
-	@Autowired
-	static Environment env;
+	@Value( "${api.recommendation.engine}" )
+    private String recommendationBaseURL;
 	
 	@Inject
 	InformalLearningActivityService informalLearningActivityService;
@@ -404,7 +404,7 @@ public class ElasticSearchEndPoint {
 				onjESearch.setSubscriptions(null);
 			}
 			//---------------------------------------------------------------------------------------------------
-			if(onjESearch.getSubscriptions() != null && !request.getUuid().equals("")){
+			if(onjESearch.getSubscriptions() != null && (request.getUuid()!=null && !request.getUuid().equals(""))){
 				List<String> mocLearningPaths = this.getGraphQLData(request.getUuid());
 				onjESearch.setSubsCourseGuids(mocLearningPaths);
 			}
@@ -928,7 +928,7 @@ public class ElasticSearchEndPoint {
 	
 	
 	
-	public static List<String> getGraphQLData(String uuid) {
+	public List<String> getGraphQLData(String uuid) {
 		Map<Object, Object> requestBody=new HashMap<Object, Object>();
 		RestTemplate restTemplate=new RestTemplate();
 		List arrGuids = new ArrayList();
@@ -946,7 +946,7 @@ public class ElasticSearchEndPoint {
 		HttpEntity<Object> request=new HttpEntity<>(requestBody,header);
 		ResponseEntity<Map> responseFromURL=null;
 		try {
-			responseFromURL=restTemplate.exchange(env.getProperty("api.recommendation.engine"), HttpMethod.POST, request, Map.class);
+			responseFromURL=restTemplate.exchange(recommendationBaseURL, HttpMethod.POST, request, Map.class);
 			
 			Map<String,Object> data=(Map<String, Object>) responseFromURL.getBody().get("data");
 			Map<String, Object> objrecommendation = (Map<String, Object>) data.get("recommendation");
@@ -954,7 +954,7 @@ public class ElasticSearchEndPoint {
 			if(objrecommendation != null){
 				List<LinkedHashMap<String, String>> lstInstruction = (List<LinkedHashMap<String, String>>) objrecommendation.get("instructions");
 				for(LinkedHashMap<String, String> guid : lstInstruction){
-					if(guid != null){
+					if(guid != null && guid.get("guid")!=null){
 						arrGuids.add(guid.get("guid"));
 					}
 				}
