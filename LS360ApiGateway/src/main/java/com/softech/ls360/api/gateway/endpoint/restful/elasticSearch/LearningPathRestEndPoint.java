@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -79,16 +81,10 @@ public class LearningPathRestEndPoint {
 	    
 	    
 	    //recordData 1:
-	    for (int i = 0; i < mocLearningPaths.size(); i++) {
+	    for (Map record : mocLearningPaths) {
 			
-		
-	    	if(mocLearningPaths.get(i)!=null && i!=mocLearningPaths.size()-3) {
+	    	
 	    		
-	    		
-	    		System.out.println(mocLearningPaths.get(i).toString());
-	    		Map<Object, Object> record=(Map<Object, Object>) mocLearningPaths.get(i);
-	    		
-		    	System.out.println(record.toString());
 		  		Map<Object, Object> recordData=new HashMap<Object, Object>();
 		  		
 			    //LearningPaths[]:
@@ -110,11 +106,16 @@ public class LearningPathRestEndPoint {
 				recordData.put("level0",levelMap);
 				
 //				catTags[]:
-				List<String> catTag=new ArrayList<String>();
+				Set<String> catTag = new LinkedHashSet<>();
 //				duration[]:
-				List<String> duration=new ArrayList<String>();
-				
-				
+				Set<String> duration=new LinkedHashSet<>();
+//				skills[]:
+				List<Map> skill=(List<Map>) record.get("skills");
+				//Adding Skill
+				for(Map tag : skill) 
+					catTag.add((String) tag.get("name"));
+					
+					
 				//courseSku:
 				Map<Object, Object> courseSku=new HashMap<Object, Object>();
 				List<Map<Object, Object>> instructions=(List<Map<Object, Object>>) record.get("instructions");
@@ -123,9 +124,11 @@ public class LearningPathRestEndPoint {
 						courseSku.put(inst.get("guid").toString(), getDifficulty(inst.get("difficulty")));
 					
 					// based on modality
-					catTag.add(getModality(inst.get("modality")));
+					if(getModality(inst.get("modality"))!=null)
+						catTag.add(getModality(inst.get("modality")));
 					// Based on duration 
-					duration.add(getDuration(inst.get("duration")));
+					if(getDuration(inst.get("duration"))!=null)
+						duration.add(getDuration(inst.get("duration")));
 					
 				}
 				
@@ -135,42 +138,13 @@ public class LearningPathRestEndPoint {
 				
 				//Adding to learning paths[]
 				learningPaths.add(recordData);
-	    	}
+	    	
 	    }
 	
 	    learningPath.put("learningPaths", learningPaths);
 		
 		
-		//enrolledCourses:
-		List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(auth.getName());
-	
-		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
-
-        Map<String, String> subMapEnrollment;
-
-        for(Object[] subArr: arrEnrollment){
-
-              subMapEnrollment = new HashMap<String,String>();
-
-              // if orderstatus is completed in voucher payment case or should be null/empty in credit card payment
-
-              if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
-
-                    subMapEnrollment.put("status", subArr[1].toString());
-
-              else
-
-                    subMapEnrollment.put("status", subArr[2].toString());
-
-              mapEnrollment.put(subArr[0].toString(), subMapEnrollment); 
-
-        }
 		
-		
-		
-		
-		
-		mainResponseData.put("enrolledCourses", mapEnrollment);
 		mainResponseData.put("learningPaths", learningPath);
 		mainResponseData.put("status", Boolean.TRUE);
 		mainResponseData.put("message", "success");
@@ -183,10 +157,13 @@ public class LearningPathRestEndPoint {
 	private String getDifficulty(Object difficulty) {
 		difficulty=(difficulty==null ? "" : difficulty);
 		switch(difficulty.toString()) {
-			case "41": return "Beginner";
-			case "42": return "Intermediate";
-			case "43": return "Advanced";
-			default: return "no difficulty";
+			case "41": return "1";	//Beginner
+			case "42": return "2";	//Intermediate
+			case "43": return "3";	//Advanced
+			case "1": return "Beginner";
+			case "2": return "Intermediate";
+			case "3": return "Advanced";
+			default: return "0";	//No difficulty
 		}
 	}
 	
@@ -197,7 +174,7 @@ public class LearningPathRestEndPoint {
 			case "94": 	return "Virtual Classroom";
 			case "596": return "Varies";
 			case "631": return "Multi-Location Classroom";
-			default: 	return "no-modality";
+			default: 	return null;
 		}
 	}
 	
@@ -283,7 +260,7 @@ public class LearningPathRestEndPoint {
 			case "271": 	return "30 Min";
 			case "733": 	return "40 Min";
 			case "336": 	return "90 Min";
-			default: 	return "no-duration";
+			default: 	return null;
 		}
 	}
 
@@ -336,7 +313,7 @@ public class LearningPathRestEndPoint {
 	public Object getCourseData(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data) {
 		Map<Object, Object> responseBody=new HashMap<Object, Object>();
 		Map<Object, Object> magentoRequest=new HashMap<>();
-		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
 		Map<Object, Object> getProductsBy=(Map<Object, Object>) data.get("getProductsBy");
 		
 		Map<Object,Object> graphQlData= (Map<Object,Object>) getGraphQLData(getProductsBy.get("uuid").toString(),getProductsBy.get("learningPathId"),true);
@@ -359,6 +336,7 @@ public class LearningPathRestEndPoint {
 			String gguid=(record.get("guid")==null) ? "" : record.get("guid").toString();
 			
 			magentoRequestGuuid.add(gguid);
+			
 			if(record.get("difficulty")==null) {
 				record.replace("difficulty", 0);
 			}
@@ -394,7 +372,7 @@ public class LearningPathRestEndPoint {
 		//Setting level0 Data :
 		Map<Object, Object> AllLevelRecord=new HashMap<>();
 		
-		for(String key : levelWiseGuuid.keySet()) {
+		for(String key : levelWiseGuuid.keySet()) { 
 			
 			
 			Map<Object,Object> singleLevelRecord=new HashMap<Object,Object>();
@@ -413,15 +391,17 @@ public class LearningPathRestEndPoint {
 			
 			
 			if(magentoResponse!=null) {
-				
+				int productCount=0;
 				for(String magentoProduct : levelWiseGuuid.get(key)) {
 					
-					if(!(magentoResponse.get(magentoProduct) instanceof List<?>))
+					if(!(magentoResponse.get(magentoProduct) instanceof List<?>)) {
+						productCount++;
 						catProducts.put(magentoProduct, magentoResponse.get(magentoProduct));
+					}
 				
 				}
 				
-				singleLevelRecord.put("catProductCount", magentoResponse.keySet().size());
+				singleLevelRecord.put("catProductCount", productCount);
 				singleLevelRecord.put("catProducts", catProducts);
 			}
 			else {
@@ -430,7 +410,7 @@ public class LearningPathRestEndPoint {
 			}
 				
 			//Iteration on level guuids
-			singleLevelRecord.put("catName", "");
+			singleLevelRecord.put("catName", (getDifficulty(key).equals("0")) ? "no-difficulty" : getDifficulty(key) );
 			singleLevelRecord.put("catDesc", "");
 			singleLevelRecord.put("catColor", "");
 			singleLevelRecord.put("catStats", analyticsResponse);	
@@ -454,10 +434,40 @@ public class LearningPathRestEndPoint {
 		responseBody.put("status", Boolean.TRUE);
 		responseBody.put("message", "success");
 		
+		
+		//enrolledCourses:
+		List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(auth.getName());
+	
+		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+
+        Map<String, String> subMapEnrollment;
+
+        for(Object[] subArr: arrEnrollment){
+
+              subMapEnrollment = new HashMap<String,String>();
+
+              // if orderstatus is completed in voucher payment case or should be null/empty in credit card payment
+
+              if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
+
+                    subMapEnrollment.put("status", subArr[1].toString());
+
+              else
+
+                    subMapEnrollment.put("status", subArr[2].toString());
+
+              mapEnrollment.put(subArr[0].toString(), subMapEnrollment); 
+
+        }
+		
+		
+		
+		
 		List<Object> resultList=new ArrayList<Object>();
 		resultList.add(result);
 		responseBody.put("result", resultList);
 		responseBody.put("subscription", getSubscribtion(getProductsBy.get("subsCode").toString()));
+		responseBody.put("enrolledCourses", mapEnrollment);		
 		
 		return responseBody ;
 	}
