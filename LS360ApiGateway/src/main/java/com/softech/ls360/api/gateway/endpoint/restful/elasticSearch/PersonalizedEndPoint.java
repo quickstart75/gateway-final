@@ -226,7 +226,7 @@ public class PersonalizedEndPoint {
 		ResponseEntity<Object> response=null;
 		
 		try {
-			String url="https://qa-gateway.quickstart.com/LS360ApiGateway/services/rest/clip/content/search";
+			String url=env.getProperty("api.gateway.base-url")+"LS360ApiGateway/services/rest/clip/content/search";
 			response=restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
 			return (Map<Object, Object>) response.getBody();
 			
