@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
@@ -34,6 +36,9 @@ import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 @RequestMapping(value="/")
 public class PersonalizedEndPoint {
 	
+	
+	private static final Logger logger = LogManager.getLogger();
+	
 	@Autowired
 	Environment env;
 	
@@ -42,55 +47,66 @@ public class PersonalizedEndPoint {
 	public Object getCourseData(@RequestHeader String authorization,  @RequestBody Map<Object, Object> data) {
 			
 		
+		
 		Map<Object, Object> responseBody=new HashMap<>();
 		
-		//learningpath[]
-		List<Map<String, String>> courses=new ArrayList<>();
-		int totalCourseCount=0;
-		
-		Map<String,String> learningTopics=new HashMap<String, String>();
-		learningTopics.put("70",   "Creative & Design");
-		learningTopics.put("122",  "App Development");
-		learningTopics.put("123",  "Business Productivity");
-		learningTopics.put("125",  "IT Ops & Management");
-		learningTopics.put("126",  "Cloud Computing");
-		learningTopics.put("127",  "Information Security");
-		learningTopics.put("199",  "DevOps");
-		learningTopics.put("396",  "Leadership & Management");
-		learningTopics.put("398",  "Big Data");
-		
-		for(String key : learningTopics.keySet()) {
+		try {
+			//learningpath[]
+			List<Map<String, String>> courses=new ArrayList<>();
+			int totalCourseCount=0;
 			
-			List<Map<String, String>> learning=new ArrayList<>();
-			Map<String, String> learningMap=new HashMap<>();
-			learningMap.put("label", learningTopics.get(key));
-			learningMap.put("value", key);
-			learning.add(learningMap);			
-			Map<Object, Object> response=(Map<Object, Object>) getSearchContent(authorization, data, learning).get("courses");
+			Map<String,String> learningTopics=new HashMap<String, String>();
+			learningTopics.put("70",   "Creative & Design");
+			learningTopics.put("122",  "App Development");
+			learningTopics.put("123",  "Business Productivity");
+			learningTopics.put("125",  "IT Ops & Management");
+			learningTopics.put("126",  "Cloud Computing");
+			learningTopics.put("127",  "Information Security");
+			learningTopics.put("199",  "DevOps");
+			learningTopics.put("396",  "Leadership & Management");
+			learningTopics.put("398",  "Big Data");
 			
-			Map<String, String> forLearningTopics=new HashMap<>();
-			forLearningTopics.put("name", learningTopics.get(key));
-			forLearningTopics.put("count", response.get("totalHits").toString());
-			courses.add(forLearningTopics);
-
-			totalCourseCount+=Integer.parseInt(response.get("totalHits").toString());
+			for(String key : learningTopics.keySet()) {
+				
+				List<Map<String, String>> learning=new ArrayList<>();
+				Map<String, String> learningMap=new HashMap<>();
+				learningMap.put("label", learningTopics.get(key));
+				learningMap.put("value", key);
+				learning.add(learningMap);			
+				Map<Object, Object> response=(Map<Object, Object>) getSearchContent(authorization, data, learning).get("courses");
+				
+				Map<String, String> forLearningTopics=new HashMap<>();
+				forLearningTopics.put("name", learningTopics.get(key));
+				forLearningTopics.put("count", response.get("totalHits").toString());
+				courses.add(forLearningTopics);
+	
+				totalCourseCount+=Integer.parseInt(response.get("totalHits").toString());
+				
+			}
 			
+			Map<Object, Object> courseDetail=new HashMap<>();
+			courseDetail.put("courses", courses);
+			courseDetail.put("totalCount", totalCourseCount);
+			
+			Map<Object, Object> result=new HashMap<>();
+			
+			result.put("courseDetail", courseDetail);
+			result.put("learningPathDetail", learningPathDetail(data));
+			
+			responseBody.put("result", result);
+			responseBody.put("message", "success");
+			responseBody.put("status", Boolean.TRUE);
 		}
-		
-		Map<Object, Object> courseDetail=new HashMap<>();
-		courseDetail.put("courses", courses);
-		courseDetail.put("totalCount", totalCourseCount);
-		
-		Map<Object, Object> result=new HashMap<>();
-		
-		result.put("courseDetail", courseDetail);
-		result.put("learningPathDetail", learningPathDetail(data));
-		
-		responseBody.put("result", result);
-		responseBody.put("message", "success");
-		responseBody.put("status", Boolean.TRUE);
-		
-		
+		catch (Exception e) {
+			logger.info(">>>>>>>>>>>>>>>>>>> START  >>>>>>>>>> getCourseData() >>>>>>>>>");
+			logger.info(">>>>>>>>>>>>>>>>>>> ERROR :  " + e.getMessage());
+			logger.info(">>>>>>>>>>>>>>>>>>> EXCEPTION :  " + e);
+			logger.info(">>>>>>>>>>>>>>>>>>> END >>>>>>>>>>>>>");
+			
+			responseBody.put("result", "");
+			responseBody.put("message", e.getMessage());
+			responseBody.put("status", Boolean.FALSE);
+		}
 		
 		return responseBody;
 	}
