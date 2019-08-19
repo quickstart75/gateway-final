@@ -73,14 +73,20 @@ public class PersonalizedEndPoint {
 				learningMap.put("label", learningTopics.get(key));
 				learningMap.put("value", key);
 				learning.add(learningMap);			
-				Map<Object, Object> response=(Map<Object, Object>) getSearchContent(authorization, data, learning).get("courses");
+				Map<Object, Object> response=null;
+				
+				Object search=getSearchContent(authorization, data, learning).get("courses");
+				
+				if(search instanceof Map) {
+					response=(Map<Object, Object>) getSearchContent(authorization, data, learning).get("courses");
+				}
 				
 				Map<String, String> forLearningTopics=new HashMap<>();
 				forLearningTopics.put("name", learningTopics.get(key));
-				forLearningTopics.put("count", response.get("totalHits").toString());
+				forLearningTopics.put("count", response==null ? "0" : response.get("totalHits").toString());
 				courses.add(forLearningTopics);
 	
-				totalCourseCount+=Integer.parseInt(response.get("totalHits").toString());
+				totalCourseCount+=Integer.parseInt(response==null ? "0" : response.get("totalHits").toString());
 				
 			}
 			
@@ -102,6 +108,7 @@ public class PersonalizedEndPoint {
 			logger.info(">>>>>>>>>>>>>>>>>>> ERROR :  " + e.getMessage());
 			logger.info(">>>>>>>>>>>>>>>>>>> EXCEPTION :  " + e);
 			logger.info(">>>>>>>>>>>>>>>>>>> END >>>>>>>>>>>>>");
+			e.printStackTrace();
 			
 			responseBody.put("result", "");
 			responseBody.put("message", e.getMessage());
