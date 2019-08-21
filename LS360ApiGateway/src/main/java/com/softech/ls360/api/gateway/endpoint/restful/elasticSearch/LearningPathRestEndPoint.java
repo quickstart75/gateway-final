@@ -92,7 +92,7 @@ public class LearningPathRestEndPoint {
 				recordData.put("catName",record.get("name"));
 				recordData.put("catDesc",record.get("description"));
 				recordData.put("catColor","");// not defined
-				recordData.put("catImage","");//not defined
+				recordData.put("catImage","https://www.quickstart.com/pub/static/frontend/Infortis/custom/en_US/Magento_Catalog/images/product/placeholder/image.jpg");//not defined
 				recordData.put("catUrl","");// not defined
 				
 				//Level 0:
@@ -515,7 +515,7 @@ public class LearningPathRestEndPoint {
 		
 		ResponseEntity<Map> responseFromURL=null;
 		try {
-			responseFromURL=restTemplate.exchange("http://qa-gateway.quickstart.com/LS360ApiGateway/services/rest/lms/learner/analytics-bycourse", HttpMethod.POST, request, Map.class);
+			responseFromURL=restTemplate.exchange(env.getProperty("api.gateway.base-url")+"LS360ApiGateway/services/rest/lms/learner/analytics-bycourse", HttpMethod.POST, request, Map.class);
 			 Map<Object,Object> result=(Map<Object,Object>) responseFromURL.getBody().get("result");
 			 return result;
 			 
