@@ -38,7 +38,13 @@ public interface CustomerRepository extends CrudRepository<Customer, Long> {
 			" inner join subscription s on s.customerentitlement_id  = ce.id " +
 			" inner join subscription_kit sk on sk.id = s.SUBSCRIPTION_KIT_ID " +
 			" inner join CUSTOMER customer1_ on ce.CUSTOMER_ID=customer1_.id where customer1_.id=?1 " +
-			" and (ce.orderstatus is null or ce.orderstatus !='canceled') ", nativeQuery = true)
+			" and (ce.orderstatus is null or ce.orderstatus !='canceled') "+
+			" union all" + 
+			" select gpe.GROUPPRODUCT_NAME as name, 'groupProduct' as type, ce.seats as totalSeat, ce.NUMBERSEATSUSED as seatUsed,ce.startDate as startDate, DATEADD(day, ce.Numberdays, ce.startDate) as endDate, gpe.PARENT_GROUPPRODUCT_GUID as guid, gpe.ID as code, '' as coursetype, '' as classId, ce.orderstatus" + 
+			" from customerentitlement ce " + 
+			" inner join GROUPPRODUCT_ENTITLEMENT gpe on ce.ID=gpe.CUSTOMERENTITLEMENT_ID " + 
+			" inner join CUSTOMER customer1_ on ce.CUSTOMER_ID=customer1_.id where customer1_.id=?1" + 
+			" and (ce.orderstatus is null or ce.orderstatus !='canceled')", nativeQuery = true)
 	List<Object[]> findEntitlementByCustomer(Long customerId);
 	
 	@Query(value = " SELECT u.id as userId , u.firstName, u.lastName, u.emailaddress, crs.name as courseName, crs.courseType, lcs.status as courseStatus, le.id " +
