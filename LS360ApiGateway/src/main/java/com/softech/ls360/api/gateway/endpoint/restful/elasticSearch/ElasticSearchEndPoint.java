@@ -404,7 +404,7 @@ public class ElasticSearchEndPoint {
 				onjESearch.setSubscriptions(null);
 			}
 			//---------------------------------------------------------------------------------------------------
-			if(onjESearch.getSubscriptions() != null && (request.getUuid()!=null && !request.getUuid().equals(""))){
+			if(filterEnrolledOrSubscription.equals("all") && (request.getUuid()!=null && !request.getUuid().equals(""))){
 				List<String> mocLearningPaths = this.getGraphQLData(request.getUuid());
 				onjESearch.setSubsCourseGuids(mocLearningPaths);
 			}
