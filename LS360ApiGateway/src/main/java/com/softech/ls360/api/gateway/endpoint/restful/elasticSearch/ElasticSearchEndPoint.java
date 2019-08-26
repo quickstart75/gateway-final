@@ -13,7 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -34,6 +33,7 @@ import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.service.CourseService;
 import com.softech.ls360.api.gateway.service.ElasticSearchService;
+import com.softech.ls360.api.gateway.service.GroupProductService;
 import com.softech.ls360.api.gateway.service.InformalLearningActivityService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.UserService;
@@ -43,6 +43,8 @@ import com.softech.ls360.api.gateway.service.model.request.ElasticSearchCourseRe
 import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
 import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
+import com.softech.ls360.lms.repository.entities.GroupProductEnrollment;
+import com.softech.ls360.lms.repository.entities.GroupProductEntitlementCourse;
 import com.softech.ls360.lms.repository.entities.VU360User;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
@@ -71,6 +73,9 @@ public class ElasticSearchEndPoint {
 	@Inject
 	ElasticSearchService elasticSearchService;
 	
+	@Inject
+	GroupProductService groupProductService;
+	
 	@Autowired
 	UserService userService;
 	
@@ -89,7 +94,51 @@ public class ElasticSearchEndPoint {
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		
-		if(request.getSearchType().equalsIgnoreCase("favorites")){
+		
+		if(request.getSearchType().equalsIgnoreCase("groupProduct")){
+			ElasticSearchCourseRequest onjESearch = new ElasticSearchCourseRequest();
+			List<String> lstAllGroupProductGuids = new ArrayList<String>();
+			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
+			LinkedHashMap<Object, Object> magentoAPiResponse = new LinkedHashMap<Object, Object>();
+			
+			onjESearch.setPageNumber(request.getPageNumber());
+			onjESearch.setPageSize(request.getPageSize());
+			List<String> lstSearch = new ArrayList<String>();
+			if(request.getSearchText() != null){
+				lstSearch.add(request.getSearchText());
+			}
+			onjESearch.setKeywords(lstSearch);
+			
+			for(GroupProductEnrollment objgp : lstGroupProduct){
+				lstAllGroupProductGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
+				
+				/*List<GroupProductEntitlementCourse> lst = objgp.getGroupProductEntitlement().getGroupProductEntitlementCourse();
+				for(GroupProductEntitlementCourse objgps : lst){
+					objgps.getCourse().getCourseGuid();
+				}*/
+			}
+			
+			
+			onjESearch.setCourseGuids(lstAllGroupProductGuids);
+			
+			if(lstAllGroupProductGuids.size()>0){
+				RestTemplate restTemplate2 = new RestTemplate();
+				HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
+				StringBuffer location2 = new StringBuffer();
+				location2.append(elasticSearchBaseURL +"/course_api/search/default/" + request.getStoreId());
+				ResponseEntity<Object> returnedData3=null;
+				returnedData3 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
+				magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
+				
+				magentoAPiResponse.put("requestData", onjESearch);
+			}
+			returnResponse.put("status", Boolean.TRUE);
+			returnResponse.put("message", "Success");
+			returnResponse.put("courses", magentoAPiResponse);
+			
+			return returnResponse;
+			
+		}else if(request.getSearchType().equalsIgnoreCase("favorites")){
 			if(request.getFavorites()==null && request.getFavorites().size()==0){
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
@@ -150,7 +199,7 @@ public class ElasticSearchEndPoint {
 			}
 			//-----------------------------------------
 			//-----------------------------------------
-			                     
+			
 			VU360User objUser = userService.findByUsername(username);  
 			Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getId());
 			Map<String, Object> lstInformal = new HashMap<String, Object>();
@@ -164,7 +213,7 @@ public class ElasticSearchEndPoint {
 			
 			//-----------------------------------------
 			
-			    
+			
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "Success");
