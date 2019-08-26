@@ -52,7 +52,7 @@ public class GroupProductEntitlement {
 		@OneToMany(mappedBy="groupProductEntitlement", fetch=FetchType.LAZY)
 		private List<GroupProductEnrollment> groupProductEnrollment = new ArrayList<GroupProductEnrollment>();
 		
-		@OneToMany(mappedBy="groupProductEntitlement", fetch=FetchType.LAZY)
+		@OneToMany(mappedBy="groupProductEntitlement", fetch=FetchType.EAGER)
 		private List<GroupProductEntitlementCourse> groupProductEntitlementCourse = new ArrayList<GroupProductEntitlementCourse>();
 		
 		public Long getId() {

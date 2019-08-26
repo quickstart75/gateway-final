@@ -34,8 +34,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.endpoint.restful.manager.LearnerRestEndPoint;
 import com.softech.ls360.api.gateway.request.UserRequest;
+import com.softech.ls360.api.gateway.service.GroupProductService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
+import com.softech.ls360.lms.repository.entities.GroupProductEnrollment;
+import com.softech.ls360.lms.repository.entities.GroupProductEntitlementCourse;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
 @RestEndpoint
@@ -53,6 +56,9 @@ public class LearningPathRestEndPoint {
 	
 	@Inject
 	private LearnerEnrollmentService learnerEnrollmentService;
+	
+	@Autowired
+	private GroupProductService groupProductService;
 	
 	@RequestMapping(value = "/learningpath",method = RequestMethod.POST)
 	@ResponseBody
@@ -553,6 +559,148 @@ public class LearningPathRestEndPoint {
 		System.out.println(lstsubscription);
 		return lstsubscription;
 
+	}
+	/**
+	 * ================================Learning Path Detail============================
+	 * 
+	 * @return Bundle Learning Path
+	 */
+	@RequestMapping(value = "/learningpath-bundle", method = RequestMethod.POST)
+	@ResponseBody
+	public Object getBundleProduct(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data) {
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		
+		Map<Object, Object> mainResponseBody=new HashMap<Object, Object>();
+		Map<Object, Object> magentoRequestBody=new HashMap<>();
+		Map<Object, Object> getProductsBy=(Map<Object, Object>) data.get("getProductsBy");
+	
+		//--------------Getting data from magento	
+		
+		List<String> magentoRequestGuuid=new ArrayList<String>();
+		String username=SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		//To store parent guuid 
+		String parentGuuid="";
+		
+		//Getting GUID from bundle product
+		for(GroupProductEnrollment objgp : groupProductService.searchGroupProductEnrollmentByUsrename(username)){
+
+			//lstAllGroupProductGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
+
+			                       
+
+			      List<GroupProductEntitlementCourse> lst = objgp.getGroupProductEntitlement().getGroupProductEntitlementCourse();
+			      parentGuuid=objgp.getGroupProductEntitlement().getParentGroupproductGuid();
+			      for(GroupProductEntitlementCourse objgps : lst){
+			    	  
+			    	  magentoRequestGuuid.add(objgps.getCourse().getCourseGuid());
+
+			      }
+
+			}
+		
+		//Getting Magento Response
+		magentoRequestBody.put("productSkus",magentoRequestGuuid);
+		magentoRequestBody.put("storeId", getProductsBy.get("storeId"));
+		magentoRequestBody.put("email", username);
+		magentoRequestBody.put("websiteId", getProductsBy.get("websiteId"));
+		magentoRequestBody.put("subsCode", getProductsBy.get("subsCode"));
+		
+		Map<Object,Object> magentoResponse= ( Map<Object,Object>) getMagentoData(magentoRequestBody);
+		
+		
+		
+		Map<Object, Object> level1=new HashMap<>();
+		Map<Object, Object> levelData=new HashMap<>();
+		Map<Object, Object> catProduct=new HashMap<>();
+		
+		List<String> guuidForAnalytics=new ArrayList<String>();
+		
+		for (Object productGuid : magentoResponse.keySet()) {
+			if(magentoResponse.get(productGuid) instanceof Map<?, ?>) {
+				catProduct.put(productGuid, magentoResponse.get(productGuid));
+				guuidForAnalytics.add(productGuid.toString());
+			}
+		}
+		UserRequest userRequest=new UserRequest();
+		userRequest.setCourseguid(guuidForAnalytics);
+		Map<Object, Object> analyticsResponse=(Map<Object, Object>) getAnalyticCourse(userRequest, authorization);
+		
+		
+		levelData.put("catName", "" );
+		levelData.put("catDesc", "");
+		levelData.put("catColor", "");
+		levelData.put("catStats", analyticsResponse);
+		levelData.put("catProductCount", catProduct.size());
+		levelData.put("catProducts", catProduct);
+		
+		level1.put("1", levelData);
+		
+		
+			
+		
+		//------------------enrolledCourses Start
+		List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(auth.getName());
+	
+		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+
+        Map<String, String> subMapEnrollment;
+
+        for(Object[] subArr: arrEnrollment){
+
+              subMapEnrollment = new HashMap<String,String>();
+
+              // if orderstatus is completed in voucher payment case or should be null/empty in credit card payment
+
+              if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
+
+                    subMapEnrollment.put("status", subArr[1].toString());
+
+              else
+
+                    subMapEnrollment.put("status", subArr[2].toString());
+
+              mapEnrollment.put(subArr[0].toString(), subMapEnrollment); 
+
+        }
+		//------------------Enrolled Courses End
+		
+    	
+        
+        //-----------------Adding Result
+		Map<Object, Object> result=new HashMap<Object, Object>(); //Result Map:
+		
+		//If magento return record for parentGuuid
+		if(!(magentoResponse.get(parentGuuid) instanceof List<?>) && magentoResponse.get(parentGuuid)!=null) {
+			Map<Object, Object> bundleMagentoResponse=(Map<Object, Object>) magentoResponse.get(parentGuuid);
+			
+			result.put("catName", bundleMagentoResponse.get("courseName")); 					//Null for now
+			result.put("catDesc", bundleMagentoResponse.get("courseShortDescription")); 		//Null for now
+			result.put("catColor", "");
+		}
+		//If not
+		else {
+			result.put("catName", ""); 		//To be define
+			result.put("catDesc", ""); 		//To be define
+			result.put("catColor", "");		// Not define
+		}
+		//Adding level0 : data
+		result.put("level0", level1);
+		
+		List<Object> resultList=new ArrayList<Object>();// Result  Array[]:
+		resultList.add(result);
+		//----------------End
+		
+		
+		//Setting Main Response
+		mainResponseBody.put("status", Boolean.TRUE);
+		mainResponseBody.put("message", "success");
+		mainResponseBody.put("result", resultList);
+		mainResponseBody.put("subscription", getSubscribtion(getProductsBy.get("subsCode").toString()));
+		mainResponseBody.put("enrolledCourses", mapEnrollment);		
+		
+		return mainResponseBody ;
 	}
 	
 }
