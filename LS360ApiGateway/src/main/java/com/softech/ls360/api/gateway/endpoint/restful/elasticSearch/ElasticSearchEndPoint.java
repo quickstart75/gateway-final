@@ -164,7 +164,7 @@ public class ElasticSearchEndPoint {
 			
 			//-----------------------------------------
 			
-			
+			    
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "Success");
