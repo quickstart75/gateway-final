@@ -150,7 +150,7 @@ public class ElasticSearchEndPoint {
 			}
 			//-----------------------------------------
 			//-----------------------------------------
-			     
+			           
 			VU360User objUser = userService.findByUsername(username);  
 			Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getId());
 			Map<String, Object> lstInformal = new HashMap<String, Object>();
