@@ -38,6 +38,7 @@ import com.softech.ls360.api.gateway.service.GroupProductService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
 import com.softech.ls360.lms.repository.entities.GroupProductEnrollment;
+import com.softech.ls360.lms.repository.entities.GroupProductEntitlement;
 import com.softech.ls360.lms.repository.entities.GroupProductEntitlementCourse;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
@@ -561,11 +562,11 @@ public class LearningPathRestEndPoint {
 
 	}
 	/**
-	 * ================================Learning Path Detail============================
+	 * Group Product Details
 	 * 
 	 * @return Bundle Learning Path
 	 */
-	@RequestMapping(value = "/learningpath-bundle", method = RequestMethod.POST)
+	@RequestMapping(value = "/groupproduct-detail", method = RequestMethod.POST)
 	@ResponseBody
 	public Object getBundleProduct(@RequestHeader("Authorization") String authorization, @RequestBody Map<Object, Object> data) {
 		
@@ -584,7 +585,22 @@ public class LearningPathRestEndPoint {
 		String parentGuuid="";
 		
 		//Getting GUID from bundle product
-		for(GroupProductEnrollment objgp : groupProductService.searchGroupProductEnrollmentByUsrename(username)){
+		GroupProductEntitlement groupEntitlement=groupProductService
+				.searchGroupProductEnrollmentById(12L) // Getting GroupProductEnrollment 
+				.getGroupProductEntitlement();		 // Getting GroupProductEntitlement
+		
+		//Getting courses by group entitlement id
+		List<GroupProductEntitlementCourse> groupProductCourses=
+				groupProductService.searchCourseByGroupEntitlement(groupEntitlement);
+
+		for(GroupProductEntitlementCourse course : groupProductCourses) {
+			magentoRequestGuuid.add(course.getCourse().getCourseGuid());
+		}
+		
+/*		
+ * Old Start
+ * 
+ * for(GroupProductEnrollment objgp : groupProductService.searchGroupProductEnrollmentByUsrename(username)){
 
 			//lstAllGroupProductGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
 
@@ -597,9 +613,11 @@ public class LearningPathRestEndPoint {
 			    	  magentoRequestGuuid.add(objgps.getCourse().getCourseGuid());
 
 			      }
-
+			      magentoRequestGuuid.add(parentGuuid);
 			}
-		
+* 
+* Old End			
+*/
 		//Getting Magento Response
 		magentoRequestBody.put("productSkus",magentoRequestGuuid);
 		magentoRequestBody.put("storeId", getProductsBy.get("storeId"));
