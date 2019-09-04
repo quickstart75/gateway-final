@@ -247,9 +247,9 @@ public class PersonalizedEndPoint {
 		
 		HttpEntity<Object> request=new HttpEntity<>(info,headers);
 		ResponseEntity<Object> response=null;
-//		env.getProperty("api.gateway.base-url") //
+		
 		try {
-			String url="http://localhost:8080/LS360ApiGateway/services/rest/clip/content/search";
+			String url=env.getProperty("api.gateway.base-url")+"LS360ApiGateway/services/rest/clip/content/search";
 			response=restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
 			return (Map<Object, Object>) response.getBody();
 			
