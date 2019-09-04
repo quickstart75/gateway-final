@@ -72,7 +72,7 @@ public class PersonalizedEndPoint {
 				Map<String, String> learningMap=new HashMap<>();
 				learningMap.put("label", learningTopics.get(key));
 				learningMap.put("value", key);
-				learning.add(learningMap);			
+		 		learning.add(learningMap);			
 				Map<Object, Object> response=null;
 				
 				Object search=getSearchContent(authorization, data, learning).get("courses");
@@ -228,13 +228,13 @@ public class PersonalizedEndPoint {
 		filter.setLearningStyle(learningStyle);
 		
 		Map<String,String> duration=new HashMap<>();
-		learningStyle.put("label", "");
-		learningStyle.put("value", "");
+		duration.put("label", "");
+		duration.put("value", "");
 		filter.setDuration(duration);
 		
 		Map<String,String> dateRange=new HashMap<>();
-		learningStyle.put("to", "");
-		learningStyle.put("from", "");
+		dateRange.put("to", "");
+		dateRange.put("from", "");
 		filter.setDateRange(dateRange);
 		
 		filter.setExpertRole(new ArrayList<>());
@@ -247,9 +247,9 @@ public class PersonalizedEndPoint {
 		
 		HttpEntity<Object> request=new HttpEntity<>(info,headers);
 		ResponseEntity<Object> response=null;
-		
+//		env.getProperty("api.gateway.base-url") //
 		try {
-			String url=env.getProperty("api.gateway.base-url")+"LS360ApiGateway/services/rest/clip/content/search";
+			String url="http://localhost:8080/LS360ApiGateway/services/rest/clip/content/search";
 			response=restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
 			return (Map<Object, Object>) response.getBody();
 			
