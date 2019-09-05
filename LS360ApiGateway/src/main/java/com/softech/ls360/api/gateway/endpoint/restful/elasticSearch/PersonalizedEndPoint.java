@@ -78,7 +78,7 @@ public class PersonalizedEndPoint {
 				Object search=getSearchContent(authorization, data, learning).get("courses");
 				
 				if(search instanceof Map) {
-					response=(Map<Object, Object>) getSearchContent(authorization, data, learning).get("courses");
+					response=(Map<Object, Object>) search;
 				}
 				
 				Map<String, String> forLearningTopics=new HashMap<>();
