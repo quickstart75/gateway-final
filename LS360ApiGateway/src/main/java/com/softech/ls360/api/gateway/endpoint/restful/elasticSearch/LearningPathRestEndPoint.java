@@ -69,7 +69,7 @@ public class LearningPathRestEndPoint {
 		Map<Object, Object> learningPath=new HashMap<Object, Object>();
 		List<Map<Object, Object>> learningPaths=new ArrayList<>();
 		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 //		Getting response from GraphQL
 //		Map<Object,Object> graphQLResponse=(Map<Object,Object>) 
@@ -151,7 +151,6 @@ public class LearningPathRestEndPoint {
 	    learningPath.put("learningPaths", learningPaths);
 		
 		
-		
 		mainResponseData.put("learningPaths", learningPath);
 		mainResponseData.put("status", Boolean.TRUE);
 		mainResponseData.put("message", "success");
@@ -177,7 +176,7 @@ public class LearningPathRestEndPoint {
 	private String getModality(Object modality) {
 		modality=(modality==null ? "" : modality);
 		switch(modality.toString()) {
-			case "92": 	return "Self-Paced Learning";
+			case "93": 	return "Self-Paced Learning";
 			case "94": 	return "Virtual Classroom";
 			case "596": return "Varies";
 			case "631": return "Multi-Location Classroom";

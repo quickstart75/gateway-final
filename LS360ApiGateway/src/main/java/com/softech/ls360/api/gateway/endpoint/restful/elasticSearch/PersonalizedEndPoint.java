@@ -72,13 +72,13 @@ public class PersonalizedEndPoint {
 				Map<String, String> learningMap=new HashMap<>();
 				learningMap.put("label", learningTopics.get(key));
 				learningMap.put("value", key);
-				learning.add(learningMap);			
+		 		learning.add(learningMap);			
 				Map<Object, Object> response=null;
 				
 				Object search=getSearchContent(authorization, data, learning).get("courses");
 				
 				if(search instanceof Map) {
-					response=(Map<Object, Object>) getSearchContent(authorization, data, learning).get("courses");
+					response=(Map<Object, Object>) search;
 				}
 				
 				Map<String, String> forLearningTopics=new HashMap<>();
@@ -228,13 +228,13 @@ public class PersonalizedEndPoint {
 		filter.setLearningStyle(learningStyle);
 		
 		Map<String,String> duration=new HashMap<>();
-		learningStyle.put("label", "");
-		learningStyle.put("value", "");
+		duration.put("label", "");
+		duration.put("value", "");
 		filter.setDuration(duration);
 		
 		Map<String,String> dateRange=new HashMap<>();
-		learningStyle.put("to", "");
-		learningStyle.put("from", "");
+		dateRange.put("to", "");
+		dateRange.put("from", "");
 		filter.setDateRange(dateRange);
 		
 		filter.setExpertRole(new ArrayList<>());
