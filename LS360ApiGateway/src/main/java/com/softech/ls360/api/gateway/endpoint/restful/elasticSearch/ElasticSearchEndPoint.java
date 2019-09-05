@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.exception.restful.GeneralExceptionResponse;
 import com.softech.ls360.api.gateway.service.CourseService;
@@ -418,6 +419,23 @@ public class ElasticSearchEndPoint {
 			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			magentoAPiResponse.put("requestData", onjESearch);
+			
+			logger.info("=======================================================================================");
+			logger.info("elasticSearch url :: " + location2);
+			logger.info("=======================================================================================");
+			try{
+				ObjectMapper objectMapper = new ObjectMapper();
+				String json = objectMapper.writeValueAsString (onjESearch);
+				logger.info("elasticSearch request data ::  " + json);
+			}catch(Exception ex){}
+			logger.info("=======================================================================================");
+			try{
+				ObjectMapper objectMapper = new ObjectMapper();
+				String json = objectMapper.writeValueAsString (magentoAPiResponse);
+				logger.info("elasticSearch response data ::  " + json);
+			}catch(Exception ex){}
+			logger.info("=======================================================================================");
+			logger.info("=======================================================================================");
 			
 			
 			List<LearnerSubscription> lstsubscription = new ArrayList<LearnerSubscription>();
@@ -935,7 +953,9 @@ public class ElasticSearchEndPoint {
 		
 		String query;
 		query="{recommendation(student_uuid:\""+ uuid +"\", instructions_types:[\"course\"]){ instructions {guid} } } ";
-
+		logger.info("=======================================================================================");
+		logger.info("recommendation :: " +query);
+		logger.info("=======================================================================================");
 		//headers
 		HttpHeaders header=new HttpHeaders();
 		System.out.println(query);
@@ -959,6 +979,9 @@ public class ElasticSearchEndPoint {
 					}
 				}
 			}
+			logger.info("=======================================================================================");
+			logger.info("arrGuids.size()  " + arrGuids.size());
+			logger.info("=======================================================================================");
 			return arrGuids;
 			
 		}
