@@ -573,7 +573,6 @@ public class LearningPathRestEndPoint {
 		
 		Map<Object, Object> mainResponseBody=new HashMap<Object, Object>();
 		Map<Object, Object> magentoRequestBody=new HashMap<>();
-		Map<Object, Object> getProductsBy=(Map<Object, Object>) data.get("getProductsBy");
 	
 		//--------------Getting data from magento	
 		
@@ -583,10 +582,16 @@ public class LearningPathRestEndPoint {
 		//To store parent guuid 
 		String parentGuuid="";
 		
+		//Entitlement ID
+		long id=Long.parseLong(data.get("groupProductEnrollmentId").toString());
+		
 		//Getting GUID from bundle product
 		GroupProductEntitlement groupEntitlement=groupProductService
-				.searchGroupProductEnrollmentById(12L) // Getting GroupProductEnrollment 
+				.searchGroupProductEnrollmentById(id) // Getting GroupProductEnrollment 
 				.getGroupProductEntitlement();		 // Getting GroupProductEntitlement
+		
+		//Getting parent Guid
+		parentGuuid=groupEntitlement.getParentGroupproductGuid();
 		
 		//Getting courses by group entitlement id
 		List<GroupProductEntitlementCourse> groupProductCourses=
@@ -619,10 +624,10 @@ public class LearningPathRestEndPoint {
 */
 		//Getting Magento Response
 		magentoRequestBody.put("productSkus",magentoRequestGuuid);
-		magentoRequestBody.put("storeId", getProductsBy.get("storeId"));
+		magentoRequestBody.put("storeId", data.get("storeId"));
 		magentoRequestBody.put("email", username);
-		magentoRequestBody.put("websiteId", getProductsBy.get("websiteId"));
-		magentoRequestBody.put("subsCode", getProductsBy.get("subsCode"));
+		magentoRequestBody.put("websiteId", data.get("websiteId"));
+		magentoRequestBody.put("subsCode", data.get("subsCode"));
 		
 		Map<Object,Object> magentoResponse= ( Map<Object,Object>) getMagentoData(magentoRequestBody);
 		
@@ -714,7 +719,7 @@ public class LearningPathRestEndPoint {
 		mainResponseBody.put("status", Boolean.TRUE);
 		mainResponseBody.put("message", "success");
 		mainResponseBody.put("result", resultList);
-		mainResponseBody.put("subscription", getSubscribtion(getProductsBy.get("subsCode").toString()));
+		mainResponseBody.put("subscription", getSubscribtion(data.get("subsCode").toString()));
 		mainResponseBody.put("enrolledCourses", mapEnrollment);		
 		
 		return mainResponseBody ;
