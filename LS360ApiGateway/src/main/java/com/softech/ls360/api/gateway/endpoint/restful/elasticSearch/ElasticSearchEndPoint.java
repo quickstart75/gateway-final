@@ -95,13 +95,10 @@ public class ElasticSearchEndPoint {
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		
-		
+		/*
 		if(request.getSearchType().equalsIgnoreCase("groupProduct")){
 			ElasticSearchCourseRequest onjESearch = new ElasticSearchCourseRequest();
 			List<String> lstAllGroupProductGuids = new ArrayList<String>();
-			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
-			LinkedHashMap<Object, Object> magentoAPiResponse = new LinkedHashMap<Object, Object>();
-			
 			onjESearch.setPageNumber(request.getPageNumber());
 			onjESearch.setPageSize(request.getPageSize());
 			List<String> lstSearch = new ArrayList<String>();
@@ -109,15 +106,24 @@ public class ElasticSearchEndPoint {
 				lstSearch.add(request.getSearchText());
 			}
 			onjESearch.setKeywords(lstSearch);
+
+			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
+			LinkedHashMap<Object, Object> magentoAPiResponse = new LinkedHashMap<Object, Object>();
 			
+			//-------------------------------------
+			// set enrolled courses----------------
+			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+			Map<String, String> subMapEnrollment;
 			for(GroupProductEnrollment objgp : lstGroupProduct){
 				lstAllGroupProductGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
 				
-				/*List<GroupProductEntitlementCourse> lst = objgp.getGroupProductEntitlement().getGroupProductEntitlementCourse();
-				for(GroupProductEntitlementCourse objgps : lst){
-					objgps.getCourse().getCourseGuid();
-				}*/
+				subMapEnrollment = new HashMap<String,String>();
+				subMapEnrollment.put("status", "inprogress");
+				subMapEnrollment.put("enrollmentId", objgp.getId() + "");
+				mapEnrollment.put(objgp.getGroupProductEntitlement().getParentGroupproductGuid(), subMapEnrollment);	
 			}
+			// set enrolled courses----------------
+			//-end---------------------------------
 			
 			
 			onjESearch.setCourseGuids(lstAllGroupProductGuids);
@@ -133,13 +139,16 @@ public class ElasticSearchEndPoint {
 				
 				magentoAPiResponse.put("requestData", onjESearch);
 			}
+			
+			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
+			
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "Success");
-			returnResponse.put("courses", magentoAPiResponse);
+			returnResponse.put("groupProduct", magentoAPiResponse);
 			
 			return returnResponse;
 			
-		}else if(request.getSearchType().equalsIgnoreCase("favorites")){
+		}else */if(request.getSearchType().equalsIgnoreCase("favorites")){
 			if(request.getFavorites()==null && request.getFavorites().size()==0){
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
@@ -297,10 +306,15 @@ public class ElasticSearchEndPoint {
 			onjESearch.setCategories(lstCategories);
 			//---------------------------------------
 			//---------------------------------------
-			
+			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
 			List<String> lstAllGuids = new ArrayList<String>();
 			List<String> lstNew_StartedGuids = new ArrayList<String>();
 			List<String> lstCompletedGuids = new ArrayList<String>();
+			
+			for(GroupProductEnrollment subArr: lstGroupProduct){
+				lstAllGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+				lstNew_StartedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());//TODO
+			}
 			
 			for(Object[] subArr: arrEnrollment){
 				if(subArr[0]!=null){
@@ -379,10 +393,20 @@ public class ElasticSearchEndPoint {
 				}
 				onjESearch.getCategories().addAll(lstpersonalization);
 			}
-			//-----------------------------------------
-			//-----------------------------------------
+			//---------------------------------------------------------------------------------------------------
+			//---------------------------------------------------------------------------------------------------
 			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
 			Map<String, String> subMapEnrollment;
+			
+			for(GroupProductEnrollment objgp : lstGroupProduct){
+				lstAllGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
+				
+				subMapEnrollment = new HashMap<String,String>();
+				subMapEnrollment.put("status", "inprogress");
+				subMapEnrollment.put("enrollmentId", objgp.getId() + "");
+				mapEnrollment.put(objgp.getGroupProductEntitlement().getParentGroupproductGuid(), subMapEnrollment);	
+			}
+			//---------------------------------------------------------------------------------------------------
 			for(Object[] subArr: arrEnrollment){
 				subMapEnrollment = new HashMap<String,String>();
 				// if orderstatus is completed in voucher payment case or should be null/empty in credit card payment
@@ -392,8 +416,9 @@ public class ElasticSearchEndPoint {
 					subMapEnrollment.put("status", subArr[2].toString());
 				mapEnrollment.put(subArr[0].toString(), subMapEnrollment);	
 			}
-			
 			//---------------------------------------------------------------------------------------------------
+			//---------------------------------------------------------------------------------------------------
+			
 			Map dateRange = new HashMap();
 			for(Map.Entry entry : request.getFilter().getDateRange().entrySet()){
 				if(entry.getKey()!=null && entry.getKey().equals("from") && entry.getValue()!=null && !entry.getValue().equals(""))
@@ -404,7 +429,7 @@ public class ElasticSearchEndPoint {
 						
 			if(dateRange.get("to")!=null && !dateRange.get("to").equals("") && dateRange.get("from")!=null && !dateRange.get("from").equals("")){
 				List allSubscriptionVILTGuids = new ArrayList();
-				List lstDummy = new ArrayList();	lstDummy.add("111111222222223333333555555555555");
+				List lstDummy = new ArrayList();	lstDummy.add("111111222222223333333555555555555");//dummy id that will never found
 				
 				if(onjESearch.getSubscriptions()!=null && onjESearch.getSubscriptions().size()>0  && 
 						filterEnrolledOrSubscription.equals("all") || filterEnrolledOrSubscription.equals("subscription")){
@@ -469,6 +494,7 @@ public class ElasticSearchEndPoint {
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			magentoAPiResponse.put("requestData", onjESearch);
 			
+			logger.info("");logger.info("");logger.info("");
 			logger.info("=======================================================================================");
 			logger.info("elasticSearch url :: " + location2);
 			logger.info("=======================================================================================");
@@ -485,7 +511,7 @@ public class ElasticSearchEndPoint {
 			}catch(Exception ex){}
 			logger.info("=======================================================================================");
 			logger.info("=======================================================================================");
-			
+			logger.info("");logger.info("");logger.info("");
 			
 			List<LearnerSubscription> lstsubscription = new ArrayList<LearnerSubscription>();
 			/************ Subscription ******************/
