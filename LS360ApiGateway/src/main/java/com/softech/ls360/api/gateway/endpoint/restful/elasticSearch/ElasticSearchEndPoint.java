@@ -480,8 +480,11 @@ public class ElasticSearchEndPoint {
 			}
 			//---------------------------------------------------------------------------------------------------
 			if(filterEnrolledOrSubscription.equals("all") && (request.getUuid()!=null && !request.getUuid().equals(""))){
-				List<String> mocLearningPaths = this.getGraphQLData(request.getUuid());
-				onjESearch.setSubsCourseGuids(mocLearningPaths);
+				//If no Subsbcode 
+				if((onjESearch.getSubscriptions() ==null || onjESearch.getSubscriptions().size()==0)) {
+					List<String> mocLearningPaths = this.getGraphQLData(request.getUuid());
+					onjESearch.setSubsCourseGuids(mocLearningPaths);
+				}
 			}
 			
 			RestTemplate restTemplate2 = new RestTemplate();

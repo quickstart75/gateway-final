@@ -53,7 +53,6 @@ public class PersonalizedEndPoint {
 		try {
 			//learningpath[]
 			List<Map<String, String>> courses=new ArrayList<>();
-			int totalCourseCount=0;
 			
 			Map<String,String> learningTopics=new HashMap<String, String>();
 			learningTopics.put("70",   "Creative & Design");
@@ -73,7 +72,7 @@ public class PersonalizedEndPoint {
 				learningMap.put("label", learningTopics.get(key));
 				learningMap.put("value", key);
 		 		learning.add(learningMap);			
-				Map<Object, Object> response=null;
+		 		Map<Object, Object> response=null;
 				
 				Object search=getSearchContent(authorization, data, learning).get("courses");
 				
@@ -86,13 +85,17 @@ public class PersonalizedEndPoint {
 				forLearningTopics.put("count", response==null ? "0" : response.get("totalHits").toString());
 				courses.add(forLearningTopics);
 	
-				totalCourseCount+=Integer.parseInt(response==null ? "0" : response.get("totalHits").toString());
 				
 			}
 			
+			//Getting total count
+			Map<Object,Object> count=(Map<Object, Object>) 
+					getSearchContent(authorization, data,new ArrayList<>()).get("courses");
+			
+			
 			Map<Object, Object> courseDetail=new HashMap<>();
 			courseDetail.put("courses", courses);
-			courseDetail.put("totalCount", totalCourseCount);
+			courseDetail.put("totalCount", count==null ? "0" : count.get("totalHits").toString());
 			
 			Map<Object, Object> result=new HashMap<>();
 			
