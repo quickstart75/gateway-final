@@ -68,6 +68,10 @@ public class ElasticSearchEndPoint {
 	@Value("${lms.recordedClassLaunchURI.url}")
 	private String recordedClassLaunchURI;
 	
+	
+	@Value("${lms.launch.course.url}")
+	private String lmsLaunchCourseUrl;
+	
 	@Inject
 	private SubscriptionRepository subscriptionRepository;
 	
@@ -304,16 +308,26 @@ public class ElasticSearchEndPoint {
 				}
 			}
 			onjESearch.setCategories(lstCategories);
-			//---------------------------------------
-			//---------------------------------------
+			//------------------------------------------------------------------------------
+			//---------------------------------------GroupProduct---------------------------------------
+			//------------------------------------------------------------------------------
 			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
 			List<String> lstAllGuids = new ArrayList<String>();
 			List<String> lstNew_StartedGuids = new ArrayList<String>();
 			List<String> lstCompletedGuids = new ArrayList<String>();
 			
+			Map<Long, String> mapGPEnrollmentsStatus = groupProductService.getEnrollmentStatusByGroupProductEnrollments(getGroupProductIds(lstGroupProduct));
+			
 			for(GroupProductEnrollment subArr: lstGroupProduct){
 				lstAllGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
-				lstNew_StartedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());//TODO
+				
+				String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(subArr.getGroupProductEntitlement().getId());
+				
+				if(GPEnrollmentStatus!=null && GPEnrollmentStatus!=null && GPEnrollmentStatus.toString().equalsIgnoreCase("notstarted") || GPEnrollmentStatus.toString().equalsIgnoreCase("inprogress")){
+					lstNew_StartedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+				}else if(GPEnrollmentStatus!=null && GPEnrollmentStatus!=null && GPEnrollmentStatus.toString().equalsIgnoreCase("completed")){
+					lstCompletedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+				}
 			}
 			
 			for(Object[] subArr: arrEnrollment){
@@ -393,7 +407,9 @@ public class ElasticSearchEndPoint {
 				}
 				onjESearch.getCategories().addAll(lstpersonalization);
 			}
-			//---------------------------------------------------------------------------------------------------
+			
+			
+			//----------------getGroupProductEntitlement-----------------------------------------------------------------------------------
 			//---------------------------------------------------------------------------------------------------
 			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
 			Map<String, String> subMapEnrollment;
@@ -401,9 +417,16 @@ public class ElasticSearchEndPoint {
 			for(GroupProductEnrollment objgp : lstGroupProduct){
 				lstAllGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
 				
+				String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(objgp.getGroupProductEntitlement().getId());
 				subMapEnrollment = new HashMap<String,String>();
-				subMapEnrollment.put("status", "inprogress");
+				subMapEnrollment.put("status", GPEnrollmentStatus);
 				subMapEnrollment.put("enrollmentId", objgp.getId() + "");
+				
+				if(GPEnrollmentStatus!=null && GPEnrollmentStatus.equals("completed")){
+					subMapEnrollment.put("certificateURI", lmsLaunchCourseUrl +"&groupproductId="+objgp.getId()+"&token"+authorization.replace("Bearer ", ""));
+				}else{
+					subMapEnrollment.put("certificateURI", null);
+				}
 				mapEnrollment.put(objgp.getGroupProductEntitlement().getParentGroupproductGuid(), subMapEnrollment);	
 			}
 			//---------------------------------------------------------------------------------------------------
@@ -1082,5 +1105,13 @@ public class ElasticSearchEndPoint {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
 		return headers;
+	}
+	
+	static List<Long> getGroupProductIds(List<GroupProductEnrollment> lstGroupProduct){
+		List<Long> groupProductIds = new ArrayList<Long>();
+		for(GroupProductEnrollment subArr: lstGroupProduct){
+			groupProductIds.add(subArr.getGroupProductEntitlement().getId());
+		}
+		return groupProductIds;
 	}
 }
