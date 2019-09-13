@@ -89,9 +89,10 @@ public class PersonalizedEndPoint {
 			}
 			
 			//Getting total count
-			Map<Object,Object> count=(Map<Object, Object>) 
-					getSearchContent(authorization, data,new ArrayList<>()).get("courses");
-			
+			Map<Object,Object> count=null;
+			Object getCount=getSearchContent(authorization, data,new ArrayList<>()).get("courses");
+			if(getCount instanceof Map)		
+				count=(Map<Object,Object>) getCount;
 			
 			Map<Object, Object> courseDetail=new HashMap<>();
 			courseDetail.put("courses", courses);
