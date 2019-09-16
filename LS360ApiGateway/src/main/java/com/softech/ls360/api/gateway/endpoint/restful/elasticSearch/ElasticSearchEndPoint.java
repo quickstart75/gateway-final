@@ -69,7 +69,7 @@ public class ElasticSearchEndPoint {
 	private String recordedClassLaunchURI;
 	
 	
-	@Value("${lms.launch.course.url}")
+	@Value("${lms.certificate.url}")
 	private String lmsLaunchCourseUrl;
 	
 	@Inject
@@ -99,60 +99,7 @@ public class ElasticSearchEndPoint {
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		
-		/*
-		if(request.getSearchType().equalsIgnoreCase("groupProduct")){
-			ElasticSearchCourseRequest onjESearch = new ElasticSearchCourseRequest();
-			List<String> lstAllGroupProductGuids = new ArrayList<String>();
-			onjESearch.setPageNumber(request.getPageNumber());
-			onjESearch.setPageSize(request.getPageSize());
-			List<String> lstSearch = new ArrayList<String>();
-			if(request.getSearchText() != null){
-				lstSearch.add(request.getSearchText());
-			}
-			onjESearch.setKeywords(lstSearch);
-
-			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
-			LinkedHashMap<Object, Object> magentoAPiResponse = new LinkedHashMap<Object, Object>();
-			
-			//-------------------------------------
-			// set enrolled courses----------------
-			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
-			Map<String, String> subMapEnrollment;
-			for(GroupProductEnrollment objgp : lstGroupProduct){
-				lstAllGroupProductGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
-				
-				subMapEnrollment = new HashMap<String,String>();
-				subMapEnrollment.put("status", "inprogress");
-				subMapEnrollment.put("enrollmentId", objgp.getId() + "");
-				mapEnrollment.put(objgp.getGroupProductEntitlement().getParentGroupproductGuid(), subMapEnrollment);	
-			}
-			// set enrolled courses----------------
-			//-end---------------------------------
-			
-			
-			onjESearch.setCourseGuids(lstAllGroupProductGuids);
-			
-			if(lstAllGroupProductGuids.size()>0){
-				RestTemplate restTemplate2 = new RestTemplate();
-				HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
-				StringBuffer location2 = new StringBuffer();
-				location2.append(elasticSearchBaseURL +"/course_api/search/default/" + request.getStoreId());
-				ResponseEntity<Object> returnedData3=null;
-				returnedData3 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
-				magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
-				
-				magentoAPiResponse.put("requestData", onjESearch);
-			}
-			
-			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
-			
-			returnResponse.put("status", Boolean.TRUE);
-			returnResponse.put("message", "Success");
-			returnResponse.put("groupProduct", magentoAPiResponse);
-			
-			return returnResponse;
-			
-		}else */if(request.getSearchType().equalsIgnoreCase("favorites")){
+		if(request.getSearchType().equalsIgnoreCase("favorites")){
 			if(request.getFavorites()==null && request.getFavorites().size()==0){
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
@@ -316,17 +263,20 @@ public class ElasticSearchEndPoint {
 			List<String> lstNew_StartedGuids = new ArrayList<String>();
 			List<String> lstCompletedGuids = new ArrayList<String>();
 			
-			Map<Long, String> mapGPEnrollmentsStatus = groupProductService.getEnrollmentStatusByGroupProductEnrollments(getGroupProductIds(lstGroupProduct));
-			
-			for(GroupProductEnrollment subArr: lstGroupProduct){
-				lstAllGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+			Map<Long, String> mapGPEnrollmentsStatus = null;
+			if(lstGroupProduct!=null && lstGroupProduct.size()>0){
+				mapGPEnrollmentsStatus = groupProductService.getEnrollmentStatusByGroupProductEnrollments(getGroupProductIds(lstGroupProduct));
 				
-				String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(subArr.getGroupProductEntitlement().getId());
-				
-				if(GPEnrollmentStatus!=null && GPEnrollmentStatus!=null && GPEnrollmentStatus.toString().equalsIgnoreCase("notstarted") || GPEnrollmentStatus.toString().equalsIgnoreCase("inprogress")){
-					lstNew_StartedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
-				}else if(GPEnrollmentStatus!=null && GPEnrollmentStatus!=null && GPEnrollmentStatus.toString().equalsIgnoreCase("completed")){
-					lstCompletedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+				for(GroupProductEnrollment subArr: lstGroupProduct){
+					lstAllGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+					
+					String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(subArr.getGroupProductEntitlement().getId());
+					
+					if(GPEnrollmentStatus!=null && GPEnrollmentStatus!=null && GPEnrollmentStatus.toString().equalsIgnoreCase("notstarted") || GPEnrollmentStatus.toString().equalsIgnoreCase("inprogress")){
+						lstNew_StartedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+					}else if(GPEnrollmentStatus!=null && GPEnrollmentStatus!=null && GPEnrollmentStatus.toString().equalsIgnoreCase("completed")){
+						lstCompletedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+					}
 				}
 			}
 			
@@ -423,7 +373,7 @@ public class ElasticSearchEndPoint {
 				subMapEnrollment.put("enrollmentId", objgp.getId() + "");
 				
 				if(GPEnrollmentStatus!=null && GPEnrollmentStatus.equals("completed")){
-					subMapEnrollment.put("certificateURI", lmsLaunchCourseUrl +"&groupproductId="+objgp.getId()+"&token"+authorization.replace("Bearer ", ""));
+					subMapEnrollment.put("certificateURI", lmsLaunchCourseUrl +"&groupproductId="+objgp.getId()+"&token="+authorization.replace("Bearer ", ""));
 				}else{
 					subMapEnrollment.put("certificateURI", null);
 				}
