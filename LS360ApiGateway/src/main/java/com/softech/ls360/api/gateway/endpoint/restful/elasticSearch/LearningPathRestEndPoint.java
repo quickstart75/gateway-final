@@ -154,7 +154,7 @@ public class LearningPathRestEndPoint {
 	    }
 	
 	    learningPath.put("learningPaths", learningPaths);
-		
+		learningPath.put("enrolledCourses", getEnrolledCourses(auth.getName()));
 		
 		mainResponseData.put("learningPaths", learningPath);
 		mainResponseData.put("status", Boolean.TRUE);
@@ -336,9 +336,6 @@ public class LearningPathRestEndPoint {
 		UserRequest user=new UserRequest();
 		user.setUsername(username);
 		
-		
-		
-		
 		Map<String,List<String>> levelWiseGuuid=new HashMap<>();
 		
 		for(Map<Object,Object> record : instruction ) {
@@ -441,47 +438,54 @@ public class LearningPathRestEndPoint {
 		//Adding level0 : data
 		result.put("level0", AllLevelRecord);
 		
+		List<Object> resultList=new ArrayList<Object>();
+		resultList.add(result);
 		
+		responseBody.put("result", resultList);
+		responseBody.put("subscription", getSubscribtion(getProductsBy.get("subsCode").toString())); 
+		responseBody.put("enrolledCourses", getEnrolledCourses(username));	
 		responseBody.put("status", Boolean.TRUE);
 		responseBody.put("message", "success");
 		
-		
-		//enrolledCourses:
-		List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(auth.getName());
-	
-		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
-
-        Map<String, String> subMapEnrollment;
-
-        for(Object[] subArr: arrEnrollment){
-
-              subMapEnrollment = new HashMap<String,String>();
-
-              // if orderstatus is completed in voucher payment case or should be null/empty in credit card payment
-
-              if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
-
-                    subMapEnrollment.put("status", subArr[1].toString());
-
-              else
-
-                    subMapEnrollment.put("status", subArr[2].toString());
-
-              mapEnrollment.put(subArr[0].toString(), subMapEnrollment); 
-
-        }
-		
-		
-		
-		
-		List<Object> resultList=new ArrayList<Object>();
-		resultList.add(result);
-		responseBody.put("result", resultList);
-		responseBody.put("subscription", getSubscribtion(getProductsBy.get("subsCode").toString()));
-		responseBody.put("enrolledCourses", mapEnrollment);		
-		
 		return responseBody ;
 	}
+	
+	/**
+	 * This method fetch the courses of user in 
+	 * which they are enrolled
+	 * 
+	 * @param username This provide the username 
+	 * @return enrolled courses and status 
+	 */
+	private Map<String, Map<String, String>> getEnrolledCourses(String username) {
+		//enrolledCourses:
+		List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
+	
+		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+	
+	    Map<String, String> subMapEnrollment;
+	
+	    for(Object[] subArr: arrEnrollment){
+	
+	          subMapEnrollment = new HashMap<String,String>();
+	
+	          // if orderstatus is completed in voucher payment case or should be null/empty in credit card payment
+	
+	          if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
+	
+	                subMapEnrollment.put("status", subArr[1].toString());
+	
+	          else
+	
+	                subMapEnrollment.put("status", subArr[2].toString());
+	
+	          mapEnrollment.put(subArr[0].toString(), subMapEnrollment); 
+	
+	    }
+	    return mapEnrollment;
+	}
+
+
 	public Object getMagentoData(Map<Object,Object> data) {
 		
 		
