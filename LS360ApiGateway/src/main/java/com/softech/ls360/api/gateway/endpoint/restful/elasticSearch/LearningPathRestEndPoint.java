@@ -119,10 +119,17 @@ public class LearningPathRestEndPoint {
 //				skills[]:
 				List<Map> skill=(List<Map>) record.get("skills");
 				//Adding Skill
-				for(Map tag : skill) 
-					catTag.add((String) tag.get("name"));
+				
+				//Behavior
+				String behavior=(record.get("behavior") == null ? "0" : record.get("behavior").toString() );
+
+				//If behaviour not 1
+				if(!behavior.equals("1")) {
+					for(Map tag : skill) 
+						catTag.add((String) tag.get("name"));
+				}
 					
-					
+				
 				//courseSku:
 				Map<Object, Object> courseSku=new HashMap<Object, Object>();
 				List<Map<Object, Object>> instructions=(List<Map<Object, Object>>) record.get("instructions");
@@ -131,8 +138,13 @@ public class LearningPathRestEndPoint {
 						courseSku.put(inst.get("guid").toString(), getDifficulty(inst.get("difficulty")));
 					
 					// based on modality
-					if(getModality(inst.get("modality"))!=null)
-						catTag.add(getModality(inst.get("modality")));
+					if(getModality(inst.get("modality"))!=null) {
+						if(behavior.equals("1"))
+							catTag.add("Group Bundle Product");
+						else
+							catTag.add(getModality(inst.get("modality")));
+						
+					}
 					// Based on duration 
 					if(getDuration(inst.get("duration"))!=null)
 						duration.add(getDuration(inst.get("duration")));
@@ -276,7 +288,7 @@ public class LearningPathRestEndPoint {
 		
 		Map<Object, Object> requestBody=new HashMap<Object, Object>();
 	
-		String query="{recommendation(student_uuid:\""+uuid+"\", instructions_types:[\"course\", \"course1\"], learning_path_id:\""+learningPathId+"\"){learningPaths {id name description combination { uuid name type } skills{ name }, instructions{ uuid title type guid source modality duration difficulty } } } } ";
+		String query="{recommendation(student_uuid:\""+uuid+"\", instructions_types:[\"course\", \"course1\"], learning_path_id:\""+learningPathId+"\"){learningPaths {id name description behavior combination { uuid name type } skills{ name }, instructions{ uuid title type guid source modality duration difficulty } } } } ";
 		
 		RestTemplate restTemplate=new RestTemplate();
 		//headers
