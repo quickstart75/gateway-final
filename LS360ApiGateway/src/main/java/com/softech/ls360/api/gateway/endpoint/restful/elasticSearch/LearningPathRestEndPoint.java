@@ -154,8 +154,8 @@ public class LearningPathRestEndPoint {
 	    }
 	
 	    learningPath.put("learningPaths", learningPaths);
-		learningPath.put("enrolledCourses", getEnrolledCourses(auth.getName()));
 		
+		mainResponseData.put("enrolledCourses", getEnrolledCourses(auth.getName()));
 		mainResponseData.put("learningPaths", learningPath);
 		mainResponseData.put("status", Boolean.TRUE);
 		mainResponseData.put("message", "success");
