@@ -46,7 +46,7 @@ public class GroupProductServiceImpl implements GroupProductService{
 
 	@Override
 	public List<GroupProductEntitlementCourse> searchCourseByGroupEntitlement(GroupProductEntitlement groupProductEntitlement) {
-		return groupProductEntitlementCourseRepository.findByGroupProductEntitlement(groupProductEntitlement);
+		return groupProductEntitlementCourseRepository.findByGroupProductEntitlementOrderBySequenceAsc(groupProductEntitlement);
 	}
 	
 	public Map<Long, String> getEnrollmentStatusByGroupProductEnrollments(List<Long> enrollmentIds){

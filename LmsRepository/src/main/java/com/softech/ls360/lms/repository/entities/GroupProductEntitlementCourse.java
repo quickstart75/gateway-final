@@ -37,6 +37,9 @@ public class GroupProductEntitlementCourse {
 	@Column(name = "SYNCHRONOUSCLASS_ID")
 	private Long synchronousClassId;
 	
+	@Column(name = "SEQUENCE")
+	private Integer sequence;
+	
 	public Long getId() {
 		return id;
 	}
@@ -84,6 +87,14 @@ public class GroupProductEntitlementCourse {
 
 	public void setSynchronousClassId(Long synchronousClassId) {
 		this.synchronousClassId = synchronousClassId;
+	}
+
+	public Integer getSequence() {
+		return sequence;
+	}
+
+	public void setSequence(Integer sequence) {
+		this.sequence = sequence;
 	}
 	
 	

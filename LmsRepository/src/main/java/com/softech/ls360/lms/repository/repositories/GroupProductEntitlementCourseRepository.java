@@ -12,5 +12,7 @@ public interface GroupProductEntitlementCourseRepository extends CrudRepository<
 //	@Query(value = "select from GroupProductEntitlementCourse "
 //			+ "where groupProductEntitlement : entitlementId", nativeQuery = true)
 	public List<GroupProductEntitlementCourse> findByGroupProductEntitlement(GroupProductEntitlement entitlement);
+
+	public List<GroupProductEntitlementCourse> findByGroupProductEntitlementOrderBySequenceAsc(GroupProductEntitlement groupProductEntitlement);
 	
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -598,9 +599,30 @@ public class LearningPathRestEndPoint {
 		long id=Long.parseLong(data.get("groupProductEnrollmentId").toString());
 		
 		//Getting GUID from bundle product
-		GroupProductEntitlement groupEntitlement=groupProductService
-				.searchGroupProductEnrollmentById(id) // Getting GroupProductEnrollment 
-				.getGroupProductEntitlement();		 // Getting GroupProductEntitlement
+		GroupProductEnrollment groupEnrollement=groupProductService
+				.searchGroupProductEnrollmentById(id); // Getting GroupProductEnrollment 
+		
+	
+		
+		//if groupEnrollement not found
+		if(groupEnrollement==null) {
+			mainResponseBody.put("status", Boolean.FALSE);
+			mainResponseBody.put("message", "Group Enrollement Not Found");
+			mainResponseBody.put("result", "");
+			return mainResponseBody;
+		}
+		
+		//Group Product Entitlement
+		GroupProductEntitlement groupEntitlement=groupEnrollement.getGroupProductEntitlement();
+	
+		//if GroupProductEntitlement not found
+		if(groupEntitlement==null) {
+			mainResponseBody.put("status", Boolean.FALSE);
+			mainResponseBody.put("message", "Group Product Entitlement Not Found");
+			mainResponseBody.put("result", "");
+			return mainResponseBody;
+		}
+		
 		
 		//Getting parent Guid
 		parentGuuid=groupEntitlement.getParentGroupproductGuid();
@@ -610,6 +632,8 @@ public class LearningPathRestEndPoint {
 				groupProductService.searchCourseByGroupEntitlement(groupEntitlement);
 
 		for(GroupProductEntitlementCourse course : groupProductCourses) {
+			//Replacing sequence Null value with 0
+			course.setSequence(course.getSequence()==null ? 0 : course.getSequence());
 			magentoRequestGuuid.add(course.getCourse().getCourseGuid());
 		}
 		
@@ -647,8 +671,7 @@ public class LearningPathRestEndPoint {
 		
 		Map<Object, Object> level1=new HashMap<>();
 		Map<Object, Object> levelData=new HashMap<>();
-		Map<Object, Object> catProduct=new HashMap<>();
-		
+		Map<Object, Object> catProduct=new LinkedHashMap<Object, Object>();		
 		List<String> guuidForAnalytics=new ArrayList<String>();
 		
 		for (Object productGuid : magentoResponse.keySet()) {
