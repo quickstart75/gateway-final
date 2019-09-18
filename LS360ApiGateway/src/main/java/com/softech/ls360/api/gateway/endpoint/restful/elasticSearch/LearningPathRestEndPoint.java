@@ -128,12 +128,12 @@ public class LearningPathRestEndPoint {
 				List<Map<Object, Object>> instructions=(List<Map<Object, Object>>) record.get("instructions");
 				for(Map inst : instructions) {
 					if(inst.get("guid")!=null)
-						courseSku.put(inst.get("guid").toString(), getDifficulty(inst.get("difficulty")));
+						courseSku.put(inst.get("guid").toString(), inst.get("guid").toString());
 					
 					// based on modality
 					if(getModality(inst.get("modality"))!=null) {
 						if(behavior.equals("1"))
-							catTag.add("Group Bundle Product");
+							catTag.add("Official Certification");
 						else
 							catTag.add(getModality(inst.get("modality")));
 						
