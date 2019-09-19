@@ -451,7 +451,6 @@ public class LearningPathRestEndPoint {
 		
 		responseBody.put("result", resultList);
 		responseBody.put("subscription", getSubscribtion(getProductsBy.get("subsCode").toString())); 
-		responseBody.put("enrolledCourses", getEnrolledCourses(username));	
 		responseBody.put("status", Boolean.TRUE);
 		responseBody.put("message", "success");
 		
