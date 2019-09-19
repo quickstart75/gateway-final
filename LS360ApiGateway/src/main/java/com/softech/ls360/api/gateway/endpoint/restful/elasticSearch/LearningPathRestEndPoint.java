@@ -555,11 +555,12 @@ public class LearningPathRestEndPoint {
 	public Object getSubscribtion(String subsCode) {
 		List<LearnerSubscription> lstsubscription = new ArrayList<LearnerSubscription>();
 		if(subsCode!=null && subsCode.length()>0){
-			LearnerSubscription learnerSubscription = new LearnerSubscription();
+			LearnerSubscription learnerSubscription = null;
 			
 			List<Object[]> colOrderStatus = subscriptionRepository.findSubscriptionOrderStatus(subsCode);
 			if(colOrderStatus.size()>0){
 				 for(Object[]  orderStatus : colOrderStatus){
+					learnerSubscription = new LearnerSubscription();
 					if(orderStatus[1]==null || orderStatus[1].toString().equals("") || orderStatus[1].toString().equals("completed"))
 							learnerSubscription.setStatus("completed");
 					else

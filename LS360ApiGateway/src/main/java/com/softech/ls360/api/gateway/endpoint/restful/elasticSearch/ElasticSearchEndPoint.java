@@ -493,11 +493,12 @@ public class ElasticSearchEndPoint {
 			/************ Subscription ******************/
 			if(request.getSubsCode()!=null && request.getSubsCode().length()>0){
 				
-				LearnerSubscription learnerSubscription = new LearnerSubscription();
+				LearnerSubscription learnerSubscription = null;
 								
 				List<Object[]> colOrderStatus = subscriptionRepository.findSubscriptionOrderStatus(request.getSubsCode());
 				if(colOrderStatus.size()>0){
 					 for(Object[]  orderStatus : colOrderStatus){
+						learnerSubscription = new LearnerSubscription();
 						if(orderStatus[1]==null || orderStatus[1].toString().equals("") || orderStatus[1].toString().equals("completed"))
 								learnerSubscription.setStatus("completed");
 						else
