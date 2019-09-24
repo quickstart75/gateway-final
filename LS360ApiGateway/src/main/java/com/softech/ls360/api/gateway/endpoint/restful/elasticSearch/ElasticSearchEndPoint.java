@@ -262,6 +262,9 @@ public class ElasticSearchEndPoint {
 			List<String> lstAllGuids = new ArrayList<String>();
 			List<String> lstNew_StartedGuids = new ArrayList<String>();
 			List<String> lstCompletedGuids = new ArrayList<String>();
+			//This store's bundle product guid which will be filter out
+			List<String> bundleProductGuuid=new ArrayList<String>();
+			
 			
 			Map<Long, String> mapGPEnrollmentsStatus = null;
 			if(lstGroupProduct!=null && lstGroupProduct.size()>0){
@@ -269,6 +272,10 @@ public class ElasticSearchEndPoint {
 				
 				for(GroupProductEnrollment subArr: lstGroupProduct){
 					lstAllGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
+					
+					//Getting Courses guid by group entitlement
+					for(GroupProductEntitlementCourse course : groupProductService.searchCourseByGroupEntitlement(subArr.getGroupProductEntitlement()))
+						bundleProductGuuid.add(course.getCourse().getCourseGuid());
 					
 					String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(subArr.getGroupProductEntitlement().getId());
 					
@@ -281,6 +288,11 @@ public class ElasticSearchEndPoint {
 			}
 			
 			for(Object[] subArr: arrEnrollment){
+				
+				//If course guid is from bundle product the skip this iteration
+				if(subArr[0]!=null && bundleProductGuuid.indexOf(subArr[0].toString()) >= 0)
+					continue;
+				
 				if(subArr[0]!=null){
 					lstAllGuids.add(subArr[0].toString());
 				}
@@ -1065,4 +1077,5 @@ public class ElasticSearchEndPoint {
 		}
 		return groupProductIds;
 	}
+
 }
