@@ -10,6 +10,7 @@ public class EnrollmentRestRequest {
 	private List<String> subscription = new ArrayList<String>();
 	private List<String> userGroups = new ArrayList<String>();
 	private List<String> orgGroups = new ArrayList<String>();
+	private List<String> groupProduct = new ArrayList<String>();
 	private Boolean notifyLearnersByEmail;
 	private String duplicatesEnrollment;
 	private String enrollmentStartDate;
@@ -87,6 +88,14 @@ public class EnrollmentRestRequest {
 
 	public void setEnrollmentEndDate(String enrollmentEndDate) {
 		this.enrollmentEndDate = enrollmentEndDate;
+	}
+
+	public List<String> getGroupProduct() {
+		return groupProduct;
+	}
+
+	public void setGroupProduct(List<String> groupProduct) {
+		this.groupProduct = groupProduct;
 	}
 
 }
