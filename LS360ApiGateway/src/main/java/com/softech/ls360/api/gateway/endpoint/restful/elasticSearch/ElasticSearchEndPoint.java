@@ -143,11 +143,38 @@ public class ElasticSearchEndPoint {
 			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 			
-			//-----------------------------------------
-			//-----------------------------------------
+			//-----------------------------------------------------------------
+			//--------Getting enrolled bundle product >>>>>>>>>> FAVORITES TAB
+			//-----------------------------------------------------------------
 			Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
-			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
 			Map<String, String> subMapEnrollment;
+			
+			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
+			Map<Long, String> mapGPEnrollmentsStatus = groupProductService.getEnrollmentStatusByGroupProductEnrollments(getGroupProductIds(lstGroupProduct));
+			List<String> lstAllGuids = new ArrayList<String>();
+			
+			for(GroupProductEnrollment objgp : lstGroupProduct){
+				lstAllGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
+				
+				String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(objgp.getGroupProductEntitlement().getId());
+				subMapEnrollment = new HashMap<String,String>();
+				subMapEnrollment.put("status", GPEnrollmentStatus);
+				subMapEnrollment.put("enrollmentId", objgp.getId() + "");
+				
+				if(GPEnrollmentStatus!=null && GPEnrollmentStatus.equals("completed")){
+					subMapEnrollment.put("certificateURI", lmsLaunchCourseUrl +"&groupproductId="+objgp.getId()+"&token="+authorization.replace("Bearer ", ""));
+				}else{
+					subMapEnrollment.put("certificateURI", null);
+				}
+				mapEnrollment.put(objgp.getGroupProductEntitlement().getParentGroupproductGuid(), subMapEnrollment);	
+			}
+			//----------- END enrolled bundle product
+			
+			//-----------------------------------------
+			//-----------------------------------------
+			
+			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
+			
 			for(Object[] subArr: arrEnrollment){
 				subMapEnrollment = new HashMap<String,String>();
 				// if orderstatus is completed in voicher payment case or should be null/empty in credit card payment
