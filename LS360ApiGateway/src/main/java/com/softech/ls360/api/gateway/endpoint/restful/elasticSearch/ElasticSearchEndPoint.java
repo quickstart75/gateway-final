@@ -269,6 +269,12 @@ public class ElasticSearchEndPoint {
 					lstAttribute.add(entry.getValue());
 				}
 			}
+			
+			for(Map.Entry entry : request.getFilter().getLearningType().entrySet()){
+				if(entry.getKey()!=null && entry.getKey().equals("value") && entry.getValue()!=null && !entry.getValue().equals("")){
+					lstAttribute.add(entry.getValue());
+				}
+			}
 			onjESearch.setAttributes(lstAttribute);
 			//---------------------------------------
 			//---------------------------------------
