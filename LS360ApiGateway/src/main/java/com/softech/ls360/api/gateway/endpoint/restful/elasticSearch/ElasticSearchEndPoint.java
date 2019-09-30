@@ -269,6 +269,9 @@ public class ElasticSearchEndPoint {
 					lstAttribute.add(entry.getValue());
 				}
 			}
+			//Intializing LearningType If NULL 
+			if(request.getFilter().getLearningType()==null)
+				request.getFilter().setLearningType(new HashMap<String , String>());
 			
 			for(Map.Entry entry : request.getFilter().getLearningType().entrySet()){
 				if(entry.getKey()!=null && entry.getKey().equals("value") && entry.getValue()!=null && !entry.getValue().equals("")){
