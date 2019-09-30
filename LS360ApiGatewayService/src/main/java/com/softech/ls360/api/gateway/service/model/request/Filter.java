@@ -11,6 +11,7 @@ public class Filter {
 	List<Map> author;
 	List<Map> instructor;
 	Map<String, String> learningStyle;
+	Map<String, String> learningType;
 	Map<String, String> duration;
 	Map<String, String> dateRange;
 	List<Map> expertRole;
@@ -54,6 +55,12 @@ public class Filter {
 	}
 	public void setLearningStyle(Map<String, String> learningStyle) {
 		this.learningStyle = learningStyle;
+	}
+	public Map<String, String> getLearningType() {
+		return learningType;
+	}
+	public void setLearningType(Map<String, String> learningType) {
+		this.learningType = learningType;
 	}
 	public Map<String, String> getDuration() {
 		return duration;
