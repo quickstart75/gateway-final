@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -62,9 +63,12 @@ public class LearningPathRestEndPoint {
 	@Autowired
 	private GroupProductService groupProductService;
 	
+	@Value("${lms.certificate.url}")
+	private String lmsLaunchCourseUrl;
+	
 	@RequestMapping(value = "/learningpath",method = RequestMethod.POST)
 	@ResponseBody
-	public Object getGuid(@RequestBody Map<Object,Object> data) {
+	public Object getGuid(@RequestBody Map<Object,Object> data, @RequestHeader("Authorization") String authorization) {
 		
 		Map<Object,Object> mainResponseData=new HashMap<Object, Object>();
 		Map<Object, Object> learningPath=new HashMap<Object, Object>();
@@ -163,7 +167,7 @@ public class LearningPathRestEndPoint {
 	
 	    learningPath.put("learningPaths", learningPaths);
 		
-		mainResponseData.put("enrolledCourses", getEnrolledCourses(auth.getName()));
+		mainResponseData.put("enrolledCourses", getEnrolledCourses(auth.getName(),authorization));
 		mainResponseData.put("learningPaths", learningPath);
 		mainResponseData.put("status", Boolean.TRUE);
 		mainResponseData.put("message", "success");
@@ -464,13 +468,38 @@ public class LearningPathRestEndPoint {
 	 * @param username This provide the username 
 	 * @return enrolled courses and status 
 	 */
-	private Map<String, Map<String, String>> getEnrolledCourses(String username) {
+	private Map<String, Map<String, String>> getEnrolledCourses(String username,String authorization) {
+		
+		
+		//-----------------------------------------------------------------
+		//--------Getting enrolled bundle product >>>>>>>>>> FAVORITES TAB
+		//-----------------------------------------------------------------
+		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+		Map<String, String> subMapEnrollment;
+		
+		List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
+		Map<Long, String> mapGPEnrollmentsStatus = groupProductService.getEnrollmentStatusByGroupProductEnrollments(getGroupProductIds(lstGroupProduct));
+		List<String> lstAllGuids = new ArrayList<String>();
+		
+		for(GroupProductEnrollment objgp : lstGroupProduct){
+			lstAllGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
+			
+			String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(objgp.getGroupProductEntitlement().getId());
+			subMapEnrollment = new HashMap<String,String>();
+			subMapEnrollment.put("status", GPEnrollmentStatus);
+			subMapEnrollment.put("enrollmentId", objgp.getId() + "");
+			
+			if(GPEnrollmentStatus!=null && GPEnrollmentStatus.equals("completed")){
+				subMapEnrollment.put("certificateURI", lmsLaunchCourseUrl +"&groupproductId="+objgp.getId()+"&token="+authorization.replace("Bearer ", ""));
+			}else{
+				subMapEnrollment.put("certificateURI", null);
+			}
+			mapEnrollment.put(objgp.getGroupProductEntitlement().getParentGroupproductGuid(), subMapEnrollment);	
+		}
+		//----------- END enrolled bundle product
+		
 		//enrolledCourses:
 		List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
-	
-		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
-	
-	    Map<String, String> subMapEnrollment;
 	
 	    for(Object[] subArr: arrEnrollment){
 	
@@ -774,6 +803,13 @@ public class LearningPathRestEndPoint {
 			return mainResponseBody;
 		}
 		
+	}
+	static List<Long> getGroupProductIds(List<GroupProductEnrollment> lstGroupProduct){
+		List<Long> groupProductIds = new ArrayList<Long>();
+		for(GroupProductEnrollment subArr: lstGroupProduct){
+			groupProductIds.add(subArr.getGroupProductEntitlement().getId());
+		}
+		return groupProductIds;
 	}
 	
 }
