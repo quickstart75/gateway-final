@@ -150,7 +150,11 @@ public class ElasticSearchEndPoint {
 			Map<String, String> subMapEnrollment;
 			
 			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
-			Map<Long, String> mapGPEnrollmentsStatus = groupProductService.getEnrollmentStatusByGroupProductEnrollments(getGroupProductIds(lstGroupProduct));
+			Map<Long, String> mapGPEnrollmentsStatus = null;
+			
+			if(lstGroupProduct!=null && lstGroupProduct.size()>0)
+				mapGPEnrollmentsStatus = groupProductService.getEnrollmentStatusByGroupProductEnrollments(getGroupProductIds(lstGroupProduct));
+			
 			List<String> lstAllGuids = new ArrayList<String>();
 			
 			for(GroupProductEnrollment objgp : lstGroupProduct){
