@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.softech.ls360.api.gateway.service.model.request.Filter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningFilter;
@@ -130,20 +132,43 @@ public class PersonalizedEndPoint {
 		
 		List<Map<Object, Object>> learningPath=(List<Map<Object, Object>>) getGraphQLData(data.get("uuid").toString()); 
 		
+		Map<Object,Object> magentoResponse=new LinkedHashMap<Object,Object>(),
+				magentoRequest=new LinkedHashMap<Object,Object>();
+		
+		List<Object> courseGuidForMagento=new ArrayList<Object>();
 		
 		
-		for(Map path : learningPath) {
+		//Collecting guid to verify from magento
+		for(Map<?,?> path : learningPath) 
+			for(Map<?,?> instruction : (List<Map<?,?>>) path.get("instructions"))  
+				courseGuidForMagento.add(instruction.get("guid"));
+			 
+		//Getting Course Data From Magento
+		String email=SecurityContextHolder.getContext().getAuthentication().getName();
+		magentoRequest.put("productSkus",courseGuidForMagento);
+		magentoRequest.put("storeId", "2");
+		magentoRequest.put("email", email);
+		magentoRequest.put("websiteId", "2");
+		magentoRequest.put("subsCode", data.get("subsCode"));
+		
+		magentoResponse=(Map<Object, Object>) getMagentoData(magentoRequest);
+		
+		//Now verifying guid on the bases of data return from magento
+		for(Map<?,?> path : learningPath) {
 			
 			Map<Object, Object> forLearningPath=new HashMap<>();
-		
+			int count=0;
+			for(Map<?,?> instruction : (List<Map<?,?>>) path.get("instructions")) {
+				Object courseData=magentoResponse.get(instruction.get("guid"));
+				count = (courseData instanceof Map ? count+1 : count);
+			}
+			
 			forLearningPath.put("name", path.get("name"));
-			List<Object> instructions=(List<Object>) path.get("instructions");
-			forLearningPath.put("count", instructions.size());
+			forLearningPath.put("count", count);
 			
 			learningpathDetail.add(forLearningPath);
-			
 		}
-		
+		//Verifying End 
 		
 		response.put("learningpath", learningpathDetail);
 		response.put("totalCount", learningPath.size());
@@ -242,6 +267,8 @@ public class PersonalizedEndPoint {
 		filter.setDateRange(dateRange);
 		
 		filter.setExpertRole(new ArrayList<>());
+		
+		filter.setLearningType(new HashMap<String, String>());
 		//Filter
 		info.setFilter(filter);
 		
@@ -261,5 +288,34 @@ public class PersonalizedEndPoint {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public Object getMagentoData(Map<Object,Object> data) {
+		
+		
+		RestTemplate restTemplate=new RestTemplate();
+		//headers
+		HttpHeaders header=new HttpHeaders();
+		
+		header.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		
+		//request parameter
+		HttpEntity<Object> request=new HttpEntity<>(data,header);
+		
+		ResponseEntity<Map> responseFromURL=null;
+		try {
+			responseFromURL=restTemplate.exchange(env.getProperty("api.magento.baseURL")+"rest/default/V1/careerpath/getlistbysku", HttpMethod.POST, request, Map.class);
+			 List<Object> result=(List<Object>) responseFromURL.getBody().get("result");
+			 return result.get(0);
+			 
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error(">>>>>>>>>>>>>>> Exception occurs while send request to magento >>>>>>>>>>>>> :getMagentoData() >>>"+ex.getMessage());
+			return null;
+		}
+		
+	
 	}
 }
