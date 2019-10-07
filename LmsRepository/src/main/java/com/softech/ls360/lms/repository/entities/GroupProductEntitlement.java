@@ -49,6 +49,9 @@ public class GroupProductEntitlement {
 		@Column(name = "CREATEDATE")
 		Date createDate;
 
+		@Column( name = "SUBSCRIPTION_ID")
+		private Integer subscriptionId;
+		
 		@OneToMany(mappedBy="groupProductEntitlement", fetch=FetchType.LAZY)
 		private List<GroupProductEnrollment> groupProductEnrollment = new ArrayList<GroupProductEnrollment>();
 		
@@ -127,6 +130,14 @@ public class GroupProductEntitlement {
 
 		public void setCreateDate(Date createDate) {
 			this.createDate = createDate;
+		}
+		
+		public Integer getSubscriptionId() {
+			return subscriptionId;
+		}
+
+		public void setSubscriptionId(Integer subscriptionId) {
+			this.subscriptionId = subscriptionId;
 		}
 
 		public List<GroupProductEnrollment> getGroupProductEnrollment() {

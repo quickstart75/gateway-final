@@ -510,7 +510,7 @@ public class LearningPathRestEndPoint {
 		try {
 			responseFromURL=restTemplate.exchange(env.getProperty("api.magento.baseURL")+"rest/default/V1/careerpath/getlistbysku", HttpMethod.POST, request, Map.class);
 			 List<Object> result=(List<Object>) responseFromURL.getBody().get("result");
-			 return result.get(0);
+			 return result.get(0) instanceof List ? new HashMap<>() : result.get(0);
 			 
 		}
 		catch(Exception ex) {
@@ -768,6 +768,7 @@ public class LearningPathRestEndPoint {
 			logger.info("EXCEPTION >>>>>>>>>> /groupproduct-detail");
 			logger.info("Message :: " + e.getMessage());
 			logger.info("========================= END ======================");
+			e.printStackTrace();
 			mainResponseBody.put("status", Boolean.FALSE);
 			mainResponseBody.put("message", "failed");
 			mainResponseBody.put("result", "");
