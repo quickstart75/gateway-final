@@ -11,6 +11,8 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -417,19 +419,29 @@ public class ElasticSearchEndPoint {
 			Map<String, String> subMapEnrollment;
 			
 			for(GroupProductEnrollment objgp : lstGroupProduct){
-				lstAllGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
 				
-				String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(objgp.getGroupProductEntitlement().getId());
-				subMapEnrollment = new HashMap<String,String>();
-				subMapEnrollment.put("status", GPEnrollmentStatus);
-				subMapEnrollment.put("enrollmentId", objgp.getId() + "");
-				
-				if(GPEnrollmentStatus!=null && GPEnrollmentStatus.equals("completed")){
-					subMapEnrollment.put("certificateURI", lmsLaunchCourseUrl +"&groupproductId="+objgp.getId()+"&token="+authorization.replace("Bearer ", ""));
-				}else{
-					subMapEnrollment.put("certificateURI", null);
+				//If bundle product subscription is not null 
+				if(objgp.getGroupProductEntitlement().getSubscriptionId()!=null) {
+					String parentGuid=objgp.getGroupProductEntitlement().getParentGroupproductGuid();
+					lstAllGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
+					mapEnrollment.put(parentGuid,getEnrolledBundlelProduct(parentGuid, request.getStoreId()+"",arrEnrollment,objgp.getId(),authorization) );
 				}
-				mapEnrollment.put(objgp.getGroupProductEntitlement().getParentGroupproductGuid(), subMapEnrollment);	
+				else {
+					lstAllGuids.add(objgp.getGroupProductEntitlement().getParentGroupproductGuid());
+					
+					String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(objgp.getGroupProductEntitlement().getId());
+					subMapEnrollment = new HashMap<String,String>();
+					subMapEnrollment.put("status", GPEnrollmentStatus);
+					subMapEnrollment.put("enrollmentId", objgp.getId() + "");
+					subMapEnrollment.put("isSubs", Boolean.FALSE.toString());
+					
+					if(GPEnrollmentStatus!=null && GPEnrollmentStatus.equals("completed")){
+						subMapEnrollment.put("certificateURI", lmsLaunchCourseUrl +"&groupproductId="+objgp.getId()+"&token="+authorization.replace("Bearer ", ""));
+					}else{
+						subMapEnrollment.put("certificateURI", null);
+					}
+					mapEnrollment.put(objgp.getGroupProductEntitlement().getParentGroupproductGuid(), subMapEnrollment);
+				}
 			}
 			//---------------------------------------------------------------------------------------------------
 			for(Object[] subArr: arrEnrollment){
@@ -1117,5 +1129,115 @@ public class ElasticSearchEndPoint {
 		}
 		return groupProductIds;
 	}
-
+	/**
+	 * This is used to get the enrolled bundle product details
+	 * 
+	 * @since 10/10/2019
+	 * @author Zain.Noushad
+	 * 
+	 * @param groupProductGuid This provide the Guid of the virtual product
+	 * @param storeId	This provide the store id
+	 * @param arrEnrollment This provide the Learner Enrolled Courses
+	 * @param enrollementId Provide Enrollment Id of user
+	 * @param auth Provide Authorization 
+	 * @return Details of Enrolled Bundle Product
+	 */
+	private Map<String, String> getEnrolledBundlelProduct(String groupProductGuid,String storeId, List<Object[]> arrEnrollment, Long enrollementId,String auth) {
+		try {
+		
+			//Getting Data From Magento
+			JSONObject dataFromMagento=getVirtualGroupProductData(storeId, groupProductGuid);
+			
+			//Checking Virtual Guid Status ============ START
+			String status="inprogress";
+			int completeCourseCount=0,notStartedCourseCount=0,totalCourses=0;
+			
+			//Getting bundle products
+			for(Object key : dataFromMagento.keySet()){
+				JSONArray coursesGuids=dataFromMagento.getJSONObject(key.toString()).getJSONArray("courseguid");
+				
+				//Getting bundle product courses
+				for (int i = 0; i < coursesGuids.length(); i++) {
+					totalCourses++;
+					//Checking Status Of Course By Course Guid
+					for(Object[] subArr: arrEnrollment){
+						if(subArr[0] == coursesGuids.get(i)) {
+							if(subArr[1].equals("inprogress")) break;
+							
+							else if(subArr[1].equals("completed")) 	completeCourseCount++;
+								
+							else if(subArr[1].equals("notstarted")) notStartedCourseCount++;	
+						}
+					}
+				}
+				
+				if(completeCourseCount==totalCourses)			status="completed";
+				else if(notStartedCourseCount==totalCourses) 	status="notstarted";
+				
+			}
+			
+	//		Checking Virtual Guid Status ============ END
+			
+			Map<String, String> enrolledBundleProudct=new HashMap<>();
+			
+			if(status.equals("completed"))
+				enrolledBundleProudct.put("certificateURI", lmsLaunchCourseUrl +"&groupproductId="+enrollementId+"&token="+auth.replace("Bearer ", ""));
+			
+				
+			enrolledBundleProudct.put("status", status);
+			enrolledBundleProudct.put("enrollmentId", enrollementId+"");
+			enrolledBundleProudct.put("certificateURI", "");
+			enrolledBundleProudct.put("isSubs", Boolean.TRUE+"");
+			
+			return enrolledBundleProudct;
+		}
+		catch (Exception e) {
+			logger.info("===================================EXCEPTION START================================");
+			logger.info("Message : "+ e.getMessage());
+			logger.info("Method : getEnrolledBundlelProduct()");
+			logger.info("===================================EXCEPTION END================================");
+			return (Map<String, String>) new HashMap<>().put("message", "no data found");
+		}
+	}
+	public JSONObject getVirtualGroupProductData(String storeId, String virtualGuid) {
+		try {
+			Map<String, String> response=new HashMap<String, String>();
+			Map<Object, Object> magentoRequestBody=new HashMap<>();
+			magentoRequestBody.put("virtualProductGuid",virtualGuid);
+			magentoRequestBody.put("storeId", storeId);
+			
+			
+			RestTemplate rest=new RestTemplate();
+			
+			HttpHeaders header=new  HttpHeaders();
+			header.setContentType(MediaType.APPLICATION_JSON_UTF8);
+			
+			
+			HttpEntity<Object> request=new HttpEntity<Object>(magentoRequestBody, header); 
+	
+			ResponseEntity<Map> magentoResponse=null;
+			
+			magentoResponse=rest.exchange(magentoBaseURL+"rest/default/V1/careerpath/getGroupGuids", HttpMethod.POST, request, Map.class);
+			
+			
+			//Checking enrollment of bundle product
+			JSONObject magentoData=new JSONObject(magentoResponse.getBody());
+			
+			
+			JSONObject bundleProducts=magentoData.getJSONArray("result").getJSONArray(0).getJSONObject(0).getJSONObject("virtualGroupProduct").getJSONObject("bundleProduct");
+	
+			return bundleProducts;
+		}		
+		catch (Exception e) {
+			logger.info("===================================EXCEPTION START================================");
+			logger.info("Message : "+ e.getMessage());
+			logger.info("Method : getEnrolledBundlelProduct()");
+			logger.info("===================================EXCEPTION END================================");
+			return new JSONObject();
+		}
+		
+	}
+	
+	
+	
 }

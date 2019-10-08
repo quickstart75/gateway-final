@@ -768,7 +768,6 @@ public class LearningPathRestEndPoint {
 			logger.info("EXCEPTION >>>>>>>>>> /groupproduct-detail");
 			logger.info("Message :: " + e.getMessage());
 			logger.info("========================= END ======================");
-			e.printStackTrace();
 			mainResponseBody.put("status", Boolean.FALSE);
 			mainResponseBody.put("message", "failed");
 			mainResponseBody.put("result", "");
