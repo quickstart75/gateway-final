@@ -321,6 +321,8 @@ public class ElasticSearchEndPoint {
 					
 					String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(subArr.getGroupProductEntitlement().getId());
 					
+					if(GPEnrollmentStatus==null)
+						continue;
 					if(GPEnrollmentStatus!=null && GPEnrollmentStatus!=null && GPEnrollmentStatus.toString().equalsIgnoreCase("notstarted") || GPEnrollmentStatus.toString().equalsIgnoreCase("inprogress")){
 						lstNew_StartedGuids.add(subArr.getGroupProductEntitlement().getParentGroupproductGuid());
 					}else if(GPEnrollmentStatus!=null && GPEnrollmentStatus!=null && GPEnrollmentStatus.toString().equalsIgnoreCase("completed")){
@@ -431,7 +433,8 @@ public class ElasticSearchEndPoint {
 					
 					String GPEnrollmentStatus = mapGPEnrollmentsStatus.get(objgp.getGroupProductEntitlement().getId());
 					subMapEnrollment = new HashMap<String,String>();
-					subMapEnrollment.put("status", GPEnrollmentStatus);
+					//Need to fixed it 
+					subMapEnrollment.put("status", ( GPEnrollmentStatus == null ? "inprogress" : GPEnrollmentStatus));
 					subMapEnrollment.put("enrollmentId", objgp.getId() + "");
 					subMapEnrollment.put("isSubs", Boolean.FALSE.toString());
 					
