@@ -84,4 +84,15 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
 		    " and le.ENROLLMENTSTATUS!='Dropped' "+
 			" and s.subscription_Code = :subscriptionCode ", nativeQuery = true )
 	Long countMOCEnrollmentBySubscription(@Param("username") String username, @Param("subscriptionCode") Long subscriptionCode);
+	
+	//@Query(value="SELECT C.GUID, C.COURSETYPE, LCS.PERCENTCOMPLETE, LE.ID as LE_ID , CONVERT(varchar, SYCLASS.CLASSSTARTDATE, 110) as CLASSSTARTDATE,	CONVERT(varchar, SYCLASS.CLASSENDDATE, 110) as CLASSENDDATE "
+	@Query(value="SELECT C.GUID, C.COURSETYPE, LCS.PERCENTCOMPLETE, LE.ID as LE_ID , SYCLASS.CLASSSTARTDATE as CLASSSTARTDATE,	SYCLASS.CLASSENDDATE as CLASSENDDATE "
+			+" FROM VU360USER V  "
+			+" INNER JOIN LEARNER L ON L.VU360USER_ID = V.ID  "
+			+" INNER JOIN LEARNERENROLLMENT LE ON LE.LEARNER_ID = L.ID "
+			+" INNER JOIN COURSE C ON C.ID = LE.COURSE_ID  "
+			+" INNER JOIN LEARNERCOURSESTATISTICS LCS ON LCS.LEARNERENROLLMENT_ID =LE.ID  "
+			+" LEFT OUTER JOIN SYNCHRONOUSCLASS SYCLASS ON SYCLASS.COURSE_ID = C.ID and SYNCHRONOUSCLASS_ID = SYCLASS.id "
+			+" WHERE V.USERNAME = :userName AND C.GUID  IN (:courseGuid)", nativeQuery = true)
+	public List<Object[]> getEnrollmentByUsersByCourse(@Param("userName") String userName, @Param("courseGuid") List courseGuid);
 }

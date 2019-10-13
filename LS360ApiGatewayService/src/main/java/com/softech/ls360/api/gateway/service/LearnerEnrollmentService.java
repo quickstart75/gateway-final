@@ -30,4 +30,6 @@ public interface LearnerEnrollmentService {
 	List<Object[]> getEnrolledCoursesInfoByUsername(String username);
 	void updateLearnerEnrollmentStatisticsStatus(String status, List<Long> enrollmentIds);
 	Map<Object, Object> getEnrollmentCoursesMapWithstatus(String username);
+	
+	Map<String, Long> getEnrollmentByUsersByCourse(String username, List<String> guid);
 }

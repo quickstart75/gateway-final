@@ -1,8 +1,11 @@
 package com.softech.ls360.api.gateway.service.impl;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -10,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -29,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
 import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
 import com.softech.ls360.api.gateway.service.InformalLearningService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
+import com.softech.ls360.api.gateway.service.VILTAttendanceService;
 import com.softech.ls360.api.gateway.service.model.request.FocusRequest;
 import com.softech.ls360.api.gateway.service.model.request.SavingRequest;
 import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
@@ -49,6 +54,7 @@ import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepo
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
+import com.softech.ls360.lms.repository.repositories.VILTAttendanceRepository;
 
 @Service
 public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
@@ -77,6 +83,12 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	
 	@Inject
 	private InformalLearningService informalLearningService;
+	
+	@Inject
+	VILTAttendanceService vILTAttendanceService;
+	
+	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private static final SimpleDateFormat dateDBFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	
 	@Override
 	public List<Course> getLearnerEnrollmentCourses(Long learnerId, Collection<String> enrollmentStatus, LocalDateTime dateTime) throws Exception {
@@ -558,5 +570,46 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		response.put("completed", lstCompletedGuids);
 		
 		return response;
+	}
+	
+	@Override
+	public Map<String, Long> getEnrollmentByUsersByCourse(String username, List<String> guid){
+		
+		Map<String, Long> mapResult = new HashMap<String, Long>();
+		List<Object[]> arrDBRecords = learnerEnrollmentRepository.getEnrollmentByUsersByCourse(username, guid);
+		
+		for(Object[] records :arrDBRecords){
+			try{
+				if(records[1]!=null && records[1].toString().equals("Classroom Course")){
+					List<Object[]> lstattendance = vILTAttendanceService.findByEnrollmentIds( Long.valueOf(records[3].toString()) );
+					
+					if(lstattendance.size()>0){
+						List date = new ArrayList();
+						for(Object[] objarr : lstattendance){
+							try{
+								date.add(dateFormat.format(objarr[1]));
+							}catch(Exception ex){logger.error(" error in parsing date for attendance" + ex.getMessage());}
+						}
+						
+						if(records[4] != null && records[5]!=null){
+							Date dtStartDate = dateDBFormat.parse(records[4].toString());
+							Date dtEndDate = dateDBFormat.parse(records[5].toString());
+							long diff = dtEndDate.getTime() - dtStartDate.getTime();
+							long diff2 = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
+							
+							//objAttendance.setPercentage( date.size() * 100 /diff2 );
+							mapResult.put(records[0].toString(),  ((date.size() * 100) /diff2)  );
+						}else{mapResult.put(records[0].toString(), 0L);}
+					}else{mapResult.put(records[0].toString(), 0L);}
+					
+				
+				}else{
+						mapResult.put(records[0].toString(), Long.valueOf( records[2].toString()) );
+				}
+			}catch(Exception ex){
+				mapResult.put(records[0].toString(), 0L);
+			}
+		}
+		return mapResult;
 	}
 }
