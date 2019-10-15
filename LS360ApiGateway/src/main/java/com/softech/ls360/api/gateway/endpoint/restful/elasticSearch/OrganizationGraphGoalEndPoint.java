@@ -63,12 +63,19 @@ public class OrganizationGraphGoalEndPoint {
 			
 			for(String goalId : recommendationData.keySet()) {
 				Map<String, List<String>> currentGoal = recommendationData.get(goalId);
-				Map<String, Double> goalPercentage=new HashMap<>();
+				Map<String, Double> goalPercentage=new HashMap<>();	
 				double percentage=0;
-				
 				for( String userId : currentGoal.keySet() ) {
-					percentage += getUserTotalPercentage(userId, currentGoal.get(userId));
-					if(userId.equals(currentUser)) currentUserGoals.put(goalId, percentage);
+					if(userId.equals(currentUser)) {
+						 currentUserGoals.put(goalId, getUserTotalPercentage(userId, verifyGuid(currentGoal.get(userId), request, userId)));
+						 
+					}
+					Map<String, String> currentGoalType=(Map<String, String>) magentoData.get(goalId);
+					if(!currentGoalType.get("type").equals("customer"))
+						percentage += getUserTotalPercentage(userId, verifyGuid(currentGoal.get(userId), request, userId));
+					
+						
+					
 				}
 				overAllTotalPercentage += percentage;
 				goalPercentage.put(goalId, percentage);
@@ -101,7 +108,7 @@ public class OrganizationGraphGoalEndPoint {
 									
 						String userGoal=currentUserGoals.get(goalId)+"";
 						resultData.put("Your Readiness", userGoal.equals("null") ? "0" : userGoal );
-						String totalPercent=(overAllTotalPercentage/amountToDivide)+"";
+						String totalPercent=currentGoalType.get("type").equals("customer") ? "NaN" : (goal.get(goalId)/amountToDivide)+"" ;
 						resultData.put("Organizational Readinessy", totalPercent.equals("NaN") ? "0" : (totalPercent+""));
 						result.add(resultData);
 					}
@@ -334,7 +341,7 @@ public class OrganizationGraphGoalEndPoint {
 					}
 					else if(current.getString("type").equals("customer")  && current.getString("pageId").equals("1"))
 						for (int j = 0; j < resultData.getJSONObject(i).getJSONObject("data").getJSONArray("inputs").length(); j++) 
-						mainGoals.put(resultData.getJSONObject(i).getJSONObject("data").getJSONArray("inputs").getJSONObject(j).get("id"), goalType);
+							mainGoals.put(resultData.getJSONObject(i).getJSONObject("data").getJSONArray("inputs").getJSONObject(j).get("id"), goalType);
 					
 				}
 			}
@@ -360,6 +367,55 @@ public class OrganizationGraphGoalEndPoint {
 		
 		return (totalPercent/courseGuid.size());
 	}
+	public List<String> verifyGuid(List<String> courseGuid, Map<String, String> request,String username){
+		List<String> verifedGuid=new ArrayList<String>();
+		Map<Object, Object> magentoRequest=new HashMap<Object, Object>();
+		magentoRequest.put("productSkus",courseGuid);
+		magentoRequest.put("storeId", request.get("storeId"));
+		magentoRequest.put("email", username);
+		magentoRequest.put("websiteId", request.get("websiteId"));
+		magentoRequest.put("subsCode", "0");
+		
+		Map<Object, Object> magentoData=(Map<Object, Object>) getMagentoData(magentoRequest);
+		if(magentoData!=null) {
+			for(Object key : magentoData.keySet()) {
+				Object guid=magentoData.get(key);
+				if(guid instanceof List) continue;
+				else verifedGuid.add(key.toString());
+			}
+		}
+
+		return verifedGuid;
+	}
+	public Object getMagentoData(Map<Object,Object> data) {
+		
+		
+		RestTemplate restTemplate=new RestTemplate();
+		//headers
+		HttpHeaders header=new HttpHeaders();
+		
+		header.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		
+		//request parameter
+		HttpEntity<Object> request=new HttpEntity<>(data,header);
+		
+		ResponseEntity<Map> responseFromURL=null;
+		try {
+			responseFromURL=restTemplate.exchange(env.getProperty("api.magento.baseURL")+"rest/default/V1/careerpath/getlistbysku", HttpMethod.POST, request, Map.class);
+			 List<Object> result=(List<Object>) responseFromURL.getBody().get("result");
+			 return result.get(0) instanceof List ? new HashMap<>() : result.get(0);
+			 
+		}
+		catch(Exception ex) {
+			ex.printStackTrace();
+			logger.error(">>>>>>>>>>>>>>> Exception occurs while send request to magento >>>>>>>>>>>>> :getMagentoData() >>>"+ex.getMessage());
+			return null;
+		}
+		
+	
+	}
+	
 	public static void main(String[] args) {
 		Map<String, String> request=new HashMap<String, String>();
 		request.put("uuid", "34ae5cb8-deb1-1929-bacd-9a135dc72b9a");
