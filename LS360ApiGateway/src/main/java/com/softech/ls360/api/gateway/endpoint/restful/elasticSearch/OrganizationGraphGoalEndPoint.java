@@ -217,7 +217,7 @@ public class OrganizationGraphGoalEndPoint {
 			
 			HttpEntity<Object> request=new HttpEntity<Object>(requestBody, headers) ;
 			
-			ResponseEntity<Map> responseFromURL = restTemplate.exchange("http://3.92.170.103:5555/", HttpMethod.POST, request, Map.class);
+			ResponseEntity<Map> responseFromURL = restTemplate.exchange(env.getProperty("api.recommendation.engine"), HttpMethod.POST, request, Map.class);
 			
 			JSONObject recommendation=new JSONObject(responseFromURL.getBody());
 			
@@ -243,9 +243,8 @@ public class OrganizationGraphGoalEndPoint {
 		HttpHeaders header=new HttpHeaders();
 		header.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		header.add("Authorization", auth);
-		String url="https://qa-gateway.quickstart.com/LS360ApiGateway/services/rest/lms/customer/organizationgroupdetail";
 		HttpEntity<Object> request=new HttpEntity<Object>(header);
-		ResponseEntity<Map> response=restTemplate.exchange(url, HttpMethod.GET, request, Map.class);
+		ResponseEntity<Map> response=restTemplate.exchange(env.getProperty("api.gateway.base-url")+"/LS360ApiGateway/services/rest/lms/customer/organizationgroupdetail", HttpMethod.GET, request, Map.class);
 		
 		//=======================Reforming Data From Magento;
 		JSONObject responseData=new JSONObject(response.getBody());
@@ -299,9 +298,8 @@ public class OrganizationGraphGoalEndPoint {
 		RestTemplate restTemplate=new RestTemplate();
 		HttpHeaders header=new HttpHeaders();
 		header.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		String url="https://qa.quickstart.com/rest/default/V1/personalization/getList";
 		HttpEntity<Object> request=new HttpEntity<Object>(magentoRequest,header);
-		ResponseEntity<Object> response=restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
+		ResponseEntity<Object> response=restTemplate.exchange(env.getProperty("api.magento.baseURL")+"rest/default/V1/personalization/getList", HttpMethod.POST, request, Object.class);
 		System.out.println(new JSONObject(magentoRequest).toString());
 		transformDataFromMagento((Map<Object, Object>) response.getBody());
 	}
