@@ -109,7 +109,7 @@ public class OrganizationGraphGoalEndPoint {
 						String userGoal=currentUserGoals.get(goalId)+"";
 						resultData.put("Your Readiness", userGoal.equals("null") ? "0" : userGoal );
 						String totalPercent=currentGoalType.get("type").equals("customer") ? "NaN" : (goal.get(goalId)/amountToDivide)+"" ;
-						resultData.put("Organizational Readinessy", totalPercent.equals("NaN") ? "0" : (totalPercent+""));
+						resultData.put("Organizational Readiness", totalPercent.equals("NaN") ? "0" : (totalPercent+""));
 						result.add(resultData);
 					}
 				}
