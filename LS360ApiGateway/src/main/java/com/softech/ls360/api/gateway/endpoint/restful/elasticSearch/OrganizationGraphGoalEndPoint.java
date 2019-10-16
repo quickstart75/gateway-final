@@ -357,7 +357,7 @@ public class OrganizationGraphGoalEndPoint {
 	 */
 	public double getUserTotalPercentage(String username, List<String> courseGuid) {
 		long totalPercent=0;
-		
+		if(courseGuid.size()==0) return 0d;
 		Map<String, Long> userStatus=learnerEnrollmentService.getEnrollmentByUsersByCourse(username, courseGuid);
 		
 		for(String course : userStatus.keySet()) 
