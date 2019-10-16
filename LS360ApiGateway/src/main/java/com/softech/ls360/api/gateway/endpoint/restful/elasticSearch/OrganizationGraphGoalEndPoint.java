@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.endpoint.restful.elasticSearch;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,9 +107,10 @@ public class OrganizationGraphGoalEndPoint {
 						else if(currentGoalType.get("type").equals("organization") )
 							amountToDivide = Double.parseDouble( oraganizationAPIData.get("totalUserCount").toString());
 									
-						String userGoal=currentUserGoals.get(goalId)+"";
+						String userGoal=new DecimalFormat("#0.00").format(currentUserGoals.get(goalId));
 						resultData.put("Your Readiness", userGoal.equals("null") ? "0" : userGoal );
-						String totalPercent=currentGoalType.get("type").equals("customer") ? "NaN" : (goal.get(goalId)/amountToDivide)+"" ;
+						
+						String totalPercent=currentGoalType.get("type").equals("customer") ? "NaN" : new DecimalFormat("#0.00").format((goal.get(goalId)/amountToDivide)) ;
 						resultData.put("Organizational Readiness", totalPercent.equals("NaN") ? "0" : (totalPercent+""));
 						result.add(resultData);
 					}
@@ -356,14 +358,14 @@ public class OrganizationGraphGoalEndPoint {
 	 * @return total percentage of the user 
 	 */
 	public double getUserTotalPercentage(String username, List<String> courseGuid) {
-		long totalPercent=0;
+		double totalPercent=0;
 		if(courseGuid.size()==0) return 0d;
 		Map<String, Long> userStatus=learnerEnrollmentService.getEnrollmentByUsersByCourse(username, courseGuid);
 		
 		for(String course : userStatus.keySet()) 
 			totalPercent += userStatus.get(course);
-		
-		return (totalPercent/courseGuid.size());
+		double result=(totalPercent/courseGuid.size());
+		return result;
 	}
 	public List<String> verifyGuid(List<String> courseGuid, Map<String, String> request,String username){
 		List<String> verifedGuid=new ArrayList<String>();
