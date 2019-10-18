@@ -146,9 +146,9 @@ public class PersonalizedEndPoint {
 		//Getting Course Data From Magento
 		String email=SecurityContextHolder.getContext().getAuthentication().getName();
 		magentoRequest.put("productSkus",courseGuidForMagento);
-		magentoRequest.put("storeId", "2");
+		magentoRequest.put("storeId", data.get("storeId"));
 		magentoRequest.put("email", email);
-		magentoRequest.put("websiteId", "2");
+		magentoRequest.put("websiteId", data.get("websiteId"));
 		magentoRequest.put("subsCode", data.get("subsCode"));
 		
 		magentoResponse=(Map<Object, Object>) getMagentoData(magentoRequest);
