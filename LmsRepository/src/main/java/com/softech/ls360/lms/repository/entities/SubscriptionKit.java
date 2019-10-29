@@ -12,7 +12,8 @@ import javax.persistence.Table;
 public class SubscriptionKit {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@javax.persistence.TableGenerator(name = "SubscriptionKit_ID", table = "VU360_SEQ", pkColumnName = "TABLE_NAME", valueColumnName = "NEXT_ID", pkColumnValue = "SUBSCRIPTION_KIT", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.TABLE, generator = "SubscriptionKit_ID")
 	@Column(name = "ID", unique = true, nullable = false)
 	private long id;
 	
