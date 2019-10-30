@@ -45,6 +45,7 @@ import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingCo
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupRest;
 import com.softech.ls360.lms.repository.entities.Course;
+import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
 import com.softech.ls360.lms.repository.entities.Subscription;
 import com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection;
@@ -611,5 +612,16 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 			}
 		}
 		return mapResult;
+	}
+	/**
+	 * This method return LearnerCourseStatistics based on edxCourseGuid and username
+	 */
+	@Override
+	public LearnerCourseStatistics getLearnerCourseStatisticsByUsernameAndEdxCourse(String username,String courseGuid) {
+		return learnerCourseStatisticsRepository.getLearnerCourseStatisticsByUsernameAndEdxCourse(username, courseGuid);
+	}
+	@Override
+	public LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress) {
+		return learnerCourseStatisticsRepository.save(progress);
 	}
 }

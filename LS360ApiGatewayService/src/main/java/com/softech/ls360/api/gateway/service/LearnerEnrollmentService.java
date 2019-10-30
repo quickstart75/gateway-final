@@ -12,6 +12,7 @@ import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse;
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
 import com.softech.ls360.lms.repository.entities.Course;
+import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 
 public interface LearnerEnrollmentService {
 
@@ -32,4 +33,8 @@ public interface LearnerEnrollmentService {
 	Map<Object, Object> getEnrollmentCoursesMapWithstatus(String username);
 	
 	Map<String, Long> getEnrollmentByUsersByCourse(String username, List<String> guid);
+	
+	LearnerCourseStatistics getLearnerCourseStatisticsByUsernameAndEdxCourse(String username, String courseGuid);
+	
+	LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress);
 }
