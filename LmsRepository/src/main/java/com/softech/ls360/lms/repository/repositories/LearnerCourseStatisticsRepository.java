@@ -258,5 +258,13 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     @EntityGraph(value = "LearnerCourseStatistics.LearnerEnrollments", type = EntityGraphType.LOAD)
     List<LearnerCourseStatistics> findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuidAndLearnerEnrollment_enrollmentStatus(String userName, String guid, String enrollmentStatus);
 
+    @Query(value="Select top 1 lcs.* from vu360user u " + 
+    		"	Inner Join Learner l on l.vu360user_id=u.id " + 
+    		"	Inner Join LEARNERENROLLMENT le on le.LEARNER_ID=l.id " + 
+    		"	Inner Join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id " + 
+    		"	Inner Join COURSE c on c.id=le.course_id " + 
+    		"	Where u.username= :username AND c.THIRDPARTYGUID = :courseGuid order by lcs.id desc", nativeQuery = true)
+    LearnerCourseStatistics getLearnerCourseStatisticsByUsernameAndEdxCourse(@Param("username") String username, @Param("courseGuid") String courseGuid);
+    
     
 }
