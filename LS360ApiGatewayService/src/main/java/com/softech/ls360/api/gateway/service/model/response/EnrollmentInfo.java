@@ -11,6 +11,7 @@ public class EnrollmentInfo {
 	 private String courseName;
 	 private String type;
 	 private String status;
+	 private String distributorId;
 	 
 	public Long getEnrollmentId() {
 		return enrollmentId;
@@ -66,5 +67,12 @@ public class EnrollmentInfo {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	public String getDistributorId() {
+		return distributorId;
+	}
+	public void setDistributorId(String distributorId) {
+		this.distributorId = distributorId;
+	}
+	
 	 
 }

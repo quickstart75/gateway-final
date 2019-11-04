@@ -120,7 +120,11 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
    	@Query(value="update LearnerCourseStatistics set COMPLETIONDATE=:completionDate, COMPLETED = 1, STATUS = 'completed', TOTALTIMEINSECONDS=:totalTimeSpent where LEARNERENROLLMENT_ID = :enrollmentIds", nativeQuery = true )
    	void markCompletionAndTotalTimeSpent(@Param("enrollmentIds") Long enrollmentIds, @Param("completionDate") String completionDate, @Param("totalTimeSpent") Long totalTimeSpent);
 
-    
+    @Modifying
+   	@Transactional
+   	@Query(value="update LearnerCourseStatistics set COMPLETIONDATE=:completionDate, COMPLETED = 1, STATUS = 'completed' where LEARNERENROLLMENT_ID = :enrollmentIds", nativeQuery = true )
+   	void markCompletion(@Param("enrollmentIds") Long enrollmentIds, @Param("completionDate") String completionDate);
+
     @Modifying
    	@Transactional
    	@Query(value="update LearnerCourseStatistics set COMPLETIONDATE=:completionDate, COMPLETED =:completed, " + 

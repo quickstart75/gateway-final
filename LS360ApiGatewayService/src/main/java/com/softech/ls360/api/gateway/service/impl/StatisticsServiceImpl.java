@@ -1,6 +1,7 @@
 package com.softech.ls360.api.gateway.service.impl;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -9,8 +10,6 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +30,7 @@ public class StatisticsServiceImpl implements StatisticsService{
 	@Inject
 	private LearnerEnrollmentRepository learnerEnrollmentRepository;
 	
+	private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	@Override
 	@Transactional
@@ -61,6 +61,23 @@ public class StatisticsServiceImpl implements StatisticsService{
 	public Boolean updateMocStatistics(List<Long> enrollmentIds , String status) {
 		
 		learnerEnrollmentRepository.updateMocStatus(status, enrollmentIds);
+		return true;
+	}
+	
+	@Override
+	@Transactional
+	public Boolean updateCertVoucherStatistics(List<Long> enrollmentIds , String status) {
+		
+		if(status.equalsIgnoreCase("Assigned") || status.equalsIgnoreCase("Unassigned")){
+			learnerEnrollmentRepository.updateMocStatus(status, enrollmentIds);
+		}
+		
+		for(Long enrollId : enrollmentIds){
+			if(status.equalsIgnoreCase("Assigned")){
+				learnerCourseStatisticsRepository.markCompletion(enrollId, dtf.format(LocalDateTime.now()));
+			}
+		}
+		
 		return true;
 	}
 	

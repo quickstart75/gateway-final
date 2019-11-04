@@ -979,6 +979,98 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		return objLER;
 	}
 	
+	@Transactional
+	public LearnersEnrollmentResponse getCertificationVoucherLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest){
+		int pageNumber = userCoursesRequest.getPageNumber()-1;
+		int pageSize = userCoursesRequest.getPageSize();
+		
+		PageRequest request = new PageRequest(pageNumber, pageSize);//, sortDirection, "learnerEnrollment.course.name");
+		Map<String, String> userCoursesmap = new HashMap<String, String>();
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateFrom()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateFrom()))
+			userCoursesmap.put("dateFrom", userCoursesRequest.getFilter().getDateFrom() + " 00:00:00");
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getDateTo()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getDateTo())){
+			userCoursesmap.put("dateTo", userCoursesRequest.getFilter().getDateTo() + " 23:59:59");
+		}
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getCourseName()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getCourseName()))
+			userCoursesmap.put("courseName", userCoursesRequest.getFilter().getCourseName());
+		
+		if(userCoursesRequest.getFilter()!=null && userCoursesRequest.getFilter().getEmail()!=null && StringUtils.isNotBlank(userCoursesRequest.getFilter().getEmail()))
+			userCoursesmap.put("email", userCoursesRequest.getFilter().getEmail());
+		
+		if(StringUtils.isNotBlank(userCoursesRequest.getFilter().getUserName()))
+			userCoursesmap.put("userName", userCoursesRequest.getFilter().getUserName());
+		
+		if(StringUtils.isNotBlank(userCoursesRequest.getFilter().getType())){
+			//if(userCoursesRequest.getFilter().getStatus().equalsIgnoreCase(""))
+				userCoursesmap.put("type", userCoursesRequest.getFilter().getType());
+		}
+		
+		if(StringUtils.isNotBlank(userCoursesRequest.getFilter().getStatus())){
+			//if(userCoursesRequest.getFilter().getStatus().equalsIgnoreCase(""))
+				userCoursesmap.put("status", userCoursesRequest.getFilter().getStatus());
+		}
+		
+		
+		String sortDirection = "Asc";
+		if(StringUtils.isNotBlank(userCoursesRequest.getSortDirection()) && userCoursesRequest.getSortDirection().equalsIgnoreCase("Desc")){
+			sortDirection = "Desc";
+		}
+		
+		if(StringUtils.isNotBlank(userCoursesRequest.getSortBy())){
+			userCoursesmap.put("sortBy", userCoursesRequest.getSortBy());
+		}
+		
+		userCoursesmap.put("sortDirection", sortDirection);
+		
+		Page<LearnerEnrollment> page = learnerEnrollmentRepository.getLearnersCertificationVoucherEnrollment(request, userCoursesmap);
+		List<LearnerEnrollment> learnerCoursesList = new ArrayList<LearnerEnrollment>();
+		if(page != null)
+			learnerCoursesList = page.getContent();
+		
+		LearnersEnrollmentResponse objLER = new LearnersEnrollmentResponse();
+		List<EnrollmentInfo> lstEnrollment = new ArrayList<EnrollmentInfo>();
+		Map<String, ClassInfo> classes = new HashMap<String, ClassInfo>();
+		
+		for(LearnerEnrollment enrollment : learnerCoursesList ){
+			EnrollmentInfo objE = new EnrollmentInfo();
+			
+			objE.setEnrollmentId(enrollment.getId());
+			if(enrollment.getEnrollmentDate()!=null)
+				objE.setEnrollmentDate(enrollment.getEnrollmentDate()+"");
+			
+			objE.setCourseName(enrollment.getCourse().getName());
+			objE.setName(enrollment.getLearner().getVu360User().getFirstName() + " " +enrollment.getLearner().getVu360User().getLastName());
+			objE.setEmail(enrollment.getLearner().getVu360User().getEmailAddress());
+			
+			if(enrollment.getLearner().getCustomer().getDistributor()!=null)
+				objE.setDistributorId(enrollment.getLearner().getCustomer().getDistributor().getDistributorCode());
+			else
+				objE.setDistributorId("0");
+			
+			if(enrollment.getMocStatus() == null)
+				objE.setStatus("Unassigned");
+			else
+				objE.setStatus(enrollment.getMocStatus());
+			
+			if(enrollment.getSubscription() == null)
+				objE.setType("Order");
+			else
+				objE.setType("Subscription Request");
+			
+			lstEnrollment.add(objE);
+		}
+		
+		objLER.setEnrollments(lstEnrollment);
+		objLER.setClasses(classes);
+		objLER.setPageNumber(page.getNumber()+1);
+		objLER.setPageSize(page.getSize());
+		objLER.setTotalPages(page.getTotalPages());
+		objLER.setTotalEnrollments(page.getTotalElements());
+		return objLER;
+	}
+	
 	//Reterive Store ID for the Learner.
 	public int getStoreId(String userName){
 		Integer storeId = 0;

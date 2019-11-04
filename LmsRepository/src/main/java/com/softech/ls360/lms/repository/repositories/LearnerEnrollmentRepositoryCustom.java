@@ -21,5 +21,8 @@ public interface LearnerEnrollmentRepositoryCustom {
 	Page<LearnerEnrollment> getLearnersEnrollment(Pageable pageable, Map<String, String> userCoursesRequest);
 	
 	Page<LearnerEnrollment> getLearnersMOCEnrollment(Pageable pageable, Map<String, String> userCoursesRequest);
+	
+	Page<LearnerEnrollment> getLearnersCertificationVoucherEnrollment(Pageable pageable, Map<String, String> userCoursesRequest);
+	
 	List<Object[]> getROIAnalytics(long customerId, long distributorId);
 }

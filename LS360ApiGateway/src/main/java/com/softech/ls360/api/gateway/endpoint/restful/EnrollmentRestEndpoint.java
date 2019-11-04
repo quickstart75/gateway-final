@@ -29,6 +29,7 @@ import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
+import com.softech.ls360.api.gateway.service.StatisticsService;
 import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseCountRequest;
 import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
@@ -66,6 +67,9 @@ public class EnrollmentRestEndpoint {
 	
 	@Value( "${api.magento.baseURL}" )
     private String magentoBaseURL;
+	
+	@Inject
+	private StatisticsService statsService;
 	
 	@RequestMapping(value = "/customer/learner/enroll", method = RequestMethod.POST)
 	@ResponseBody
@@ -210,6 +214,8 @@ public class EnrollmentRestEndpoint {
 			
 	}
 	
+	
+	
 	@RequestMapping(value = "/customer/enrollment/status", method = RequestMethod.PUT)
 	@ResponseBody
 	public Map<Object, Object> updateEnrollmentStatus(@RequestBody UpdateEnrollmentStatusRequest enrolRequest) {
@@ -323,4 +329,53 @@ public class EnrollmentRestEndpoint {
         map.put("result", result);
 		return map;
 	}
+	
+	
+	
+	/*
+	 * Certificate Voucher - get enrollment for admin
+	 */
+	@RequestMapping(value = "/admin/cert-voucher/enrollments", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> get_CertificationVoucher_LearnerEnrollment(@RequestBody LearnersEnrollmentRequest user
+			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
+		
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		logger.info("Request received at " + getClass().getName() + " /admin/mocod/enrollments");
+		
+		LearnersEnrollmentResponse objResponse = learnerCourseCountService.getCertificationVoucherLearnersEnrollment(user);
+		
+		map.put("status", Boolean.TRUE);
+		map.put("message", "success");
+		map.put("result", objResponse);
+		return map;
+			
+	}
+	
+	/*
+	 * Certificate Voucher - update status
+	 */
+	@RequestMapping(value = "/admin/statistics/cert-voucher/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> mocStatsUpdate(@RequestBody HashMap<Object, Object> mocStatus
+			) throws Exception {
+		
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		List<Long> enrollmentIdsLong = new ArrayList<Long>();
+		List<Integer> enrollmentIds = (List<Integer>) mocStatus.get("enrollmentId");
+		
+		for(int i=0;i<enrollmentIds.size();i++)
+			enrollmentIdsLong.add(Long.valueOf(enrollmentIds.get(i)));
+			
+			
+		String status = (String) mocStatus.get("status");
+		
+		statsService.updateCertVoucherStatistics(enrollmentIdsLong, status);
+		
+		returnResponse.put("status", Boolean.TRUE);
+		returnResponse.put("message", "success");
+		return returnResponse;		
+	}
+	
+	
 }

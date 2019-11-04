@@ -12,4 +12,5 @@ public interface StatisticsService {
 	Boolean updateLearnerCourseStatistics(
 			LearnerCourseStatisticsRequest learnerCourseStatisticsRequest);
 	public Boolean updateMocStatistics(List<Long> enrollmentIds , String status);
+	public Boolean updateCertVoucherStatistics(List<Long> enrollmentIds , String status);
 }

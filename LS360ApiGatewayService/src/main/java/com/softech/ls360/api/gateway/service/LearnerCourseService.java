@@ -25,6 +25,8 @@ public interface LearnerCourseService {
 	
 	LearnersEnrollmentResponse getMOCLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest);
 	
+	LearnersEnrollmentResponse getCertificationVoucherLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest);
+	
 	List<String> getSubscriptionId(String userName);
 	
 	LearnerEnrollmentStatistics getLearnerCourse(UserRequest userRequest);
