@@ -30,4 +30,6 @@ public interface LearnerCourseService {
 	List<String> getSubscriptionId(String userName);
 	
 	LearnerEnrollmentStatistics getLearnerCourse(UserRequest userRequest);
+	
+	void updateCourseStatistics(Long enrollmentIds, String completionDate);
 }

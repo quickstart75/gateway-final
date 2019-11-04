@@ -1208,4 +1208,10 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 		
 		return subscriptionIds;
 	}
+
+	@Override
+	public void updateCourseStatistics(Long enrollmentIds, String completionDate) {
+		learnerCourseStatisticsRepository.markCompletion(enrollmentIds, completionDate);
+		
+	}
 }
