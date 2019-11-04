@@ -377,5 +377,29 @@ public class EnrollmentRestEndpoint {
 		return returnResponse;		
 	}
 	
+	@RequestMapping(value = "/learner/course-basic", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> learnerCourseBasic(@RequestBody UserRequest user
+			/*@AuthenticationPrincipal RestUserPrincipal principal*/) throws Exception {
+		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		
+		
+		logger.info("Request received at " + getClass().getName() + " for learner enrolled courses");
+		if(user==null || user.getCourseGuid()==null || user.getCourseGuid().length()==0){
+			returnResponse.put("status", Boolean.FALSE);
+			returnResponse.put("message", "Failure");
+			returnResponse.put("result", "");
+			return returnResponse;
+		}
+			
+		LearnerEnrollmentStatistics lcsVO = learnerCourseCountService.getLearnerCourse(user);
+		returnResponse.put("status", Boolean.TRUE);
+		returnResponse.put("message", "Success");
+		returnResponse.put("result", lcsVO);
+		return returnResponse;
+			
+		
+	}
+	
 	
 }
