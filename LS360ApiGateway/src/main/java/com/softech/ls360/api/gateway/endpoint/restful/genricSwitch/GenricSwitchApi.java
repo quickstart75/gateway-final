@@ -15,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
+import com.softech.ls360.lms.repository.entities.VU360User;
+import com.softech.ls360.lms.repository.repositories.VU360UserRepository;
 
 @RestEndpoint
 @RequestMapping(value = "/")
@@ -32,6 +35,9 @@ public class GenricSwitchApi {
 	
 	@Autowired
 	Environment env;
+	
+	@Autowired
+	private VU360UserRepository vu360UserRepository;
 	
 	@RequestMapping(value="/global-switch/{url}/**", method = RequestMethod.POST)
 	@ResponseBody
@@ -81,19 +87,16 @@ public class GenricSwitchApi {
 		RestTemplate restTemplate = new RestTemplate();
 		String token = authorization.substring("Bearer".length()).trim();
 		
-		HttpHeaders headers=new HttpHeaders();
+		String username=SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		HttpHeaders headers = checkCondition(endPoint,username);
 	
 		headers.add("token", token);
 		headers.add("Authorization", authorization);
 		headers.add("Accept", "application/json;charset=UTF-8");
 		
-		HttpEntity<Object> entity;
-		if(method.equals("GET")) {
-			entity=new HttpEntity<>(headers);
-		}
-		else {
-			entity=new HttpEntity<>(data,headers);
-		}
+		HttpEntity<Object> entity = method.equals("GET") ? new HttpEntity<>(headers) : new HttpEntity<>(data,headers);
+		
 		ResponseEntity<Object> responseFromURL=null;
 		
 		try  {
@@ -110,11 +113,23 @@ public class GenricSwitchApi {
 			logger.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 			return returnResponse;
 		}
-	
 		
+	}
+	/**
+	 * This method add specific headers for request URL
+	 * 
+	 * @return Headers added for the URL
+	 */
+	private HttpHeaders checkCondition(String endPoint, String username) {
+		HttpHeaders headers = new HttpHeaders();
 		
+		if(endPoint.contains(env.getProperty("api.assessment.engine"))) {
+			VU360User user = vu360UserRepository.findByUsername(username);
+			headers.add("studentName", user.getFirstName()+" "+user.getLastName());
+			headers.add("LMS-ID", username);
+		}
 		
-		
+		return headers;
 	}
 
 	/**
@@ -131,6 +146,7 @@ public class GenricSwitchApi {
 		property.put("recommendation", "api.recommendation.engine");
 		property.put("skilltree", "api.recommendation.skilltree");
 		property.put("storesync", "api.store.sync");
+		property.put("assessment", "api.assessment.engine");
 		
 		
 		String path=env.getProperty(property.get(server));
