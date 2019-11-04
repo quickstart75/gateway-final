@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +26,8 @@ public class EdxProgressEndpoint {
 	
 	LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
 	
+	private static final Logger logger = LogManager.getLogger();
+	
 	@RequestMapping(value = "/progress")
 	@ResponseBody
 	public Object edxProgressUpdate(@RequestBody Map<String, String> request) {
@@ -30,7 +35,7 @@ public class EdxProgressEndpoint {
 		Map<String, String> responseBody=new HashMap<>();
 		
 		String username=request.get("username");
-		String courseGuid=request.get("courseId");
+		String courseGuid=request.get("courseId").replace('+', ' ');
 		String progress= (request.get("progress")==null || request.get("progress").isEmpty() ? "0" : request.get("progress"));
 		String status=request.get("status");
 		
@@ -50,9 +55,13 @@ public class EdxProgressEndpoint {
 			learnerEnrollmentService.updateProgressOfEdxCourse(learnerStatistics);
 			responseBody.put("message","progress updated");
 		}
-		else {
+		else 
 			responseBody.put("message", "no record found");
-		}
+			
+		
+		logger.info(">>>>>>>>>>>>> Edx Progress Update START >>>>>>>>  :: edxProgressUpdate()");
+		logger.info(">>>>>>>>>>>>> Request >>>>>>>>  " + new JSONObject(request));
+		logger.info(">>>>>>>>>>>>> Edx Progress Update END >>>>>>>>");
 		
 		return responseBody;
 	}
