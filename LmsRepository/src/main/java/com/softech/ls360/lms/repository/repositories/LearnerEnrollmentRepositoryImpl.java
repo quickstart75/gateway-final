@@ -127,7 +127,7 @@ public class LearnerEnrollmentRepositoryImpl implements LearnerEnrollmentReposit
 	public Page<LearnerEnrollment> getLearnersCertificationVoucherEnrollment(Pageable pageable, Map<String, String> userCoursesRequest){
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		StringBuilder queryString = new StringBuilder("SELECT le FROM LearnerEnrollment le JOIN le.course c "
-				+ "JOIN le.learner l JOIN l.vu360User u  where le.enrollmentStatus='"+LearnerEnrollment.ACTIVE+"' and  c.businessUnitName='Certification Voucher' "); 
+				+ "JOIN le.learner l JOIN l.vu360User u  where le.enrollmentStatus='"+LearnerEnrollment.ACTIVE+"' and  c.businessUnitName='Voucher' "); 
 				
 		if(userCoursesRequest.get("dateFrom")!=null && StringUtils.isNotBlank( userCoursesRequest.get("dateFrom")))
 				queryString.append( " and le.enrollmentDate>= :startDate ");//'" + LocalDateTime.parse(userCoursesRequest.get("dateFrom"),formatter) + "' ");
