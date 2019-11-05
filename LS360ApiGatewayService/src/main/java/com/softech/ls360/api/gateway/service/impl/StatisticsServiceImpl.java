@@ -17,6 +17,7 @@ import com.softech.ls360.api.gateway.service.StatisticsService;
 import com.softech.ls360.api.gateway.service.model.request.LearnerCourseStatisticsRequest;
 import com.softech.ls360.api.gateway.service.model.response.LearnerCourseStatisticsResponse;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
+import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 
@@ -69,12 +70,41 @@ public class StatisticsServiceImpl implements StatisticsService{
 	public Boolean updateCertVoucherStatistics(List<Long> enrollmentIds , String status) {
 		
 		if(status.equalsIgnoreCase("Assigned") || status.equalsIgnoreCase("Unassigned")){
-			learnerEnrollmentRepository.updateMocStatus(status, enrollmentIds);
+			
+			for(Long enrollementId : enrollmentIds) {
+				LearnerEnrollment enrollment = learnerEnrollmentRepository.findOne(enrollementId);
+				if(enrollementId != null) {
+					enrollment.setMocStatus(status);
+					learnerEnrollmentRepository.save(enrollment) ;
+				}
+			}
+			
+//			learnerEnrollmentRepository.updateMocStatus(status, enrollmentIds);
 		}
 		
 		for(Long enrollId : enrollmentIds){
-			if(status.equalsIgnoreCase("Assigned")){
-				learnerCourseStatisticsRepository.markCompletion(enrollId, dtf.format(LocalDateTime.now()));
+			
+				LearnerEnrollment en=new LearnerEnrollment();
+				en.setId(enrollId);
+				LearnerCourseStatistics statistics = learnerCourseStatisticsRepository.findByLearnerEnrollment(en); 
+				
+				if(statistics != null ) {
+					if(status.equalsIgnoreCase("Assigned")){
+						statistics.setCompleted(true);
+						statistics.setCompletionDate(LocalDateTime.now());
+						statistics.setStatus("completed");
+						learnerCourseStatisticsRepository.save(statistics);
+					}
+					else if(status.equalsIgnoreCase("Unassigned")) {
+						statistics.setCompleted(false);
+						statistics.setCompletionDate(null);
+						statistics.setStatus("notstarted");
+						learnerCourseStatisticsRepository.save(statistics);
+					}
+					
+				
+				
+//				learnerCourseStatisticsRepository.markCompletion(enrollId, dtf.format(LocalDateTime.now()));
 			}
 		}
 		

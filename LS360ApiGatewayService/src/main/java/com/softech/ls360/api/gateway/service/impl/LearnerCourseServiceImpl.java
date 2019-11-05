@@ -607,12 +607,16 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	public LearnerEnrollmentStatistics getLearnerCourse(UserRequest userRequest) {
 		logger.info("Call for Learner's enrolled courses from " + getClass().getName());
 		
-		//validate get user from token	
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
-		String userName = auth.getName(); //get logged in username
-		logger.info("Auth User Name :: :: :: " + userName);
+		String userName;
+		if(userRequest.getUserName() == null) {
+			//validate get user from token	
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+			userName = auth.getName(); //get logged in username
+			logger.info("Auth User Name :: :: :: " + userName);
+		}
+		else 
+			userName=userRequest.getUserName();
 		
-
 		    List<LearnerCourseStatistics> lstlcs = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuidAndLearnerEnrollment_enrollmentStatus(userName, userRequest.getCourseGuid(), "Active");
 		    
 		    if(lstlcs==null || lstlcs.size()==0){
