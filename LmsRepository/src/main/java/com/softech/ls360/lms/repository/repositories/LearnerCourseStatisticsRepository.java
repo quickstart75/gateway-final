@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
+import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
 
 public interface LearnerCourseStatisticsRepository extends CrudRepository<LearnerCourseStatistics, Long> {
 
@@ -270,5 +271,6 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     		"	Where u.username= :username AND c.THIRDPARTYGUID = :courseGuid order by lcs.id desc", nativeQuery = true)
     LearnerCourseStatistics getLearnerCourseStatisticsByUsernameAndEdxCourse(@Param("username") String username, @Param("courseGuid") String courseGuid);
     
+    LearnerCourseStatistics findByLearnerEnrollment(LearnerEnrollment learnerEnrollmentId);
     
 }

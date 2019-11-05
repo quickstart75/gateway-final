@@ -31,5 +31,5 @@ public interface LearnerCourseService {
 	
 	LearnerEnrollmentStatistics getLearnerCourse(UserRequest userRequest);
 	
-	void updateCourseStatistics(Long enrollmentIds, String completionDate);
+	void updateCourseStatistics(Long enrollmentIds);
 }

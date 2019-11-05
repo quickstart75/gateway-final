@@ -1210,8 +1210,23 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	}
 
 	@Override
-	public void updateCourseStatistics(Long enrollmentIds, String completionDate) {
-		learnerCourseStatisticsRepository.markCompletion(enrollmentIds, completionDate);
+	public void updateCourseStatistics(Long enrollmentIds) {
+		
+		LearnerEnrollment en=new LearnerEnrollment();
+		en.setId(enrollmentIds);
+		LearnerCourseStatistics statistics = learnerCourseStatisticsRepository.findByLearnerEnrollment(en);
+		
+		if(statistics != null ) {
+			statistics.setCompleted(true);
+			statistics.setCompletionDate(LocalDateTime.now());
+			statistics.setStatus("completed");
+			learnerCourseStatisticsRepository.save(statistics);
+			
+		}
+		
+		
+		
+		
 		
 	}
 }

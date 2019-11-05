@@ -86,7 +86,7 @@ public class StatisticsRestEndpoint {
 		logger.info("Request received at " + getClass().getName() + " /learner/course/mark-complete");
 		
 		if(request.get("enrollmentId") != null ) {
-			learnerCourseService.updateCourseStatistics(Long.parseLong(request.get("enrollmentId")), LocalDateTime.now().toString());
+			learnerCourseService.updateCourseStatistics(Long.parseLong(request.get("enrollmentId")));
 			map.put("status", Boolean.TRUE);
 			map.put("message", "success");
 			map.put("result", "Record Updated");
