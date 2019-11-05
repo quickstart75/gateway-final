@@ -489,7 +489,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			}
 			
 			String mocType = lcs.getLearnerEnrollment().getCourse().getBusinessUnitName();
-			if(mocType!=null && mocType.equalsIgnoreCase("MOC On Demand")){
+			if(mocType!=null && (mocType.equalsIgnoreCase("MOC On Demand") || mocType.equalsIgnoreCase("Voucher"))){
 				MOCDetail objmocDetail = new MOCDetail();
 				objmocDetail.setType(mocType);
 				objmocDetail.setEnrollmentStatus(lcs.getLearnerEnrollment().getMocStatus());
@@ -705,7 +705,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			}
 			
 			String mocType = lcs.getLearnerEnrollment().getCourse().getBusinessUnitName();
-			if(mocType!=null && mocType.equalsIgnoreCase("MOC On Demand")){
+			if(mocType!=null && (mocType.equalsIgnoreCase("MOC On Demand") || mocType.equalsIgnoreCase("Voucher"))){
 				MOCDetail objmocDetail = new MOCDetail();
 				objmocDetail.setType(mocType);
 				objmocDetail.setEnrollmentStatus(lcs.getLearnerEnrollment().getMocStatus());
@@ -1223,10 +1223,5 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			learnerCourseStatisticsRepository.save(statistics);
 			
 		}
-		
-		
-		
-		
-		
-	}
+	}	
 }
