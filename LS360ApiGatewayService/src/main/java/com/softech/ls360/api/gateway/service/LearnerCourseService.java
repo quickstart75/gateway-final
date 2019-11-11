@@ -32,4 +32,6 @@ public interface LearnerCourseService {
 	LearnerEnrollmentStatistics getLearnerCourse(UserRequest userRequest);
 	
 	void updateCourseStatistics(Long enrollmentIds);
+	
+	String userDetailExist(String courseGuid, String userName );
 }

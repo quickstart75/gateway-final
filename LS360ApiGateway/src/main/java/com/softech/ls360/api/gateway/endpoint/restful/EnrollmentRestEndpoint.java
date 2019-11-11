@@ -173,6 +173,11 @@ public class EnrollmentRestEndpoint {
 				returnResponse.put("message", "Success");
 				
 				mapAPiResponseResult.put("learnerEnrollments", lcsVO);
+			
+				
+				String userDetailExist = learnerCourseCountService.userDetailExist(user.getCourseGuid(), user.getUserName() );
+				mapAPiResponseResult.put("userDetailformRequired", userDetailExist);
+				
 				returnResponse.put("result", mapAPiResponseResult);
 				return returnResponse;
 			 }

@@ -29,6 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.softech.ls360.api.gateway.service.AssessmentUserService;
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
 import com.softech.ls360.api.gateway.service.VILTAttendanceService;
@@ -52,11 +53,15 @@ import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.Arra
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.GetCourseLockedStatusResponse;
 import com.softech.ls360.lcms.api.webservice.client.stub.wsdl.playerutility.LockedCourseStatus;
 import com.softech.ls360.lms.repository.entities.AssessmentConfigurationProjection;
+import com.softech.ls360.lms.repository.entities.AssessmentUser;
+import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
 import com.softech.ls360.lms.repository.entities.Subscription;
 import com.softech.ls360.lms.repository.repositories.AssessmentConfigurationRepository;
+import com.softech.ls360.lms.repository.repositories.AssessmentUserRepository;
 import com.softech.ls360.lms.repository.repositories.CourseGroupRepository;
+import com.softech.ls360.lms.repository.repositories.CourseRepository;
 import com.softech.ls360.lms.repository.repositories.DistributorRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
@@ -90,10 +95,16 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	private SubscriptionCourseCountService subscriptionCourseCountService;
 	
 	@Inject
+	CourseRepository courseRepository;
+	
+	@Inject
     protected LockedCourseService lockedCourseService;
 	
 	@Inject
     protected ClassroomCourseService classroomCourseService;
+	
+	@Inject
+	private AssessmentUserRepository assessmentUserRepository;
 	
 	@Inject
 	protected DistributorRepository distributorRepository;
@@ -126,6 +137,9 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
     private String playerBaseURL;
 	
 	Integer storeId = 0;
+	
+	@Inject
+	private AssessmentUserService assessmentUserService;
 	
 	@Override
 	@Transactional
@@ -764,11 +778,36 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 					learnerCourse.setIsLabThirdParty(true);
 				}	
 			}
-		
 		return learnerCourse;
 	}
 	
-
+	public String userDetailExist(String courseGuid, String userName ) {
+		
+		if(userName == null || userName.equals("")) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+			userName = auth.getName(); //get logged in username
+		}
+		
+		if(courseGuid==null || courseGuid.equals("") || userName==null || userName.equals(""))
+			return "";
+		
+		Course course = courseRepository.findByCourseGuid(courseGuid);
+		
+		if(course==null)
+			return "";
+		
+		String businessUnitName =course.getBusinessUnitName();
+		
+		if( businessUnitName != null && businessUnitName.equalsIgnoreCase("HR Assessment") ) {
+			
+			AssessmentUser assessmentUser = assessmentUserRepository.findByUser_username(userName);
+			return (assessmentUser==null)? "true" : "false";
+		}
+		
+		return "";
+		
+	}
+	
 	@Override
 	@Transactional
 	public LearnersEnrollmentResponse getLearnersEnrollment(LearnersEnrollmentRequest userCoursesRequest) {
