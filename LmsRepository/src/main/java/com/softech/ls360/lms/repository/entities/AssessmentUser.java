@@ -24,13 +24,13 @@ public class AssessmentUser {
 	private LocalDateTime DOB;
 	
 	@Column(name = "CURRENT_SALARY")
-	private Integer currentSalary;
+	private String currentSalary;
 	
 	@Column(name = "CURRENT_COMMISSIONS")
-	private Integer currentCommission;
+	private String currentCommission;
 	
 	@Column(name = "EXPECTED_SALARY")
-	private Integer expectedSalary;
+	private String expectedSalary;
 	
 	@Column(name = "CURRENT_JOB_TITLE")
 	private String currentJobTitle;
@@ -39,7 +39,7 @@ public class AssessmentUser {
 	private String jobAppliedFor;
 	
 	@Column(name="NOTICE_PERIOD")
-	private LocalDateTime noticePeriod;
+	private String noticePeriod;
 	
 	@Column(name = "REFERRED_BY")
 	private String referredBy;
@@ -64,27 +64,27 @@ public class AssessmentUser {
 		DOB = dOB;
 	}
 
-	public Integer getCurrentSalary() {
+	public String getCurrentSalary() {
 		return currentSalary;
 	}
 
-	public void setCurrentSalary(Integer currentSalary) {
+	public void setCurrentSalary(String currentSalary) {
 		this.currentSalary = currentSalary;
 	}
 
-	public Integer getCurrentCommission() {
+	public String getCurrentCommission() {
 		return currentCommission;
 	}
 
-	public void setCurrentCommission(Integer currentCommission) {
+	public void setCurrentCommission(String currentCommission) {
 		this.currentCommission = currentCommission;
 	}
 
-	public Integer getExpectedSalary() {
+	public String getExpectedSalary() {
 		return expectedSalary;
 	}
 
-	public void setExpectedSalary(Integer expectedSalary) {
+	public void setExpectedSalary(String expectedSalary) {
 		this.expectedSalary = expectedSalary;
 	}
 
@@ -104,11 +104,11 @@ public class AssessmentUser {
 		this.jobAppliedFor = jobAppliedFor;
 	}
 
-	public LocalDateTime getNoticePeriod() {
+	public String getNoticePeriod() {
 		return noticePeriod;
 	}
 
-	public void setNoticePeriod(LocalDateTime noticePeriod) {
+	public void setNoticePeriod(String noticePeriod) {
 		this.noticePeriod = noticePeriod;
 	}
 
@@ -127,6 +127,7 @@ public class AssessmentUser {
 	public void setUser(VU360User user) {
 		this.user = user;
 	}
+
 	
 	
 	

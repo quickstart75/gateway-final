@@ -43,32 +43,33 @@ public class AssessmentRestEndPoint {
 			VU360User whoAmI = vu360UserRepository.findByUsername(userName);
 			
 			LocalDateTime DOB = LocalDateTime.parse(request.get("DOB"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-			int expectedSalary = Integer.parseInt(request.get("expectedSalary"));
-			String jobAppliedFor = request.get("jobAppliedFor");
+			String expectedSalary = request.get("expectedSalary") == null ? "" : request.get("expectedSalary");
+			String jobAppliedFor = request.get("jobAppliedFor") == null ? "" : request.get("jobAppliedFor");
 			
-			if(DOB != null && expectedSalary>=0 && !jobAppliedFor.isEmpty()) {
+			if(DOB != null && !expectedSalary.isEmpty() && !jobAppliedFor.isEmpty()) {
 				AssessmentUser user=new AssessmentUser();
 				
 				user.setDOB(DOB);
 				user.setExpectedSalary(expectedSalary);
 				user.setJobAppliedFor(jobAppliedFor);
-				
-				String currentSalary=request.get("currentSalary")==null || request.get("currentSalary").isEmpty() ? "0" : request.get("currentSalary");
-				user.setCurrentSalary(Integer.parseInt(currentSalary));
-				
-				String currentCommission = request.get("currentCommission")==null || request.get("currentCommission").isEmpty() ? "0" : request.get("currentCommission");
-				user.setCurrentCommission(Integer.parseInt(currentCommission));
-				
+				user.setCurrentSalary(request.get("currentSalary"));
+				user.setCurrentCommission(request.get("currentCommission"));
 				user.setCurrentJobTitle(request.get("currentJobTitle"));
 				user.setReferredBy(request.get("referredBy"));
-				user.setNoticePeriod(LocalDateTime.parse(request.get("DOB"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+				user.setNoticePeriod(request.get("noticePeriod"));
 				user.setUser(whoAmI);
+				
 				assessmentUserService.addAssAssessmentUser(user);
 				
 				responseBody.put("status", Boolean.TRUE);
 				responseBody.put("result", "User Added");
 				responseBody.put("message", "Success");
 				
+			}
+			else {
+				responseBody.put("status", Boolean.TRUE);
+				responseBody.put("result", "compulsory feilds are not added");
+				responseBody.put("message", "User Not Added");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
