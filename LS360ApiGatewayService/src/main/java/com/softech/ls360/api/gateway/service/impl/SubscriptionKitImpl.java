@@ -18,8 +18,8 @@ public class SubscriptionKitImpl implements SubscriptionKitService {
 	
 	
 	@Override
-	public boolean findByNameAndGuid(String name, String guid) {
-		List<SubscriptionKit> kit=subscriptionKitRepository.findByNameAndGuid(name, guid);
+	public boolean findBydGuid(String guid) {
+		List<SubscriptionKit> kit=subscriptionKitRepository.findByGuid(guid.toLowerCase());
 		return !kit.isEmpty();
 	}
 
