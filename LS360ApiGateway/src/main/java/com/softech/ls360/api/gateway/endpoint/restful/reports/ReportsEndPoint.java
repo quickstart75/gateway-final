@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.endpoint.restful.reports;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,6 +14,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,7 +86,32 @@ public class ReportsEndPoint {
 		}
 			return null;
 	}
+	@RequestMapping(value = "/assessment", method = RequestMethod.GET)
+	@ResponseBody
+	public Object generateAssessmentReport(HttpServletResponse response) throws IOException {
+		Map<String ,String> reports = new HashMap<String, String>() ;
+		response.setContentType("application/csv");   
+		
+		response.setHeader("content-disposition","attachment;filename =filename.csv"); 
+		ServletOutputStream  writer = response.getOutputStream();   
+		writer.println("Student-name ,Email-address ,Mobile-phone ,Office-phone ,Course-name ,Class-name ,Modality ,Class-startdate ,Class-enddate");
+		
+		
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 8; j++) 
+				writer.print("okok");
+	              
+			writer.println();	
+			
+		}
+           
+	
 
+        writer.flush();
+        writer.close();
+        ResponseEntity entity=new ResponseEntity<>(response,HttpStatus.OK);
+		return null ;
+	}
 
 	@RequestMapping(value = "/enrollmentsByCustomerID", method = RequestMethod.GET)
 	@ResponseBody
