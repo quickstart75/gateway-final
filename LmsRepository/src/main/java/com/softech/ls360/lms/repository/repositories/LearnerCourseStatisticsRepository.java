@@ -273,4 +273,18 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     
     LearnerCourseStatistics findByLearnerEnrollment(LearnerEnrollment learnerEnrollmentId);
     
+    @Query(value = "SELECT  c.name, c.guid, c.COURSETYPE,   c.BUSINESSUNIT_NAME, lcs.status, le.orderstatus , lcs.TOTALTIMEINSECONDS FROM vu360user u  \n" + 
+    		"inner join Learner l on l.vu360user_id=u.id \n" + 
+    		"inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id   \n" + 
+    		"inner join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id  \n" + 
+    		"inner join course c on c.id=le.course_id where  u.username LIKE  CONCAT('%',:username,'%') and le.ENROLLMENTSTATUS='Active'", nativeQuery = true)
+    List<Object[]> getLearnerCourseStatisticsByUsername(@Param("username") String username);
+
+    @Query(value = "SELECT  c.name, c.guid, c.COURSETYPE,   c.BUSINESSUNIT_NAME, lcs.status, le.orderstatus , lcs.TOTALTIMEINSECONDS FROM vu360user u  \n" + 
+    		"inner join Learner l on l.vu360user_id=u.id \n" + 
+    		"inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id   \n" + 
+    		"inner join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id  \n" + 
+    		"inner join course c on c.id=le.course_id where  u.username LIKE  CONCAT('%',:username,'%') and le.ENROLLMENTSTATUS='Active' AND lcs.status='completed' ", nativeQuery = true)
+    List<Object[]> getLearnerCourseStatisticsByUsernameAndComplete(@Param("username") String username);
+    
 }

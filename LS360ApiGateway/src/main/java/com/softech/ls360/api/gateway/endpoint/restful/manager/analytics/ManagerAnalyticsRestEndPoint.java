@@ -10,6 +10,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -31,8 +34,13 @@ import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingRe
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithCourseUserRest;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithUserRest;
 import com.softech.ls360.lms.repository.entities.Customer;
+import com.softech.ls360.lms.repository.entities.InformalLearningActivity;
 import com.softech.ls360.lms.repository.entities.Learner;
+import com.softech.ls360.lms.repository.entities.VU360User;
+import com.softech.ls360.lms.repository.repositories.InformalLearningActivityRepository;
+import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
+import com.softech.ls360.lms.repository.repositories.VU360UserRepository;
 
 @RestEndpoint
 @RequestMapping(value="/lms/customer")
@@ -47,8 +55,19 @@ public class ManagerAnalyticsRestEndPoint {
 	@Autowired
 	private LearnerCourseStatisticsService learnerCourseStatisticsService;
 	
+	@Autowired
+	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
+	
+	@Autowired
+	private InformalLearningActivityRepository informalLearningActivityRepository;
+	
+	@Autowired
+	private VU360UserRepository vu360UserRepository;
+	
 	@Inject
 	private CustomerService customerService;
+	
+	private static final Logger logger = LogManager.getLogger();
 	
 	@Value( "${megasite.distributor.id}" )
     private String megasiteDistributorId;
@@ -200,5 +219,78 @@ public class ManagerAnalyticsRestEndPoint {
         map.put("message", "success");
         map.put("result", response);
 		return map;
+	}
+	
+	@RequestMapping(value = "/course-stats", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<Object, Object> learnerStatistics(@RequestBody Map<Object, Object> request){
+		Map<Object, Object> responseBody = new HashMap<Object, Object>();
+		
+		try {
+			String username = request.get("username").toString();
+			String enrollmentStatus = (String) request.get("enrollmentStatus");
+			Boolean withStats = (Boolean) request.get("withStats");
+			Map<Object, Object> result=new HashMap<>();
+			if(username != null && enrollmentStatus != null && withStats != null) {
+
+				List<Object[]> enrolledCourses = null;
+				
+				if(enrollmentStatus.equals("completed"))
+					enrolledCourses = learnerCourseStatisticsRepository.getLearnerCourseStatisticsByUsernameAndComplete(username);
+					
+				else
+					enrolledCourses = learnerCourseStatisticsService.getLearnerCourseStatisticsByUsername(username);
+				
+				Map<Object, Object> states=new HashMap<>();
+				Map<Object, Object> allCourse = new HashMap<>();
+				
+				int selfPlaced=0, classroom=0;
+				
+				for(Object[] record : enrolledCourses) {
+					Map<String, Object> course = new HashMap<>();
+					course.put("bussinessUnit", record[3]);
+					course.put("name", record[0]);
+					course.put("timespent", record[6]);
+					course.put("status", record[4]);
+					allCourse.put(record[1], course);
+					
+					if(record[3].toString().equalsIgnoreCase("Classroom Course")) 
+						classroom += Integer.parseInt(record[6].toString());
+					else
+						selfPlaced += Integer.parseInt(record[6].toString());
+					
+			
+				}
+				result.put("course", allCourse);
+				
+				if(withStats) {
+					states.put("selfPaced", selfPlaced);
+					states.put("classroom", classroom);
+					VU360User user = vu360UserRepository.findByUsername(username);
+					int a=informalLearningActivityRepository.getGetTimeInSecondsByUserId(user.getId());
+					int b=informalLearningActivityRepository.getGetTimeInSecondsByUsername(user.getUsername());
+					states.put("informalLearning", a+b);
+					result.put("states", states);
+					
+				}
+				
+				
+			}
+			
+			responseBody.put("result", result);
+			
+			
+			
+		}catch (Exception e) {
+			logger.info(">>>>>>>>>>>>>>>>>> EXCEPTION >>>>>>>>> :: learnerStatistics() ");
+			logger.info(">>>>>>>>>>>>>>>>>> MESSAGE >>>>>>>>>>> " + e.getLocalizedMessage());
+			logger.info(">>>>>>>>>>>>>>>>>> END ");
+			responseBody.put("status", Boolean.FALSE);
+	        responseBody.put("message", e.getMessage());
+	        responseBody.put("result", "");
+			e.printStackTrace();
+		}
+		
+		return responseBody;
 	}
 }

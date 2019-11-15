@@ -443,4 +443,10 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	  }
 	  return monthString;
 	}
+
+
+	@Override
+	public List<Object[]> getLearnerCourseStatisticsByUsername(String username) {
+		return learnerCourseStatisticsRepository.getLearnerCourseStatisticsByUsername(username);
+	}
 }

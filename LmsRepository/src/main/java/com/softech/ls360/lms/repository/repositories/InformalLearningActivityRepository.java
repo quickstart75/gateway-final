@@ -18,4 +18,10 @@ public interface InformalLearningActivityRepository extends CrudRepository<Infor
 	
 	List<InformalLearningActivity> findByItemGuidAndStoreId(String guid, String storeId);
 	
+	@Query(value = "select sum(TIMESPENTINSECONDS) from InformalLearningActivity where vu360user_id=:userId", nativeQuery = true)
+	Integer getGetTimeInSecondsByUserId(@Param("userId") long userId);
+	
+	@Query(value = "select sum(TIMESPENTINSECONDS) from LearnerInformalActivity  where vu360username= :username", nativeQuery = true)
+	Integer getGetTimeInSecondsByUsername(@Param("username") String username);
+	
 }
