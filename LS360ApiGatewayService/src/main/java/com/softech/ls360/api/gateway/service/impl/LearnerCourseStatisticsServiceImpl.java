@@ -449,4 +449,11 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	public List<Object[]> getLearnerCourseStatisticsByUsername(String username) {
 		return learnerCourseStatisticsRepository.getLearnerCourseStatisticsByUsername(username);
 	}
+
+
+	@Override
+	public List<Object[]> getLearnerCourseStatisticsByUsernameAndComplete(String username) {
+		
+		return learnerCourseStatisticsRepository.getLearnerCourseStatisticsByUsernameAndComplete(username);
+	}
 }

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.CustomerService;
+import com.softech.ls360.api.gateway.service.InformalLearningService;
 import com.softech.ls360.api.gateway.service.LearnerCourseStatisticsService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.response.EngagementTeamByMonthResponse;
@@ -56,10 +57,7 @@ public class ManagerAnalyticsRestEndPoint {
 	private LearnerCourseStatisticsService learnerCourseStatisticsService;
 	
 	@Autowired
-	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
-	
-	@Autowired
-	private InformalLearningActivityRepository informalLearningActivityRepository;
+	private InformalLearningService informalLearningService;
 	
 	@Autowired
 	private VU360UserRepository vu360UserRepository;
@@ -236,7 +234,7 @@ public class ManagerAnalyticsRestEndPoint {
 				List<Object[]> enrolledCourses = null;
 				
 				if(enrollmentStatus.equals("completed"))
-					enrolledCourses = learnerCourseStatisticsRepository.getLearnerCourseStatisticsByUsernameAndComplete(username);
+					enrolledCourses = learnerCourseStatisticsService.getLearnerCourseStatisticsByUsernameAndComplete(username);
 					
 				else
 					enrolledCourses = learnerCourseStatisticsService.getLearnerCourseStatisticsByUsername(username);
@@ -267,8 +265,8 @@ public class ManagerAnalyticsRestEndPoint {
 					states.put("selfPaced", selfPlaced);
 					states.put("classroom", classroom);
 					VU360User user = vu360UserRepository.findByUsername(username);
-					int a=informalLearningActivityRepository.getGetTimeInSecondsByUserId(user.getId());
-					int b=informalLearningActivityRepository.getGetTimeInSecondsByUsername(user.getUsername());
+					int a=informalLearningService.getGetTimeInSecondsByUserId(user.getId());
+					int b=informalLearningService.getGetTimeInSecondsByUsername(user.getUsername());
 					states.put("informalLearning", a+b);
 					result.put("states", states);
 					

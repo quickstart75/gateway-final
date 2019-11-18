@@ -5,6 +5,8 @@ package com.softech.ls360.api.gateway.service;
 import java.util.HashMap;
 import java.util.List;
 
+import org.springframework.data.repository.query.Param;
+
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityUserResponse;
 import com.softech.ls360.lms.repository.entities.InformalLearning;
@@ -20,4 +22,6 @@ public interface InformalLearningService {
 	InformalLearningActivity findById(long id);
 	boolean deleteInformalLearningActivity(long id);
 	List<InformalLearningActivityUserResponse> getInformalActivityListByItemGuid(InformalLearningActivityRequest request);
+	Integer getGetTimeInSecondsByUserId(long userId);
+	Integer getGetTimeInSecondsByUsername(String username);
 }

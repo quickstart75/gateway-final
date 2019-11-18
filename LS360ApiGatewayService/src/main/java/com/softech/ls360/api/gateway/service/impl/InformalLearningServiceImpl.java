@@ -144,4 +144,15 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 		
 		return LstInformalResp;
 	}
+
+	@Override
+	public Integer getGetTimeInSecondsByUserId(long userId) {
+		return informalLearningActivityRepository.getGetTimeInSecondsByUserId(userId);
+	}
+
+	@Override
+	public Integer getGetTimeInSecondsByUsername(String username) {
+		// TODO Auto-generated method stub
+		return informalLearningActivityRepository.getGetTimeInSecondsByUsername(username);
+	}
 }
