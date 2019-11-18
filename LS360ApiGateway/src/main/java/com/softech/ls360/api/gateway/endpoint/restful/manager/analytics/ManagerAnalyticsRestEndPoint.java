@@ -242,6 +242,8 @@ public class ManagerAnalyticsRestEndPoint {
 				Map<Object, Object> states=new HashMap<>();
 				Map<Object, Object> allCourse = new HashMap<>();
 				
+				
+				
 				int selfPlaced=0, classroom=0;
 				
 				for(Object[] record : enrolledCourses) {
@@ -249,7 +251,10 @@ public class ManagerAnalyticsRestEndPoint {
 					course.put("bussinessUnit", record[3]);
 					course.put("name", record[0]);
 					course.put("timespent", record[6]);
-					course.put("status", record[4]);
+					
+					Object orderStatus=record[5] == null ? "" : record[5];
+							
+					course.put("status", orderStatus.equals("pending") ? "pending" : record[4]);
 					allCourse.put(record[1], course);
 					
 					if(record[3].toString().equalsIgnoreCase("Classroom Course")) 
@@ -265,8 +270,10 @@ public class ManagerAnalyticsRestEndPoint {
 					states.put("selfPaced", selfPlaced);
 					states.put("classroom", classroom);
 					VU360User user = vu360UserRepository.findByUsername(username);
-					int a=informalLearningService.getGetTimeInSecondsByUserId(user.getId());
-					int b=informalLearningService.getGetTimeInSecondsByUsername(user.getUsername());
+					Integer a=informalLearningService.getGetTimeInSecondsByUserId(user.getId());
+					a=a==null ? 0 : a;
+					Integer b=informalLearningService.getGetTimeInSecondsByUsername(user.getUsername());
+					b=b==null ? 0 : b;
 					states.put("informalLearning", a+b);
 					result.put("states", states);
 					
