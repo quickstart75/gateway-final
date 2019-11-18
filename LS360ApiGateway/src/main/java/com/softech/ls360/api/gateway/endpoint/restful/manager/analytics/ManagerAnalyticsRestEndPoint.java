@@ -261,7 +261,7 @@ public class ManagerAnalyticsRestEndPoint {
 					
 			
 				}
-				result.put("course", allCourse);
+				result.put("courses", allCourse);
 				
 				if(withStats) {
 					states.put("selfPaced", selfPlaced);
