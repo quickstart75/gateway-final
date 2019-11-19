@@ -35,7 +35,7 @@ public class EdxProgressEndpoint {
 		Map<String, String> responseBody=new HashMap<>();
 		
 		String username=request.get("username");
-		String courseGuid=request.get("courseId").replace('+', ' ');
+		String courseGuid=request.get("courseId");
 		String progress= (request.get("progress")==null || request.get("progress").isEmpty() ? "0" : request.get("progress"));
 		String status=request.get("status");
 		

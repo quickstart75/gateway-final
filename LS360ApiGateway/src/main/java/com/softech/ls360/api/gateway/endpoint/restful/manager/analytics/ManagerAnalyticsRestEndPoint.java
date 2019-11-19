@@ -229,20 +229,22 @@ public class ManagerAnalyticsRestEndPoint {
 			String enrollmentStatus = (String) request.get("enrollmentStatus");
 			Boolean withStats = (Boolean) request.get("withStats");
 			Map<Object, Object> result=new HashMap<>();
-			if(username != null && enrollmentStatus != null && withStats != null) {
+			VU360User user = vu360UserRepository.findByUsername(username);
+			
+			if(username != null && enrollmentStatus != null && withStats != null && user!=null) {
 
 				List<Object[]> enrolledCourses = null;
 				
 				if(enrollmentStatus.equals("completed"))
 					enrolledCourses = learnerCourseStatisticsService.getLearnerCourseStatisticsByUsernameAndComplete(username);
 					
-				else
+				else if(enrollmentStatus.equals("enrolled"))
 					enrolledCourses = learnerCourseStatisticsService.getLearnerCourseStatisticsByUsername(username);
 				
 				Map<Object, Object> states=new HashMap<>();
 				Map<Object, Object> allCourse = new HashMap<>();
 				
-				
+				enrolledCourses = enrolledCourses == null ?  new ArrayList<>() : enrolledCourses;
 				
 				int selfPlaced=0, classroom=0;
 				
@@ -257,7 +259,7 @@ public class ManagerAnalyticsRestEndPoint {
 					course.put("status", orderStatus.equals("pending") ? "pending" : record[4]);
 					allCourse.put(record[1], course);
 					
-					if(record[3].toString().equalsIgnoreCase("Classroom Course")) 
+					if(record[2].toString().equalsIgnoreCase("Classroom Course")) 
 						classroom += Integer.parseInt(record[6].toString());
 					else
 						selfPlaced += Integer.parseInt(record[6].toString());
@@ -269,7 +271,7 @@ public class ManagerAnalyticsRestEndPoint {
 				if(withStats) {
 					states.put("selfPaced", selfPlaced);
 					states.put("classroom", classroom);
-					VU360User user = vu360UserRepository.findByUsername(username);
+					
 					Integer a=informalLearningService.getGetTimeInSecondsByUserId(user.getId());
 					a=a==null ? 0 : a;
 					Integer b=informalLearningService.getGetTimeInSecondsByUsername(user.getUsername());
@@ -281,7 +283,12 @@ public class ManagerAnalyticsRestEndPoint {
 				
 				
 			}
-			
+			else {
+				responseBody.put("status", Boolean.TRUE);
+		        responseBody.put("message", "Invalid data");
+		        responseBody.put("result", "");
+		        return responseBody;
+			}
 			responseBody.put("result", result);
 			
 			
