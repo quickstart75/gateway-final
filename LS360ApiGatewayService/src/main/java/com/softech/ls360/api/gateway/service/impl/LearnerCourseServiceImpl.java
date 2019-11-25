@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.api.gateway.service.AssessmentUserService;
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
+import com.softech.ls360.api.gateway.service.InformalLearningService;
 import com.softech.ls360.api.gateway.service.LearnerCourseService;
 import com.softech.ls360.api.gateway.service.VILTAttendanceService;
 import com.softech.ls360.api.gateway.service.model.request.CourseTimeSpentRequest;
@@ -58,6 +60,7 @@ import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
 import com.softech.ls360.lms.repository.entities.Subscription;
+import com.softech.ls360.lms.repository.entities.VU360User;
 import com.softech.ls360.lms.repository.repositories.AssessmentConfigurationRepository;
 import com.softech.ls360.lms.repository.repositories.AssessmentUserRepository;
 import com.softech.ls360.lms.repository.repositories.CourseGroupRepository;
@@ -66,6 +69,7 @@ import com.softech.ls360.lms.repository.repositories.DistributorRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
+import com.softech.ls360.lms.repository.repositories.VU360UserRepository;
 import com.softech.ls360.storefront.api.service.ProductSummaryService;
 import com.softech.ls360.storefront.api.service.SubscriptionCourseCountService;
 import com.softech.ls360.util.datetime.TimeConverter;
@@ -140,6 +144,12 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	
 	@Inject
 	private AssessmentUserService assessmentUserService;
+	
+	@Autowired
+	private InformalLearningService informalLearningService;
+	
+	@Autowired
+	private VU360UserRepository vu360UserRepository;
 	
 	@Override
 	@Transactional
@@ -230,6 +240,7 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 	public Map<String, Integer> getCourseCount(LearnerCourseCountRequest request, String userName) {
 
 		logger.info("Calling Service for UserName :: :: :: " + userName);
+		VU360User user=vu360UserRepository.findByUsername(userName);
 		
 		Map<String, Integer> myCoursesCount = new HashMap<String, Integer>();
 		
@@ -243,11 +254,11 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				logger.info("Call for completed course count from "
 						+ getClass().getName());
 				myCoursesCount
-						.put(str,
-								learnerCourseStatisticsRepository
-										.countByStatusInAndCompletedAndLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus(
-												status, true, userName,
-												"Active"));
+				.put(str,
+						learnerCourseStatisticsRepository
+								.countByStatusInAndCompletedAndLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatus(
+										status, true, userName,
+										"Active"));
 			} else if (str.toLowerCase().equals("subscriptions") && storeId != 0) {
 				
 				/*
@@ -278,9 +289,14 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 			}else if (str.toLowerCase().equals("totalseconds")) {
 				
 				//logger.info("Call for all enrollments count from " + getClass().getName());
-				myCoursesCount
-						.put(str,
-							 learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active"));
+				Integer a=informalLearningService.getGetTimeInSecondsByUserId(user.getId());
+				a=a==null ? 0 : a;
+				Integer b=informalLearningService.getGetTimeInSecondsByUsername(user.getUsername());
+				b=b==null ? 0 : b;
+				
+				int c=learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active");
+				
+				myCoursesCount.put(str,a+b+c);
 				
 			} else if (str.toLowerCase().equals("all")) {
 				logger.info("Call for all enrollments count from "

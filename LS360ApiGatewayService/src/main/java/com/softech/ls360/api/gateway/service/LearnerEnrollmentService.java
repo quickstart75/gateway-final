@@ -13,6 +13,7 @@ import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsResponse
 import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingResponse;
 import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
+import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
 
 public interface LearnerEnrollmentService {
 
@@ -37,4 +38,6 @@ public interface LearnerEnrollmentService {
 	LearnerCourseStatistics getLearnerCourseStatisticsByUsernameAndEdxCourse(String username, String courseGuid);
 	
 	LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress);
+	
+	LearnerEnrollment getLearnerEnrollmentById(Long enrollementId);
 }
