@@ -187,7 +187,7 @@ public class ElasticSearchFavoriteEndPoint {
 				
 				if(request.getSearchType().equalsIgnoreCase("informalLearning")){
 					VU360User objUser = userService.findByUsername(username);  
-					Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getId());
+					Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getUsername());
 					Map<String, Object> lstInformal = new HashMap<String, Object>();
 					lstInformal.put("informalLearning", objInformalLearning);
 					magentoAPiResponse.put("markAsCompleted", lstInformal);

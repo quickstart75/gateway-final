@@ -161,6 +161,50 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	}
 	
 	
+	
+	// newwwwwwwwwwww
+	@Override
+	public List learnerTimespentByMonth(String username, String startDate, String endDate) {
+		
+		//Map objResponse =  new HashMap();
+		List<Map> month = new ArrayList<Map>();
+		List<Object[]> objstates = learnerCourseStatisticsRepository.learnerTimespentByMonth(username, startDate, endDate);
+       
+        
+		Map<String, Long> yearwhise = new HashMap<String, Long>();
+		for(Object[]  objCE : objstates){
+				 yearwhise.put(objCE[0].toString() + "_" + objCE[1].toString(), Long.parseLong(objCE[2].toString()));
+		}
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		
+		Integer currentMonth=cal.get(Calendar.MONTH)+1;
+		Integer currentyear=cal.get(Calendar.YEAR);
+		
+		for(int i=1;i<=12;i++){
+			
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("date", currentyear +"-"+ currentMonth);
+			
+			if(yearwhise.get(currentyear.toString()+"_"+currentMonth)!=null)
+				map.put("formal", yearwhise.get(currentyear.toString()+"_"+currentMonth)+"");
+			else
+				map.put("formal", "0");
+			
+			cal.add(Calendar.MONTH, -1); 
+			currentMonth=cal.get(Calendar.MONTH)+1;
+			currentyear=cal.get(Calendar.YEAR);
+			month.add(map); 
+		}
+		return month;
+	}
+	
+	
+	
+	
+	
+	
 	@Override
 	public List<UserGroupwithUserRest> getUsersTimespentByLearnerGroup(Long customerId){
 		List<UserGroupwithUserRest> objResponse = new ArrayList<UserGroupwithUserRest>();

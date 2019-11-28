@@ -103,9 +103,14 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 	public void logInformalLearningActivity(InformalLearningActivity informalLearningActivity){
 		informalLearningActivityRepository.save(informalLearningActivity);
 	}
-	
+	/*
 	public InformalLearningActivity getInformalLearningActivity(com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest infLearRequest){
 		return informalLearningActivityRepository.findByItemGuidAndVu360userIdAndStoreId(infLearRequest.getItemGuid(), infLearRequest.getVu360userId(), infLearRequest.getStoreId());
+	}
+	*/
+	
+	public InformalLearning getLearnerInformalActivity(com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest infLearRequest){
+		return informalLearningRepository.findTopByItemGuidAndUserNameAndStoreId(infLearRequest.getItemGuid(), infLearRequest.getUsername(), infLearRequest.getStoreId());
 	}
 	
 	public InformalLearningActivity findById(long id){
@@ -118,8 +123,14 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 		return true;
 	}
 	
+	public boolean deleteLearnerInformalActivity(long id){
+		InformalLearning obj = informalLearningRepository.findOne(id);
+		if(obj!=null)
+			informalLearningRepository.delete(obj);
+		return true;
+	}
 	
-	
+	/*
 	public List<InformalLearningActivityUserResponse> getInformalActivityListByItemGuid(InformalLearningActivityRequest request){
 		List<InformalLearningActivity> lstInfo = informalLearningActivityRepository.findByItemGuidAndStoreId(request.getItemGuid(), request.getStoreId());
 		
@@ -143,8 +154,8 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 		}
 		
 		return LstInformalResp;
-	}
-
+	}*/
+/*
 	@Override
 	public Integer getGetTimeInSecondsByUserId(long userId) {
 		return informalLearningActivityRepository.getGetTimeInSecondsByUserId(userId);
@@ -154,5 +165,41 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 	public Integer getGetTimeInSecondsByUsername(String username) {
 		// TODO Auto-generated method stub
 		return informalLearningActivityRepository.getGetTimeInSecondsByUsername(username);
+	}*/
+	
+	
+	public InformalLearning findLearnerInformalActivityById(long id){
+		return informalLearningRepository.findOne(id);
+	}
+	
+	
+	public List<InformalLearningActivityUserResponse> getLearnerInformalActivityListByItemGuid(InformalLearningActivityRequest request){
+		List<InformalLearning> lstInfo = informalLearningRepository.findByItemGuidAndStoreId(request.getItemGuid(), request.getStoreId());
+		
+		List<InformalLearningActivityUserResponse> LstInformalResp = new ArrayList<InformalLearningActivityUserResponse>();
+		InformalLearningActivityUserResponse objInforResponse;
+		for(InformalLearning  objInformal : lstInfo){
+			objInforResponse = new InformalLearningActivityUserResponse();
+			objInforResponse.setComments(objInformal.getNotes());
+			
+			if(objInformal.getUserName() !=null && !objInformal.getUserName().equals("")){
+				VU360User objUser = userService.findByUsername(objInformal.getUserName()); 
+				objInforResponse.setFirstName(objUser.getFirstName());
+				objInforResponse.setLastName(objUser.getLastName());
+				objInforResponse.setUrl(humhubBaseURL + "u/" + objUser.getEmailAddress());
+			}else{
+				objInforResponse.setUrl("");
+			}
+			
+			objInforResponse.setProfileImg("");
+			LstInformalResp.add(objInforResponse);
+		}
+		
+		return LstInformalResp;
+	}
+
+	@Override
+	public Integer getGetTimeInSecondsByUsername(String username) {
+		return informalLearningRepository.getGetTimeInSecondsByUsername(username);
 	}
 }

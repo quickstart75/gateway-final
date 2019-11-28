@@ -157,6 +157,26 @@ public class ManagerAnalyticsRestEndPoint {
 	}
 	
 	
+	@RequestMapping(value = "/timespent/by-month", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	// Report 1- Team Engagement by Month 
+	public Map<Object, Object>   timespentByMonth(@RequestBody Map<String, String> request){
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		String userName = auth.getName(); 
+
+		String endDate=  request.get("endMonth");
+		String startDate  = request.get("startMonth");
+		
+		List response = learnerCourseStatisticsService.learnerTimespentByMonth(userName, startDate, endDate);
+		
+		map.put("status", Boolean.TRUE);
+        map.put("message", "success");
+        map.put("result", response);
+		return map;
+	}
+	
+	
 	@RequestMapping(value = "/user-engagement-byteam", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	// Report 2: Total User Engagement by team
@@ -272,11 +292,11 @@ public class ManagerAnalyticsRestEndPoint {
 					states.put("selfPaced", selfPlaced);
 					states.put("classroom", classroom);
 					
-					Integer a=informalLearningService.getGetTimeInSecondsByUserId(user.getId());
-					a=a==null ? 0 : a;
+					//Integer a=informalLearningService.getGetTimeInSecondsByUserId(user.getId());// TODO, remove it
+					//a=a==null ? 0 : a;
 					Integer b=informalLearningService.getGetTimeInSecondsByUsername(user.getUsername());
 					b=b==null ? 0 : b;
-					states.put("informalLearning", a+b);
+					states.put("informalLearning", b);
 					result.put("states", states);
 					
 				}

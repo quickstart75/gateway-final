@@ -5,6 +5,7 @@ import java.util.Date;
 public class InformalLearningActivityRequest {
 	private long id;
 	private long vu360userId;
+	private String username;
     private String itemGuid;
     private long timespentinseconds;
     private String comments;
@@ -16,6 +17,12 @@ public class InformalLearningActivityRequest {
 	private int pageSize;
 	private int pageNumber;
 
+	
+	private int activityTypeId;
+	private int topicId;
+    private String title;
+    private String externalResourceURL;
+    
 	
 	public long getId() {
 		return id;
@@ -83,6 +90,38 @@ public class InformalLearningActivityRequest {
 	public void setPageNumber(int pageNumber) {
 		this.pageNumber = pageNumber;
 	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public int getActivityTypeId() {
+		return activityTypeId;
+	}
+	public void setActivityTypeId(int activityTypeId) {
+		this.activityTypeId = activityTypeId;
+	}
+	public int getTopicId() {
+		return topicId;
+	}
+	public void setTopicId(int topicId) {
+		this.topicId = topicId;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getExternalResourceURL() {
+		return externalResourceURL;
+	}
+	public void setExternalResourceURL(String externalResourceURL) {
+		this.externalResourceURL = externalResourceURL;
+	}
 
+	
+	
 	
 }

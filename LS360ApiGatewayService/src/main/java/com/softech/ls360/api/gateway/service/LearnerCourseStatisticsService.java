@@ -14,4 +14,6 @@ public interface LearnerCourseStatisticsService {
 	List<UserGroupwithCourseUserRest> getCourseEngagementByTeam(Long customerId);
 	List<Object[]> getLearnerCourseStatisticsByUsername(String username);
 	List<Object[]> getLearnerCourseStatisticsByUsernameAndComplete(String username);
+	
+	public List learnerTimespentByMonth(String username, String startDate, String endDate);
 }

@@ -11,35 +11,41 @@ import javax.persistence.Table;
 public class InformalLearning extends BaseEntity implements Serializable {
 	private static final long serialVersionUID = -8147390863224265540L;
 
-	private int activityTypeId;
-	private int topicId;
-	private long timeSpentInSeconds; //in secs
+	private Integer activityTypeId;
+	private Integer topicId;
+	private Long timeSpentInSeconds; //in secs
     private String title;
     private String externalResourceURL;
     private String notes;
-    private String userName;
+    private String username;
 	
+    private String itemGuid;
+    private String status;
+    private String storeId;
+    
+    private Integer typeId;
+    
     @Column(name="ActivityTypeId")
-	public int getActivityTypeId() {
+	public Integer getActivityTypeId() {
 		return activityTypeId;
 	}
-	public void setActivityTypeId(int activityTypeId) {
+	public void setActivityTypeId(Integer activityTypeId) {
 		this.activityTypeId = activityTypeId;
 	}
 	
 	@Column(name="TopicId")
-	public int getTopicId() {
+	public Integer getTopicId() {
 		return topicId;
 	}
-	public void setTopicId(int topicId) {
+	public void setTopicId(Integer topicId) {
 		this.topicId = topicId;
 	}
 	
 	@Column(name="TimeSpentInSeconds")
-	public long getTimeSpentInSeconds() {
+	public Long getTimeSpentInSeconds() {
 		return timeSpentInSeconds;
 	}
-	public void setTimeSpentInSeconds(long timeSpentInSeconds) {
+	public void setTimeSpentInSeconds(Long timeSpentInSeconds) {
 		this.timeSpentInSeconds = timeSpentInSeconds;
 	}
 	
@@ -69,9 +75,43 @@ public class InformalLearning extends BaseEntity implements Serializable {
 	
 	@Column(name="VU360Username")
 	public String getUserName() {
-		return userName;
+		return username;
 	}
 	public void setUserName(String userName) {
-		this.userName = userName;
-	}	
+		this.username = userName;
+	}
+	
+	@Column(name="ITEM_GUID")
+	public String getItemGuid() {
+		return itemGuid;
+	}
+	public void setItemGuid(String itemGuid) {
+		this.itemGuid = itemGuid;
+	}
+	
+	@Column(name="STATUS")
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	@Column(name="STOREID")
+	public String getStoreId() {
+		return storeId;
+	}
+	public void setStoreId(String storeId) {
+		this.storeId = storeId;
+	}
+	
+	@Column(name="typeId")
+	public Integer getTypeId() {
+		return typeId;
+	}
+	public void setTypeId(Integer typeId) {
+		this.typeId = typeId;
+	}
+	
+	
 }

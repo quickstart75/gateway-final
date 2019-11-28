@@ -5,8 +5,6 @@ package com.softech.ls360.api.gateway.service;
 import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.data.repository.query.Param;
-
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityUserResponse;
 import com.softech.ls360.lms.repository.entities.InformalLearning;
@@ -18,10 +16,19 @@ public interface InformalLearningService {
 	public List<Object[]> getActivityTimeSpentByTopic(String userName);
 	
 	void logInformalLearningActivity(InformalLearningActivity informalLearningActivity);
-	InformalLearningActivity getInformalLearningActivity(com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest infLearRequest);
+	//InformalLearningActivity getInformalLearningActivity(com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest infLearRequest);
 	InformalLearningActivity findById(long id);
+	
+	
+	
 	boolean deleteInformalLearningActivity(long id);
-	List<InformalLearningActivityUserResponse> getInformalActivityListByItemGuid(InformalLearningActivityRequest request);
-	Integer getGetTimeInSecondsByUserId(long userId);
+	//List<InformalLearningActivityUserResponse> getInformalActivityListByItemGuid(InformalLearningActivityRequest request);
+	//Integer getGetTimeInSecondsByUserId(long userId);
 	Integer getGetTimeInSecondsByUsername(String username);
+	
+	
+	InformalLearning findLearnerInformalActivityById(long id);
+	InformalLearning getLearnerInformalActivity(com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest infLearRequest);
+	boolean deleteLearnerInformalActivity(long id);
+	List<InformalLearningActivityUserResponse> getLearnerInformalActivityListByItemGuid(InformalLearningActivityRequest request);
 }

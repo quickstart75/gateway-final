@@ -172,6 +172,42 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 	nativeQuery=true)
     List<Object[]> getLearnerGroupCourseStatisticsByMonth(@Param("customerId") Long customerId, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
+    
+    
+    
+    @Query(value=
+ 			" select y,	m,	isnull(sum(second),0) second from ( " +
+ 			"  " +
+ 			" SELECT  YEAR(completionDate) AS y, MONTH(completionDate) AS m, sum(TOTALTIMEINSECONDS) as second " +
+ 			" FROM Learner l " +
+ 			" inner join vu360user u on u.id = l.vu360user_id " +
+ 			" inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
+ 			" inner join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id " +
+ 			" inner join course c on c.id=le.course_id   " +
+ 			" where u.username =:username and c.coursetype='Classroom Course' " +
+ 			" and lcs.completionDate>=:startDate and lcs.completionDate<=:endDate  " +
+ 			" GROUP BY YEAR(completionDate),MONTH(completionDate) " +
+ 			"  " +
+ 			" union all  " +
+ 			"  " +
+ 			" SELECT  YEAR(ls.starttime) AS y, MONTH(ls.starttime) AS m,  sum(DATEDIFF(second,starttime,endtime)) as second  " +
+ 			" FROM  Learner l  " +
+ 			" inner join vu360user u on u.id = l.vu360user_id " +
+ 			" inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id  " +
+ 			" inner join LEARNINGSESSION ls on ls.ENROLLMENT_id = le.id and le.LEARNER_ID = l.ID  " +
+ 			" inner join course crs on crs.id=le.course_id  " +
+ 			" where  ls.starttime >= :startDate and ls.starttime<=:endDate " +
+ 			" and crs.coursetype!='Classroom Course' " +
+ 			" and u.username =:username " +
+ 			" GROUP BY YEAR(ls.starttime), MONTH(ls.starttime) " +
+ 			"  " +
+ 			" ) CourseStatisticsByMonth  " +
+ 			" group by	y,	m  " +
+ 			" order by y desc, m desc ",
+ 	nativeQuery=true)
+     List<Object[]> learnerTimespentByMonth(@Param("username") String username, @Param("startDate") String startDate, @Param("endDate") String endDate);
+
+     
     @Query(value=" select " +
     " isnull(lg.id, 0) as learnergroupid, lg.name as learnergroupname , vu.firstName as firstname, vu.lastName as lastname, vu.username as username, " +
     " (select isnull(sum(TOTALTIMEINSECONDS),0)  from LEARNERCOURSESTATISTICS lcs inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID and le.learner_id=l.id) as timespent " +

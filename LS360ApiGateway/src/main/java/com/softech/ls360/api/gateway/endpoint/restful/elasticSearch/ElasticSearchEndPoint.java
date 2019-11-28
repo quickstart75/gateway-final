@@ -195,7 +195,7 @@ public class ElasticSearchEndPoint {
 			//-----------------------------------------
 			
 			VU360User objUser = userService.findByUsername(username);  
-			Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getId());
+			Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getUsername());
 			Map<String, Object> lstInformal = new HashMap<String, Object>();
 			lstInformal.put("informalLearning", objInformalLearning);
 			returnResponse.put("markAsCompleted", lstInformal);
@@ -714,7 +714,7 @@ public class ElasticSearchEndPoint {
 					returnResponse.put("sourceProvider", sourceProvider);
 					
 					VU360User objUser = userService.findByUsername(username);  
-					Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getId());
+					Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getUsername());
 					Map<String, Object> lstInformal = new HashMap<String, Object>();
 					lstInformal.put("informalLearning", objInformalLearning);
 					returnResponse.put("markAsCompleted", lstInformal);

@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,11 +29,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
 import com.softech.ls360.api.gateway.service.InformalLearningService;
 import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.VILTAttendanceService;
 import com.softech.ls360.api.gateway.service.model.request.FocusRequest;
+import com.softech.ls360.api.gateway.service.model.request.LearnerInstruction;
 import com.softech.ls360.api.gateway.service.model.request.SavingRequest;
 import com.softech.ls360.api.gateway.service.model.response.FocusResponse;
 import com.softech.ls360.api.gateway.service.model.response.ROIAnalyticsEnrollment;
@@ -56,7 +55,6 @@ import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepo
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
-import com.softech.ls360.lms.repository.repositories.VILTAttendanceRepository;
 
 @Service
 public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
@@ -236,7 +234,7 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
       
         HttpEntity requestData = new HttpEntity(objRequest, headers);
         StringBuffer location = new StringBuffer();
-        location.append(magentoBaseURL + "rest/default/V1/itskills-manager/focusbasecat");
+        location.append(magentoBaseURL + "rest/default/V1/itskills-manager/areaofinterest");
         
         logger.info("---Focus API magento >>>>>>>>>>>>>>>>>>>>> service call .." + location.toString());
        
@@ -261,39 +259,16 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	
 	@Override
 	public List<FocusResponse> getEnrolledCoursesPercentageByTopic(String userName,Long learnerId, List<String> EnrolledCoursesGUID){
-		/*
-		FocusRequest objRequest = new FocusRequest();
-	    objRequest.setSku(EnrolledCoursesGUID);
-	    
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", MediaType.APPLICATION_JSON.toString());
-      
-        HttpEntity requestData = new HttpEntity(objRequest, headers);
-        StringBuffer location = new StringBuffer();
-        location.append(magentoBaseURL + "rest/default/V1/itskills-manager/focusbasecat");
-        
-        logger.info("---Focus API magento >>>>>>>>>>>>>>>>>>>>> service call .." + location.toString());
-       
-        ResponseEntity<Object> returnedData = restTemplate.postForEntity(location.toString(), requestData ,Object.class);
-      
-        List <Object> magentoAPiResponse = (List <Object>)returnedData.getBody();
-      if(magentoAPiResponse==null)
-    	  return new ArrayList<FocusResponse>();
-    			  
-        LinkedHashMap<String, Object> mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
-        
-        if(mapAPiResponse==null)
-      	  return  new ArrayList<FocusResponse>();;
-        
-        List<FocusResponse> lstFocusResponse = (List<FocusResponse>)mapAPiResponse.get("result");
-        */
+		
 		List<FocusResponse> lstFocusResponse= new ArrayList<FocusResponse>();
 		List<FocusResponse> lstFocusResponse3 = new ArrayList<FocusResponse>();
 		Map<String, Long> mapEnrollmentCounts = new HashMap<String, Long>();
 		List<Long> guidsCategoryIds = new ArrayList<Long>();
 		Long totalTimeSpent=0l;
 
+		//EnrolledCoursesGUID = new ArrayList();
+		//EnrolledCoursesGUID.add("0c49514c8db54434b7ef6ec139ca6265");
+		
 		if(EnrolledCoursesGUID.size()>0){
 			 lstFocusResponse = magentoApiTopicBySku(EnrolledCoursesGUID);
 		}
@@ -309,8 +284,12 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
             al1 = (ArrayList) map.get("sku");
     		obj.setSku(al1);
     		lstFocusResponse3.add(obj);
-    		Long topicActivityTimeSpen = 0L;
-    		Long guidsTimeSpent = learnerCourseStatisticsRepository.getLearnerTimespentByGuids(learnerId, al1);
+    		Long topicActivityTimeSpen = 0L, guidsTimeSpent=0L;
+    		
+    		if(al1!=null && al1.size()>0){
+	    		guidsTimeSpent = learnerCourseStatisticsRepository.getLearnerTimespentByGuids(learnerId, al1);
+    		}	
+    		
     		for (Object[] record : activityTimeSpent) {
     			if(record[0].toString().equalsIgnoreCase(map.get("categoryId").toString())){
     				topicActivityTimeSpen = Long.parseLong(record[1].toString());
@@ -322,7 +301,7 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
     		mapEnrollmentCounts.put(map.get("categoryName").toString(), topicTimeSpent);
     		totalTimeSpent +=topicTimeSpent;
         }
-        
+        /*
         for (Object[] record : activityTimeSpent) {
         	if(!guidsCategoryIds.contains(Long.parseLong(record[0].toString())) && !record[2].toString().equalsIgnoreCase("")){
         		FocusResponse obj = new FocusResponse();
@@ -336,7 +315,7 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
         		totalTimeSpent +=topicActivityTimeSpent;
     		}
 		}
-		
+		*/
        calculatePercentageByTopic(lstFocusResponse3, mapEnrollmentCounts, totalTimeSpent);
 		return lstFocusResponse3;
 	}
@@ -625,6 +604,7 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	public LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress) {
 		return learnerCourseStatisticsRepository.save(progress);
 	}
+	
 
 	@Override
 	public LearnerEnrollment getLearnerEnrollmentById(Long enrollementId) {

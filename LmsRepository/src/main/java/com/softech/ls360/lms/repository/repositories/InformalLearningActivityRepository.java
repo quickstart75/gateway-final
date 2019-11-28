@@ -8,9 +8,11 @@ import org.springframework.data.repository.query.Param;
 
 import com.softech.ls360.lms.repository.entities.InformalLearningActivity;
 
+// old one
 public interface InformalLearningActivityRepository extends CrudRepository<InformalLearningActivity, Long>{
-	
+	/*
 	InformalLearningActivity findByItemGuidAndVu360userIdAndStoreId(String itemGuid, Long userId, String storeId);
+	
 	List<InformalLearningActivity> findByVu360userId(Long userId);
 	
 	@Query(value = "select count(*), item_guid from InformalLearningActivity where storeId= :id  group by item_guid ", nativeQuery = true)
@@ -23,5 +25,5 @@ public interface InformalLearningActivityRepository extends CrudRepository<Infor
 	
 	@Query(value = "select sum(TIMESPENTINSECONDS) from LearnerInformalActivity  where vu360username= :username", nativeQuery = true)
 	Integer getGetTimeInSecondsByUsername(@Param("username") String username);
-	
+	*/
 }
