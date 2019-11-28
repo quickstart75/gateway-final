@@ -208,6 +208,17 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
      List<Object[]> learnerTimespentByMonth(@Param("username") String username, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
      
+     @Query(value=
+  			" SELECT YEAR(CREATEDDATE) AS Y, MONTH(CREATEDDATE) AS M, SUM(TIMESPENTINSECONDS) AS SECOND " +
+  			" FROM LEARNERINFORMALACTIVITY " +
+  			" WHERE CREATEDDATE>=:startDate AND CREATEDDATE<=:endDate " +
+  			" and VU360Username=:username " +
+  			" GROUP BY YEAR(CREATEDDATE),MONTH(CREATEDDATE) " +
+  			" order by YEAR(CREATEDDATE) , MONTH(CREATEDDATE) " ,
+  	nativeQuery=true)
+      List<Object[]> learnerInformalLearningTimespentByMonth(@Param("username") String username, @Param("startDate") String startDate, @Param("endDate") String endDate);
+
+      
     @Query(value=" select " +
     " isnull(lg.id, 0) as learnergroupid, lg.name as learnergroupname , vu.firstName as firstname, vu.lastName as lastname, vu.username as username, " +
     " (select isnull(sum(TOTALTIMEINSECONDS),0)  from LEARNERCOURSESTATISTICS lcs inner join LEARNERENROLLMENT le on le.id = lcs.LEARNERENROLLMENT_ID and le.learner_id=l.id) as timespent " +

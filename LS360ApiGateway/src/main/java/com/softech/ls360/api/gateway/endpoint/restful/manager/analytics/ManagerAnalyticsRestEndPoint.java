@@ -1,6 +1,8 @@
 package com.softech.ls360.api.gateway.endpoint.restful.manager.analytics;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,7 +14,6 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -35,11 +36,8 @@ import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingRe
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithCourseUserRest;
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithUserRest;
 import com.softech.ls360.lms.repository.entities.Customer;
-import com.softech.ls360.lms.repository.entities.InformalLearningActivity;
 import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.entities.VU360User;
-import com.softech.ls360.lms.repository.repositories.InformalLearningActivityRepository;
-import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
 import com.softech.ls360.lms.repository.repositories.VU360UserRepository;
 
@@ -167,8 +165,14 @@ public class ManagerAnalyticsRestEndPoint {
 
 		String endDate=  request.get("endMonth");
 		String startDate  = request.get("startMonth");
+		startDate = startDate+"-01";
 		
-		List response = learnerCourseStatisticsService.learnerTimespentByMonth(userName, startDate, endDate);
+		
+		LocalDate convertedDate = LocalDate.parse(endDate + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		convertedDate = convertedDate.withDayOfMonth(
+		                                convertedDate.getMonth().length(convertedDate.isLeapYear()));
+		
+		List response = learnerCourseStatisticsService.learnerTimespentByMonth(userName, startDate, convertedDate +"");
 		
 		map.put("status", Boolean.TRUE);
         map.put("message", "success");
