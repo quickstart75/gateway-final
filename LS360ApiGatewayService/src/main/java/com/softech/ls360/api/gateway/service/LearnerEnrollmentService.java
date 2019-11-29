@@ -14,6 +14,7 @@ import com.softech.ls360.api.gateway.service.model.response.SubscriptionSavingRe
 import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
+import com.softech.ls360.lms.repository.entities.VU360User;
 
 public interface LearnerEnrollmentService {
 
@@ -36,6 +37,7 @@ public interface LearnerEnrollmentService {
 	Map<String, Long> getEnrollmentByUsersByCourse(String username, List<String> guid);
 	
 	LearnerCourseStatistics getLearnerCourseStatisticsByUsernameAndEdxCourse(String username, String courseGuid);
+	
 	
 	LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress);
 	

@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
+import com.softech.ls360.lms.repository.entities.VU360User;
 import com.softech.ls360.lms.repository.projection.learner.enrollment.LearnerEnrollmentCourses;
 
 public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrollment, Long>, LearnerEnrollmentRepositoryCustom {
@@ -95,4 +96,10 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
 			+" LEFT OUTER JOIN SYNCHRONOUSCLASS SYCLASS ON SYCLASS.COURSE_ID = C.ID and SYNCHRONOUSCLASS_ID = SYCLASS.id "
 			+" WHERE V.USERNAME = :userName AND C.GUID  IN (:courseGuid)", nativeQuery = true)
 	public List<Object[]> getEnrollmentByUsersByCourse(@Param("userName") String userName, @Param("courseGuid") List courseGuid);
+	
+	@Query (value="Select u.USERGUID from vu360user u" + 
+			"	Inner Join Learner l on l.vu360user_id=u.id" + 
+			"	Inner Join LEARNERENROLLMENT le on le.LEARNER_ID=l.id" + 
+			"	where le.id=:enrollmentId", nativeQuery = true)
+	public String getVU360UserByEnrollmentId(@Param("enrollmentId") long enrollmentId);
 }

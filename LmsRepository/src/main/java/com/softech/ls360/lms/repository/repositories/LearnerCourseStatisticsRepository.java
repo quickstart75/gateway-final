@@ -206,6 +206,37 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
  			" order by y desc, m desc ",
  	nativeQuery=true)
      List<Object[]> learnerTimespentByMonth(@Param("username") String username, @Param("startDate") String startDate, @Param("endDate") String endDate);
+     
+     
+     
+     @Query(value="select y,     m,     d, isnull(sum(second),0) second from ( " + 
+     		"SELECT  YEAR(completionDate) AS y, MONTH(completionDate) AS m,  DAY(completionDate) AS d, sum(TOTALTIMEINSECONDS) as second " + 
+     		"FROM Learner l " + 
+     		"inner join vu360user u on u.id = l.vu360user_id " + 
+     		"inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id " + 
+     		"inner join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id " + 
+     		"inner join course c on c.id=le.course_id " + 
+     		"where u.username =:username and c.coursetype='Classroom Course' " + 
+     		"and lcs.completionDate>=:startDate and lcs.completionDate<=:endDate " + 
+     		"GROUP BY YEAR(completionDate),MONTH(completionDate), DAY(completionDate) " + 
+     		" " + 
+     		"union all" + 
+     		" " + 
+     		"SELECT  YEAR(ls.starttime) AS y, MONTH(ls.starttime) AS m, DAY(ls.starttime) AS d,  sum(DATEDIFF(second,starttime,endtime)) as second " + 
+     		"FROM  Learner l " + 
+     		"inner join vu360user u on u.id = l.vu360user_id " + 
+     		"inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id " + 
+     		"inner join LEARNINGSESSION ls on ls.ENROLLMENT_id = le.id and le.LEARNER_ID = l.ID " + 
+     		"inner join course crs on crs.id=le.course_id " + 
+     		"where  ls.starttime >= :startDate and ls.starttime<= :endDate " + 
+     		"and crs.coursetype!='Classroom Course' " + 
+     		"and u.username = :username " + 
+     		"GROUP BY YEAR(ls.starttime), MONTH(ls.starttime),  DAY(ls.starttime) " + 
+     		") CourseStatisticsByMonth " + 
+     		"group by      y,     m, d " + 
+     		"order by y desc, m desc, d desc " ,nativeQuery = true)
+     
+     List<Object[]> learnerTimespentByDay(@Param("username") String username, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
      
      @Query(value=
@@ -217,6 +248,14 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
   			" order by YEAR(CREATEDDATE) , MONTH(CREATEDDATE) " ,
   	nativeQuery=true)
       List<Object[]> learnerInformalLearningTimespentByMonth(@Param("username") String username, @Param("startDate") String startDate, @Param("endDate") String endDate);
+      
+      @Query(value=" SELECT YEAR(CREATEDDATE) AS Y, MONTH(CREATEDDATE) AS M, DAY(CREATEDDATE) AS D, SUM(TIMESPENTINSECONDS) AS SECOND " + 
+      		" FROM LEARNERINFORMALACTIVITY  " + 
+      		" WHERE CREATEDDATE>=:startDate AND CREATEDDATE<=:endDate " + 
+      		" and VU360Username=:username " + 
+      		" GROUP BY YEAR(CREATEDDATE),MONTH(CREATEDDATE),DAY(CREATEDDATE)" + 
+      		" order by YEAR(CREATEDDATE) , MONTH(CREATEDDATE),DAY(CREATEDDATE)" ,nativeQuery=true)
+        List<Object[]> learnerInformalLearningTimespentByDay(@Param("username") String username, @Param("startDate") String startDate, @Param("endDate") String endDate);
 
       
     @Query(value=" select " +

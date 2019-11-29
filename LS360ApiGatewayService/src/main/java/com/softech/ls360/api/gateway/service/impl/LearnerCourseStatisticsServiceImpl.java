@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
@@ -215,7 +214,7 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 			
 			
 			if(yearwhiseInformal.get(currentyear.toString()+"_"+currentMonth)!=null){
-				map.put("informal", yearwhise.get(currentyear.toString()+"_"+currentMonth)+"");
+				map.put("informal", yearwhiseInformal.get(currentyear.toString()+"_"+currentMonth)+"");
 			}else{
 				map.put("informal", "0");
 			}
@@ -526,5 +525,60 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	public List<Object[]> getLearnerCourseStatisticsByUsernameAndComplete(String username) {
 		
 		return learnerCourseStatisticsRepository.getLearnerCourseStatisticsByUsernameAndComplete(username);
+	}
+
+	@Override
+	public List<Map<String, String>> learnerTimespentByDay(String username, String startDate, String endDate) {
+		try{
+			List<Map<String, String>> month = new ArrayList<>();
+			
+			//Calculating Time Spent of learner
+			List<Object[]> records = learnerCourseStatisticsRepository.learnerTimespentByDay(username, startDate +" 00:00:00", endDate + " 23:59:59");
+			Map<String, Long> yearwhise = new HashMap<String, Long>();
+			for(Object[]  objCE : records)
+					 yearwhise.put(objCE[0].toString() + "_" + objCE[1].toString()  + "_" + objCE[2].toString(), Long.parseLong(objCE[3].toString()));
+			
+			//Calculating Time Spent of learner ( Informal Learning )
+			records = learnerCourseStatisticsRepository.learnerInformalLearningTimespentByDay(username, startDate +" 00:00:00", endDate + " 23:59:59");
+			Map<String, Long> yearwhiseInformal = new HashMap<String, Long>();
+			for(Object[]  objCE : records)
+				yearwhiseInformal.put(objCE[0].toString() + "_" + objCE[1].toString() + "_" + objCE[2].toString(), Long.parseLong(objCE[3].toString()));
+			
+			
+			Calendar cal = Calendar.getInstance();
+			Calendar cal2 = Calendar.getInstance();
+			cal2.setTime(dateFormat.parse(startDate));
+			cal.setTime(dateFormat.parse(endDate));
+
+			//Calculating days
+			long daysBetween = ChronoUnit.DAYS.between(
+			        LocalDate.parse(startDate).withDayOfMonth(cal2.get(Calendar.DAY_OF_MONTH)),
+			        LocalDate.parse(endDate).withDayOfMonth(cal.get(Calendar.DAY_OF_MONTH)));
+			
+			for(int i=0;i<=daysBetween;i++){
+				
+				Map<String, String> map = new LinkedHashMap<>();
+				//Generating key for fetching records
+				String key=cal.get(Calendar.YEAR)+"_"+(cal.get(Calendar.MONTH)+1)+"_"+cal.get(Calendar.DAY_OF_MONTH);
+				//Genrating date from key
+				map.put("date", key.replace('_', '-'));
+				//Fetching learner time spent
+				map.put("formal", yearwhise.get(key) == null ? "0" : yearwhise.get(key)+"" );
+				//Fetching learner time spent ( Informal Learning )
+				map.put("informal", yearwhiseInformal.get(key) == null ? "0" : yearwhiseInformal.get(key)+"");
+				//Setting next date
+				cal.add(Calendar.DAY_OF_MONTH, -1); 
+				
+				month.add(map);
+			}
+			return month;
+			
+		}catch(Exception ex){
+			
+			ex.printStackTrace();
+			return null;
+			
+		}
+		
 	}
 }

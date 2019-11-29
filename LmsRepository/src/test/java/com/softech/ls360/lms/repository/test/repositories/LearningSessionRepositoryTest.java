@@ -58,7 +58,7 @@ public class LearningSessionRepositoryTest extends LmsRepositoryAbstractTest {
 	    		"0-55-100160");
 		Long courseApprovalId = 0L;
 		
-		Optional<List<LearningSessionCourseApprovals>> OptionalLearningSessionCourseApprovals = learningSessionRepository.findDistinctCourseApprovalsByLearnerEnrollment_Learner_IdAndCourseApproval_IdGreaterThanAndCourse_CourseGuidIn(learnerId, courseApprovalId, courseGuids);
+		Optional<List<LearningSessionCourseApprovals>> OptionalLearningSessionCourseApprovals = null;//learningSessionRepository.findDistinctCourseApprovalsByLearnerEnrollment_Learner_IdAndCourseApproval_IdGreaterThanAndCourse_CourseGuidIn(learnerId, courseApprovalId, courseGuids);
 		if (OptionalLearningSessionCourseApprovals.isPresent()) {
 			List<LearningSessionCourseApprovals> courseApprovals = OptionalLearningSessionCourseApprovals.get();
 			if (!CollectionUtils.isEmpty(courseApprovals)) {

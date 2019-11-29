@@ -3,30 +3,57 @@ package com.softech.ls360.lms.repository.entities;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+
 @Entity
-public class LearningSession extends BaseEntity implements Serializable {
+public class LearningSession implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.TABLE, generator = "seqLearningSessionId")
+	@GenericGenerator(name = "seqLearningSessionId", strategy = "com.softech.ls360.lms.repository.entities.PrimaryKeyGenerator", parameters = {
+	        @Parameter(name = "table_name", value = "VU360_SEQ"),
+	        @Parameter(name = "value_column_name", value = "NEXT_ID"),
+	        @Parameter(name = "segment_column_name", value = "TABLE_NAME"),
+	        @Parameter(name = "segment_value", value = "LEARNINGSESSION") })
+    @Column(name = "ID", unique = true, nullable = false)
+	private Long id;
+	
 	private LocalDateTime endTime;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="ENROLLMENT_ID")
 	private LearnerEnrollment learnerEnrollment;
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="LEARNER_ID")
 	private Learner learner;
 	private LocalDateTime startTime;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="LANGUAGE_ID")
 	private Language language;
 	private String redirectUrl;
 	private String uniqueUserGuid;
 	private String learningSessionGuid;
 	private String brandName;
 	private String source;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="COURSECODE", referencedColumnName="GUID")
 	private Course course;
 	private String externalLmsSessionId;
 	private String externalLmsUrl;
 	private Integer lmsProvider;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="COURSEAPPROVALID")
 	private CourseApproval courseApproval;
 	private Boolean isCourseMessageDisplay;
 
@@ -37,9 +64,6 @@ public class LearningSession extends BaseEntity implements Serializable {
 	public void setEndTime(LocalDateTime endTime) {
 		this.endTime = endTime;
 	}
-
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="ENROLLMENT_ID")
 	public LearnerEnrollment getLearnerEnrollment() {
 		return learnerEnrollment;
 	}
@@ -48,8 +72,6 @@ public class LearningSession extends BaseEntity implements Serializable {
 		this.learnerEnrollment = learnerEnrollment;
 	}
 
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="LEARNER_ID")
 	public Learner getLearner() {
 		return learner;
 	}
@@ -66,8 +88,6 @@ public class LearningSession extends BaseEntity implements Serializable {
 		this.startTime = startTime;
 	}
 
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="LANGUAGE_ID")
 	public Language getLanguage() {
 		return language;
 	}
@@ -115,9 +135,7 @@ public class LearningSession extends BaseEntity implements Serializable {
 	public void setSource(String source) {
 		this.source = source;
 	}
-
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="COURSECODE", referencedColumnName="GUID")
+	
 	public Course getCourse() {
 		return course;
 	}
@@ -150,8 +168,6 @@ public class LearningSession extends BaseEntity implements Serializable {
 		this.lmsProvider = lmsProvider;
 	}
 
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="COURSEAPPROVALID")
 	public CourseApproval getCourseApproval() {
 		return courseApproval;
 	}
@@ -168,4 +184,12 @@ public class LearningSession extends BaseEntity implements Serializable {
 		this.isCourseMessageDisplay = isCourseMessageDisplay;
 	}
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
 }

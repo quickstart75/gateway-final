@@ -180,6 +180,24 @@ public class ManagerAnalyticsRestEndPoint {
 		return map;
 	}
 	
+	@RequestMapping(value = "/timespent/by-day", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	// Report 1- Team Engagement by Month 
+	public Map<Object, Object>   timespentByDay(@RequestBody Map<String, String> request){
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		String userName = auth.getName(); 
+
+		String endDate=  request.get("endMonth");
+		String startDate  = request.get("startMonth");
+		
+		List<?> response = learnerCourseStatisticsService.learnerTimespentByDay(userName, startDate, endDate);
+		
+		map.put("status", response!=null);
+        map.put("message", response==null ? "failed":"success");
+        map.put("result", response==null ? "Invalid Date Format" : response);
+		return map;
+	}
 	
 	@RequestMapping(value = "/user-engagement-byteam", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -223,7 +241,7 @@ public class ManagerAnalyticsRestEndPoint {
 	// Report: 
 	public Map<Object, Object>   getVPAReport(@RequestBody Map<String, Object> order){
 		Map<Object, Object> map = new HashMap<Object, Object>();
-		List  response;
+		List<?>  response;
 		
 		String managerusername = order.get("managerusername").toString();
 		String vpaCode = order.get("vpaCode").toString();

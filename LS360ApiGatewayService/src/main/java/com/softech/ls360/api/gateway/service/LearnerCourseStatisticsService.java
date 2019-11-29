@@ -16,4 +16,5 @@ public interface LearnerCourseStatisticsService {
 	List<Object[]> getLearnerCourseStatisticsByUsernameAndComplete(String username);
 	
 	public List learnerTimespentByMonth(String username, String startDate, String endDate);
+	public List learnerTimespentByDay(String username, String startDate, String endDate);
 }
