@@ -64,6 +64,12 @@ public interface CustomerRepository extends CrudRepository<Customer, Long> {
 			" where l.customer_id = ?1 order by u.id ", nativeQuery = true)
 	List<Object[]> getLearnersByCustomer(Long customerId);
 	
+	@Query(value = " SELECT u.username" +
+			" FROM vu360user u  " +
+			" inner join Learner l on l.vu360user_id=u.id " +
+			" where l.customer_id = ?1 order by u.id ", nativeQuery = true)
+	List<String> getLearnersUsernameByCustomer(Long customerId);
+	
 	@Query(value = " select ce.customer_id, ce.id from OrderInfo ord " +
 			" inner join OrderLineItem orl on orl.order_id = ord.id " +
 			" inner join CUSTOMERENTITLEMENT ce on ce.id = orl.ENTITLEMENT_ID " +

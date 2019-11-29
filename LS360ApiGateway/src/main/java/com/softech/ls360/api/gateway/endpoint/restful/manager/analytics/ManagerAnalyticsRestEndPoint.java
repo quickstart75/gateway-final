@@ -155,10 +155,12 @@ public class ManagerAnalyticsRestEndPoint {
 	}
 	
 	
-	@RequestMapping(value = "/timespent/by-month", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	
+	
+	@RequestMapping(value = "/organization/timespent/by-month", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	// Report 1- Team Engagement by Month 
-	public Map<Object, Object>   timespentByMonth(@RequestBody Map<String, String> request){
+	public Map<Object, Object>   timespentByOrganization(@RequestBody Map<String, String> request){
 		Map<Object, Object> map = new HashMap<Object, Object>();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
 		String userName = auth.getName(); 
@@ -172,30 +174,17 @@ public class ManagerAnalyticsRestEndPoint {
 		convertedDate = convertedDate.withDayOfMonth(
 		                                convertedDate.getMonth().length(convertedDate.isLeapYear()));
 		
-		List response = learnerCourseStatisticsService.learnerTimespentByMonth(userName, startDate, convertedDate +"");
+		Customer customer = customerService.findByUsername(userName);
+		
+		List<Object[]> customers=customerService.getLearnersByCustomer(customer.getId());
+		
+		
+		
+		List response = learnerCourseStatisticsService.learnerTimespentByMonthOrganization(customer.getId(), startDate, convertedDate +"");
 		
 		map.put("status", Boolean.TRUE);
         map.put("message", "success");
         map.put("result", response);
-		return map;
-	}
-	
-	@RequestMapping(value = "/timespent/by-day", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	// Report 1- Team Engagement by Month 
-	public Map<Object, Object>   timespentByDay(@RequestBody Map<String, String> request){
-		Map<Object, Object> map = new HashMap<Object, Object>();
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
-		String userName = auth.getName(); 
-
-		String endDate=  request.get("endMonth");
-		String startDate  = request.get("startMonth");
-		
-		List<?> response = learnerCourseStatisticsService.learnerTimespentByDay(userName, startDate, endDate);
-		
-		map.put("status", response!=null);
-        map.put("message", response==null ? "failed":"success");
-        map.put("result", response==null ? "Invalid Date Format" : response);
 		return map;
 	}
 	

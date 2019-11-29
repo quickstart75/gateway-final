@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.softech.ls360.api.gateway.service.LearnerCourseStatisticsService;
@@ -24,6 +25,7 @@ import com.softech.ls360.api.gateway.service.model.response.UserGroupwithCourseU
 import com.softech.ls360.api.gateway.service.model.response.UserGroupwithUserRest;
 import com.softech.ls360.api.gateway.service.model.response.UserRest;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
+import com.softech.ls360.lms.repository.repositories.CustomerRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupRepository;
 
@@ -35,6 +37,9 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 	
 	@Inject
 	LearnerGroupRepository learnerGroupRepository;
+	
+	@Autowired
+	private CustomerRepository customerRepository;
 	
 	final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -580,5 +585,65 @@ public class LearnerCourseStatisticsServiceImpl implements LearnerCourseStatisti
 			
 		}
 		
+	}
+
+	@Override
+	public List learnerTimespentByMonthOrganization(Long customerId, String startDate, String endDate) {
+		//Map objResponse =  new HashMap();
+		List<Map> month = new ArrayList<Map>();
+		List<Object[]> objstates = learnerCourseStatisticsRepository.learnerTimespentByMonthOrganization(customerId, startDate +" 00:00:00", endDate + " 23:59:59");
+		
+		
+		List<String> users = customerRepository.getLearnersUsernameByCustomer(customerId);
+		List<Object[]> objInformalstates = learnerCourseStatisticsRepository.learnerTimespentByMonthOrganization(users, startDate +" 00:00:00", endDate + " 23:59:59");
+        
+		Map<String, Long> yearwhise = new HashMap<String, Long>();
+		Map<String, Long> yearwhiseInformal = new HashMap<String, Long>();
+		
+		for(Object[]  objCE : objstates){
+				 yearwhise.put(objCE[0].toString() + "_" + objCE[1].toString(), Long.parseLong(objCE[2].toString()));
+		}
+		
+		for(Object[]  objCE : objInformalstates){
+			yearwhiseInformal.put(objCE[0].toString() + "_" + objCE[1].toString(), Long.parseLong(objCE[2].toString()));
+		}
+		
+		Calendar cal = Calendar.getInstance();
+		
+		try{
+			cal.setTime(dateFormat.parse(endDate));
+		}catch(Exception ex){}
+				
+		Integer currentMonth=cal.get(Calendar.MONTH)+1;
+		Integer currentyear=cal.get(Calendar.YEAR);
+		
+		
+		
+		long monthsBetween = ChronoUnit.MONTHS.between(
+		        LocalDate.parse(startDate).withDayOfMonth(1),
+		        LocalDate.parse(endDate).withDayOfMonth(1));
+		
+		for(int i=0;i<=monthsBetween;i++){
+			
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("date", currentyear +"-"+ currentMonth);
+			
+			if(yearwhise.get(currentyear.toString()+"_"+currentMonth)!=null)
+				map.put("formal", yearwhise.get(currentyear.toString()+"_"+currentMonth)+"");
+			else
+				map.put("formal", "0");
+			
+			
+			if(yearwhiseInformal.get(currentyear.toString()+"_"+currentMonth)!=null){
+				map.put("informal", yearwhiseInformal.get(currentyear.toString()+"_"+currentMonth)+"");
+			}else{
+				map.put("informal", "0");
+			}
+			cal.add(Calendar.MONTH, -1); 
+			currentMonth=cal.get(Calendar.MONTH)+1;
+			currentyear=cal.get(Calendar.YEAR);
+			month.add(map); 
+		}
+		return month;
 	}
 }
