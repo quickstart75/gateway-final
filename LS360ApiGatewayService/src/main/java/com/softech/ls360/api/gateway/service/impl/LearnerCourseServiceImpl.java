@@ -291,10 +291,19 @@ public class LearnerCourseServiceImpl implements LearnerCourseService {
 				//logger.info("Call for all enrollments count from " + getClass().getName());
 				//Integer a=informalLearningService.getGetTimeInSecondsByUserId(user.getId());
 				//a=a==null ? 0 : a;
-				Integer b=informalLearningService.getGetTimeInSecondsByUsername(user.getUsername());
+				
+				Integer b, c=0;
+				 b=informalLearningService.getGetTimeInSecondsByUsername(user.getUsername());
 				b=b==null ? 0 : b;
 				
-				int c=learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active");
+				List<Object[]> lsttotalTimeSpentOfUserCourse = learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active");
+				
+				if(lsttotalTimeSpentOfUserCourse!=null && lsttotalTimeSpentOfUserCourse.size()>0){
+					try{
+						Object[] record = lsttotalTimeSpentOfUserCourse.get(0);
+						c =  Integer.parseInt(record[0].toString());
+					}catch(Exception ex ){}
+				}
 				
 				myCoursesCount.put(str, b+c);
 				

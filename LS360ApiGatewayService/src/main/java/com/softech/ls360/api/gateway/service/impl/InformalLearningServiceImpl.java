@@ -53,11 +53,20 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 	
 	@Override
 	public List<HashMap<String,Double>> getActivityTimeSpent(String userName){
+		Long totalTimeSpentOfUserCourse = 0L;
 		
-		Integer totalTimeSpentOfUserCourse = learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active");
+		List<Object[]> lsttotalTimeSpentOfUserCourse = learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active");
 		List<Object[]> activityTimeSpent = informalLearningRepository.getActivityTimeSpent(userName);
 		
 		Long  totalActivityTimeSpent = getTotalActivityTimeSpent(activityTimeSpent);
+		
+		if(lsttotalTimeSpentOfUserCourse!=null && lsttotalTimeSpentOfUserCourse.size()>0){
+			try{
+				Object[] record = lsttotalTimeSpentOfUserCourse.get(0);
+				totalTimeSpentOfUserCourse =  Long.parseLong(record[0].toString());
+			}catch(Exception ex ){}
+		}
+		
 		Long totalTimeSpent = totalTimeSpentOfUserCourse + totalActivityTimeSpent;
 		
 		List<HashMap<String,Double>> mapActivityTimeSpent = new ArrayList<HashMap<String,Double>>();
