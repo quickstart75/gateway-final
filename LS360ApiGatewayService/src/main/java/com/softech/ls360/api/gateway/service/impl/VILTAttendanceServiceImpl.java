@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.softech.ls360.api.gateway.service.VILTAttendanceService;
+import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
+import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
 import com.softech.ls360.lms.repository.entities.VILTAttendance;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.VILTAttendanceRepository;
@@ -64,8 +66,23 @@ public class VILTAttendanceServiceImpl implements VILTAttendanceService {
 		for (Map.Entry<Long,List<String>> entry : attendance.entrySet()) {
 			Long enrollmentId = entry.getKey();
 			List<String> attendanceDate = entry.getValue();
-			Long totalTimeSpent = (long) (attendanceDate.size() * Long.valueOf(classDuration) * 60 * 60) ;
-			learnerCourseStatisticsRepository.markCompletionAndTotalTimeSpent(enrollmentId, dtf.format(LocalDateTime.now()), totalTimeSpent);
+			
+//			Long totalTimeSpent = (long) (attendanceDate.size() * Long.valueOf(classDuration) * 60 * 60) ;
+			
+			Integer totalTimeSpent = (int) (attendanceDate.size() * Long.valueOf(classDuration) * 60 * 60) ;
+			
+			LearnerEnrollment enrollement=new LearnerEnrollment();
+			enrollement.setId(enrollmentId);
+			LearnerCourseStatistics statistics=learnerCourseStatisticsRepository.findByLearnerEnrollment(enrollement);
+			
+			LearnerCourseStatistics freshStatistics=learnerCourseStatisticsRepository.findOne(statistics.getId());
+			
+			freshStatistics.setCompleted(true);
+			freshStatistics.setStatus("completed");
+			freshStatistics.setCompletionDate(LocalDateTime.now());
+			freshStatistics.setTotalTimeInSeconds(totalTimeSpent);
+			learnerCourseStatisticsRepository.save(freshStatistics);
+//			learnerCourseStatisticsRepository.markCompletionAndTotalTimeSpent(enrollmentId, dtf.format(LocalDateTime.now()), totalTimeSpent);
 		}
 		
 	}
