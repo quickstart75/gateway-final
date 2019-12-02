@@ -12,7 +12,7 @@ import com.softech.ls360.lms.repository.entities.InformalLearningActivity;
 public interface InformalLearningRepository extends CrudRepository<InformalLearning, Long>{
 	
 	@Query(value="select  ActivityTypeId, " +
-			"SUM(ISNULL(TimeSpentInSeconds, 0)) TimeSpentInSeconds  " +
+			"SUM(ISNULL(TimeSpentInSeconds, 0)) TimeSpentInSeconds,  count(id)  " +
 			"From LearnerInformalActivity ia " +
 			"where ia.VU360Username=:username " +
 			"group by ActivityTypeId  ", 
