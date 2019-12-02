@@ -3,6 +3,7 @@ package com.softech.ls360.api.gateway.service.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -210,5 +211,47 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 	@Override
 	public Integer getGetTimeInSecondsByUsername(String username) {
 		return informalLearningRepository.getGetTimeInSecondsByUsername(username);
+	}
+
+	@Override
+	public List<Map<String, Double>> getLearnerActivityStatus(String userName) {
+		Long totalTimeSpentOfUserCourse = 0L;
+		Double count=0d; 
+		
+		List<Object[]> lsttotalTimeSpentOfUserCourse = learnerCourseStatisticsRepository.totalTimeSpentOfUserCourse(userName, "Active");
+		List<Object[]> activityTimeSpent = informalLearningRepository.getActivityTimeSpent(userName);
+		
+		Long  totalActivityTimeSpent = getTotalActivityTimeSpent(activityTimeSpent);
+		if(lsttotalTimeSpentOfUserCourse!=null && lsttotalTimeSpentOfUserCourse.size()>0){
+			try{
+				Object[] record = lsttotalTimeSpentOfUserCourse.get(0);
+				totalTimeSpentOfUserCourse =  Long.parseLong(record[0].toString());
+				count=Double.parseDouble(record[1].toString());
+			}catch(Exception ex ){}
+		}
+		
+		Long totalTimeSpent = totalTimeSpentOfUserCourse + totalActivityTimeSpent;
+		
+		List<Map<String,Double>> mapActivityTimeSpent = new ArrayList<>();
+		
+		if (totalTimeSpent>0){
+			
+			if(totalTimeSpentOfUserCourse>0){
+			HashMap<String,Double> activity = new HashMap<String,Double>();
+			activity.put("activityId", 0D);
+			double timeSpent =  (( Double.parseDouble (totalTimeSpentOfUserCourse.toString()) * 100 ) / Double.parseDouble (totalTimeSpent.toString()));
+			activity.put("percentage", Double.parseDouble (String.format ("%.1f",timeSpent)));
+			activity.put("count", count);
+			mapActivityTimeSpent.add(activity);
+			}
+			
+			for (Object[] record : activityTimeSpent) {
+				Map<String, Double> data=parseActivityAndTimeSpent(record,totalTimeSpent);
+				data.put("count", Double.parseDouble(record[2].toString()));
+				mapActivityTimeSpent.add(data);
+			}
+		}
+		
+		return mapActivityTimeSpent;
 	}
 }

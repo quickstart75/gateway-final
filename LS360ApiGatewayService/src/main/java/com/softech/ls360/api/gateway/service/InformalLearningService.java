@@ -4,6 +4,7 @@ package com.softech.ls360.api.gateway.service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityUserResponse;
@@ -31,4 +32,5 @@ public interface InformalLearningService {
 	InformalLearning getLearnerInformalActivity(com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest infLearRequest);
 	boolean deleteLearnerInformalActivity(long id);
 	List<InformalLearningActivityUserResponse> getLearnerInformalActivityListByItemGuid(InformalLearningActivityRequest request);
+	public List<Map<String,Double>> getLearnerActivityStatus(String username);
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.service.CategoryService;
+import com.softech.ls360.api.gateway.service.InformalLearningService;
 import com.softech.ls360.api.gateway.service.LearnerCourseStatisticsService;
 import com.softech.ls360.api.gateway.service.model.response.CategoryRest;
 
@@ -29,6 +30,9 @@ public class LearnerAnalyticsRestEndPoints {
 	@Inject 
 	CategoryService categoryService;
 
+	@Inject
+	private InformalLearningService informalLearningService;
+	
 	@Autowired
 	private LearnerCourseStatisticsService learnerCourseStatisticsService;
 
@@ -99,5 +103,24 @@ public class LearnerAnalyticsRestEndPoints {
         map.put("message", response==null ? "failed":"success");
         map.put("result", response==null ? "Invalid Date Format" : response);
 		return map;
+	}
+	@RequestMapping(value = "/activity-states", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<Object, Object> learnerActivityStatus(){
+		Map<Object, Object> response=new HashMap<Object, Object>();
+		try {
+			String username=SecurityContextHolder.getContext().getAuthentication().getName();
+			
+			List<Map<String, Double>> result = informalLearningService.getLearnerActivityStatus(username);
+	        response.put("status", Boolean.TRUE);
+	        response.put("message", "success");
+	        response.put("result", result);
+		}catch (Exception e) {
+			 	response.put("status", Boolean.FALSE);
+		        response.put("message", e.getMessage());
+		        response.put("result", "");
+		}
+		
+		return response;
 	}
 }
