@@ -141,7 +141,7 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
 
     
 //    COMPLETED	COMPLETIONDATE	LASTACCESSDATE	PERCENTCOMPLETE	STATUS	TOTALTIMEINSECONDS	LEARNERENROLLMENT_ID	HIGHESTPOSTTESTSCORE
-    
+    //TODO add null check
     @Query(value=" select learnergroup_id,	name,	y,	m,	isnull(sum(second),0) second from ( " +
 			" SELECT  lgm.learnergroup_id, lg.name, YEAR(completionDate) AS y, MONTH(completionDate) AS m, sum(TOTALTIMEINSECONDS) as second " +
 			" FROM Learner l " +

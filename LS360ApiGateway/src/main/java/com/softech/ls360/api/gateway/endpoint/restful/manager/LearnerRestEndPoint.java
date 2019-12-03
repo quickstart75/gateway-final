@@ -34,6 +34,10 @@ public class LearnerRestEndPoint {
 	@ResponseBody
 	public Map<Object, Object> getUserAnalytics2(@RequestBody UserRequest userRequest) throws Exception {
 		Map<Object, Object> map = new HashMap<Object, Object>();
+		
+		if(userRequest.getUsername()==null || userRequest.getUsername().equalsIgnoreCase("") || userRequest.getCourseguid()==null || userRequest.getCourseguid().size()==0)
+			return map;
+		
 		List<Object[]> UserCourseAnalytics = learnerService.findUserCourseAnalyticsByUserNameByCourseGUIDs(userRequest.getUsername(), userRequest.getCourseguid());
 		int totalViewTime = 0;
 		int completedCount =0;

@@ -164,7 +164,7 @@ public class ManagerAnalyticsRestEndPoint {
 		Map<Object, Object> map = new HashMap<Object, Object>();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
 		String userName = auth.getName(); 
-
+		//TODO add null check
 		String endDate=  request.get("endMonth");
 		String startDate  = request.get("startMonth");
 		startDate = startDate+"-01";
@@ -176,10 +176,10 @@ public class ManagerAnalyticsRestEndPoint {
 		
 		Customer customer = customerService.findByUsername(userName);
 		
-		List<Object[]> customers=customerService.getLearnersByCustomer(customer.getId());
+		//List<Object[]> customers=customerService.getLearnersByCustomer(customer.getId());
 		
 		
-		
+		//TODO add null check
 		List response = learnerCourseStatisticsService.learnerTimespentByMonthOrganization(customer.getId(), startDate, convertedDate +"");
 		
 		map.put("status", Boolean.TRUE);

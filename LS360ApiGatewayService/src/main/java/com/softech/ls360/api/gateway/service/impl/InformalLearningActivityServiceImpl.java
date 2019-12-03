@@ -27,7 +27,7 @@ public class InformalLearningActivityServiceImpl implements InformalLearningActi
 	@Override
 	public Map<String, Map<String, String>> getInformalLearningActivityByUser(String username) {
 		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
-		List<InformalLearning>  arrEnrollment = informalLearningRepository.findByUserNameAndTypeId(username, 2);
+		List<InformalLearning>  arrEnrollment = informalLearningRepository.findByUserNameAndTypeId(username, 2);//TODO add null check
 		Map<String, String> subMapEnrollment;
 		for(InformalLearning subArr: arrEnrollment){
 			if(subArr.getItemGuid()!=null && !subArr.getItemGuid().equals("")){
@@ -44,7 +44,7 @@ public class InformalLearningActivityServiceImpl implements InformalLearningActi
 		return mapEnrollment;
 	}
 	
-	public Map<String, Map<String, String>> getInformalLearningActivityCount(int storeId){
+	public Map<String, Map<String, String>> getInformalLearningActivityCount(int storeId){//TODO add null check
 		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
 		List<Object[]> findByEnrollmentIds = informalLearningRepository.getInformalLearningActivityCount(storeId);
 		Map<String, String> subMapEnrollment;

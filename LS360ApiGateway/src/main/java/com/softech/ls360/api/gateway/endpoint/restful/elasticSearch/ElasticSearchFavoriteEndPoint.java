@@ -186,7 +186,7 @@ public class ElasticSearchFavoriteEndPoint {
 				LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 				
 				if(request.getSearchType().equalsIgnoreCase("informalLearning")){
-					VU360User objUser = userService.findByUsername(username);  
+					VU360User objUser = userService.findByUsername(username);  //TODO add null check
 					Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getUsername());
 					Map<String, Object> lstInformal = new HashMap<String, Object>();
 					lstInformal.put("informalLearning", objInformalLearning);

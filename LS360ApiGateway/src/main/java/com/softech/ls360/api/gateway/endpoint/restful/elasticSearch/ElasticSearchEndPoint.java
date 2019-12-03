@@ -179,7 +179,7 @@ public class ElasticSearchEndPoint {
 			//-----------------------------------------
 			//-----------------------------------------
 			
-			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
+			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);//TODO add null check
 			
 			for(Object[] subArr: arrEnrollment){
 				subMapEnrollment = new HashMap<String,String>();
@@ -194,7 +194,7 @@ public class ElasticSearchEndPoint {
 			//-----------------------------------------
 			//-----------------------------------------
 			
-			VU360User objUser = userService.findByUsername(username);  
+			VU360User objUser = userService.findByUsername(username);  //TODO add null check
 			Map<String, Map<String, String>> objInformalLearning = informalLearningActivityService.getInformalLearningActivityByUser(objUser.getUsername());
 			Map<String, Object> lstInformal = new HashMap<String, Object>();
 			lstInformal.put("informalLearning", objInformalLearning);

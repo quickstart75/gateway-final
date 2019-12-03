@@ -118,7 +118,7 @@ public class InformalLearningServiceImpl implements InformalLearningService {
 		return informalLearningActivityRepository.findByItemGuidAndVu360userIdAndStoreId(infLearRequest.getItemGuid(), infLearRequest.getVu360userId(), infLearRequest.getStoreId());
 	}
 	*/
-	
+	//TODO add null check
 	public InformalLearning getLearnerInformalActivity(com.softech.ls360.api.gateway.service.model.request.InformalLearningActivityRequest infLearRequest){
 		return informalLearningRepository.findTopByItemGuidAndUserNameAndStoreId(infLearRequest.getItemGuid(), infLearRequest.getUsername(), infLearRequest.getStoreId());
 	}
