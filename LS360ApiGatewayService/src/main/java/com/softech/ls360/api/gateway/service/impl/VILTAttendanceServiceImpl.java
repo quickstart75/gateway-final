@@ -12,6 +12,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,8 @@ public class VILTAttendanceServiceImpl implements VILTAttendanceService {
 	
 	@Inject
 	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
+	
+	private static final Logger logger = LogManager.getLogger();
 	
 	@Value( "${clasroomcourse.class.duration}" )
     private String classDuration;
@@ -74,15 +78,18 @@ public class VILTAttendanceServiceImpl implements VILTAttendanceService {
 			LearnerEnrollment enrollement=new LearnerEnrollment();
 			enrollement.setId(enrollmentId);
 			LearnerCourseStatistics statistics=learnerCourseStatisticsRepository.findByLearnerEnrollment(enrollement);
-			
-			LearnerCourseStatistics freshStatistics=learnerCourseStatisticsRepository.findOne(statistics.getId());
-			
-			freshStatistics.setCompleted(true);
-			freshStatistics.setStatus("completed");
-			freshStatistics.setCompletionDate(LocalDateTime.now());
-			freshStatistics.setTotalTimeInSeconds(totalTimeSpent);
-			learnerCourseStatisticsRepository.save(freshStatistics);
-//			learnerCourseStatisticsRepository.markCompletionAndTotalTimeSpent(enrollmentId, dtf.format(LocalDateTime.now()), totalTimeSpent);
+			if(statistics != null ) {
+				LearnerCourseStatistics freshStatistics=learnerCourseStatisticsRepository.findOne(statistics.getId());
+				
+				freshStatistics.setCompleted(true);
+				freshStatistics.setStatus("completed");
+				freshStatistics.setCompletionDate(LocalDateTime.now());
+				freshStatistics.setTotalTimeInSeconds(totalTimeSpent);
+				learnerCourseStatisticsRepository.save(freshStatistics);
+	//			learnerCourseStatisticsRepository.markCompletionAndTotalTimeSpent(enrollmentId, dtf.format(LocalDateTime.now()), totalTimeSpent);
+			}
+			else
+				logger.info(">>>>>>>>>>>>>>>>>>>> VLT-ATTENDENCE >>>>>>>>>> Statistics not updated ");
 		}
 		
 	}

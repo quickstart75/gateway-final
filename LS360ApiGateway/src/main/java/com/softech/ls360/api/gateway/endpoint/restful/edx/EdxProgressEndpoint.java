@@ -63,6 +63,7 @@ public class EdxProgressEndpoint {
 				
 				double percentage = Double.parseDouble(progress) * 100;
 				learnerStatistics.setPercentComplete(percentage);
+				learnerStatistics.setLastAccessDate(LocalDateTime.now());
 				
 				learnerEnrollmentService.updateProgressOfEdxCourse(learnerStatistics);
 				responseBody.put("message","progress updated");
