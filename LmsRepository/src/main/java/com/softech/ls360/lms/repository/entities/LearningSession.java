@@ -18,7 +18,12 @@ import org.hibernate.annotations.Parameter;
 @Entity
 public class LearningSession implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6650267646898184364L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "seqLearningSessionId")

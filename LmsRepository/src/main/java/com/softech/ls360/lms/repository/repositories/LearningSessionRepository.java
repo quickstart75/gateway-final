@@ -13,10 +13,10 @@ public interface LearningSessionRepository extends CrudRepository<LearningSessio
 	@Query(value = "Select top 1 ls.* from vu360user u" + 
 			"	Inner Join Learner l on l.vu360user_id=u.id" + 
 			"	Inner Join LEARNERENROLLMENT le on le.LEARNER_ID=l.id" + 
-			"	inner join learningsession ls on ls.enrollment_id=le.id" + 
+			"	inner join learningsession ls on ls.enrollment_id=le.id" +  
 			"	Inner Join COURSE c on c.id=le.course_id" + 
 			"	Where u.username=:username AND " + 
-			"	c.guid=(select guid from course where THIRDPARTYGUID =:courseGuid) order by ls.starttime desc", nativeQuery = true)
+			"	c.THIRDPARTYGUID= :courseGuid order by id desc", nativeQuery = true)
 	LearningSession getLatestSessionByUsernameAndCourseKey(@Param("username")String username, @Param("courseGuid")String courseGuid);
 	
 	
