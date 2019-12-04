@@ -79,7 +79,7 @@ public class SecurityConfiguration {
 		
 		@Override
 		public void configure(WebSecurity security) {
-			security.ignoring().antMatchers("/resource/**", "/header/size/**", "/services/rest/reports/**");
+			security.ignoring().antMatchers("/resource/**", "/header/size/**", "/services/rest/reports/**","/services/rest/classroomcourse/classes");
 		}
 		
 		@Override

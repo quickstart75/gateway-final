@@ -10,14 +10,23 @@ import com.softech.ls360.api.gateway.service.model.response.ClassroomCourseInfo;
 import com.softech.ls360.lms.repository.entities.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
 import com.softech.ls360.api.gateway.service.model.response.LearnerClassroomDetailResponse;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.SynchronousClassRepository;
+import com.softech.ls360.lms.repository.repositories.SynchronousSessionRepository;
 import com.softech.ls360.lms.repository.repositories.VU360UserRepository;
 
 @Service
@@ -31,8 +40,14 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 	@Inject
 	protected SynchronousClassRepository synchronousClassRepository;
 	
+	@Autowired
+	private SynchronousSessionRepository synchronousSessionRepository;
+	
 	@Inject
 	private LearnerEnrollmentRepository learnerEnrollmentRepository;
+	
+	@Autowired
+	private Environment env;
 	
 	@Override
 	@Transactional
@@ -236,4 +251,87 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 		}
 		return new ArrayList<>(dataMap.values());
 	}
+
+	@Override
+	public List<Object> getCourseSession(String storeId,Integer timeZone) {
+		
+		try {
+			List<String> courseGuid=null;
+			if(storeId!=null && !storeId.isEmpty()) {
+				courseGuid = getDataFromMagento(storeId);
+			}
+			if(courseGuid!=null) {
+			
+				List<Object[]> sessionCourses = synchronousSessionRepository.findSynchronousSessionByCourses(courseGuid,timeZone);
+				List<Object> mainResponse=new ArrayList<Object>(); 
+				
+				for(String guid : courseGuid) {
+				
+					Map<Object, Object> response=new HashMap<Object, Object>();
+					
+					
+					List<Map> syncSession=new ArrayList<Map>();
+					
+					for(Object[] record : sessionCourses) {
+						
+						if(guid.equals(record[3])) {
+							
+							Map<Object, Object> session=new HashMap<Object, Object>();
+							session.put("startDateTime", record[0]);
+							session.put("endDateTime", record[1]);
+							session.put("sessionKey", record[2]);
+							
+							syncSession.add(session);
+							
+						}
+							
+					}
+					if(syncSession.size()>0) {
+						response.put("guid", guid);
+						response.put("syncSession", syncSession);
+						mainResponse.add(response);
+					}
+				}
+				return mainResponse;
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		
+		return null;
+	}
+	
+	public List<String> getDataFromMagento(String storeId){
+		try {
+	    	RestTemplate rest=new RestTemplate();
+	
+	    	HttpHeaders headers=new HttpHeaders();
+	    	headers.setContentType(MediaType.APPLICATION_JSON);
+	    	
+	    	Map<String, String> magentoReq=new HashMap<>();
+	    	magentoReq.put("storeId", storeId);
+	    	
+	    	HttpEntity<Map> httpRequest=new HttpEntity<Map>(magentoReq, headers);
+	    	
+	    	String url = env.getProperty("api.magento.baseURL")+"rest/default/V1/itskills-viltattendance/viltskubystore";
+	    	
+	    	ResponseEntity<List> magentoResponse = null;
+    	
+    		magentoResponse=rest.exchange(url,HttpMethod.POST,httpRequest, List.class); 
+    			
+    		List<String> coursesGuid=new ArrayList<>();
+    		
+    		Map<Object, Object> result=(Map<Object, Object>) magentoResponse.getBody().get(0);
+    		coursesGuid = (List<String>) result.get("result");
+    		
+    		return coursesGuid;
+    		
+    	}catch (Exception e) {
+    		e.printStackTrace();
+    		return null;
+		}
+	}
+	
 }

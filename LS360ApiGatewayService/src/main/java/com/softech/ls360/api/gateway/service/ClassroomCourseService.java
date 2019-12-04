@@ -18,4 +18,5 @@ public interface ClassroomCourseService {
 	ClassroomStatistics getClassroomStatistics(Long classId,com.softech.ls360.lms.repository.entities.Course course);
 	ClassroomStatistics getClassroomStatistics(Long classId);
 	List<ClassroomCourseInfo> getClassroomCourseScheduleStatistics(String courseGuid);
+	List<Object> getCourseSession(String storeId,Integer timeZone);
 }

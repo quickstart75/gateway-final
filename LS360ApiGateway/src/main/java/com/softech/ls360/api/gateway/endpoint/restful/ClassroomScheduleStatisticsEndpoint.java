@@ -13,16 +13,16 @@ import com.softech.ls360.lms.repository.repositories.LearnerProfileRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 import com.softech.ls360.lms.repository.repositories.VU360UserRepository;
-import com.softech.ls360.util.json.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import javax.inject.Inject;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,4 +88,34 @@ public class ClassroomScheduleStatisticsEndpoint {
         emailresponse.put("status", isEmailSent);
         return emailresponse;
     }
+    
+    @RequestMapping(value="/classes",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<Object, Object> getClassroomCourseDetails(@RequestParam("storeId") String storeId, @RequestParam("timeZone") String timeZone){
+    	Map<Object, Object> response=new HashMap<>();
+
+        Map<String, Integer> getTimeZoneId =new HashMap<>();
+        getTimeZoneId.put("CST", 1);
+        getTimeZoneId.put("PST", 12);
+        getTimeZoneId.put("EST", 20);
+        getTimeZoneId.put("MST", 13);
+    	
+        if(timeZone!=null && !timeZone.isEmpty()) {
+        	Integer zone= getTimeZoneId.get(timeZone);
+        	if(zone != null ) {
+        		List<Object> result=classroomCourseService.getCourseSession(storeId,zone);
+    	    	response.put("data", result);
+    			response.put("info","Ok");
+    			return response;
+        	}
+        	
+    	}
+        
+    	response.put("data", "incorrect parameter");
+		response.put("info","Failed");
+        
+		
+    	return response;
+    }
+    
 }
