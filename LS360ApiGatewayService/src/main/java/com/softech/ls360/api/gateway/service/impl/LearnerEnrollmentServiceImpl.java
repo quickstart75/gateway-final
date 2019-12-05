@@ -3,6 +3,7 @@ package com.softech.ls360.api.gateway.service.impl;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +49,7 @@ import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 import com.softech.ls360.lms.repository.entities.LearnerEnrollment;
 import com.softech.ls360.lms.repository.entities.LearnerGroup;
+import com.softech.ls360.lms.repository.entities.LearningSession;
 import com.softech.ls360.lms.repository.entities.Subscription;
 import com.softech.ls360.lms.repository.projection.EnrollmentCoursesProjection;
 import com.softech.ls360.lms.repository.projection.learner.enrollment.LearnerEnrollmentCourses;
@@ -54,6 +57,7 @@ import com.softech.ls360.lms.repository.repositories.DistributorRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
+import com.softech.ls360.lms.repository.repositories.LearningSessionRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
 @Service
@@ -83,6 +87,9 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	
 	@Inject
 	private InformalLearningService informalLearningService;
+	
+	@Autowired
+	private LearningSessionRepository learningSessionRepository;
 	
 	@Inject
 	VILTAttendanceService vILTAttendanceService;
@@ -601,7 +608,11 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		return learnerCourseStatisticsRepository.getLearnerCourseStatisticsByUsernameAndEdxCourse(username, courseGuid);
 	}
 	@Override
-	public LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress) {
+	public LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress,String username,String courseGuid) {
+		
+		Integer totalTimeInSeconds = learningSessionRepository.getTotalSecondFromSessions(username, courseGuid);
+		progress.setTotalTimeInSeconds(totalTimeInSeconds);
+		progress.setLastAccessDate(LocalDateTime.now());
 		return learnerCourseStatisticsRepository.save(progress);
 	}
 	

@@ -119,26 +119,23 @@ public class LearningSessionServiceImpl implements LearningSessionService {
 		
 		Long hours = session.getStartTime().until(LocalDateTime.now(), ChronoUnit.HOURS);
 		logger.info(">>>>>>>>>>>>>>>> Hours Difference "+hours+" Hours");
+		String logstatus = "";
+		
+		if(hours>=0 && hours<=8) {
+			session.setEndTime(LocalDateTime.now());
+			learningSessionRepository.save(session);
+			logstatus = "UPDATED";
+		}
 		
 		//Session Log
 		EdxSessionLog log=new EdxSessionLog();
 		log.setLogDate(LocalDateTime.now());
 		log.setSession(session);
 		log.setUser(session.getLearner().getVu360User());
-		
-		
-		if(hours>=0 && hours<=4) {
-			session.setEndTime(LocalDateTime.now());
-			learningSessionRepository.save(session);
-			log.setStatus("UPDATED");
-			edxSessionLogRepository.save(log);
-			return true;
-		}
-		
-		log.setStatus("NOT UPDATED");
+		log.setStatus( logstatus.equals("") ? ("NOT UPDATED HOURS "+hours) : logstatus);
 		edxSessionLogRepository.save(log);
 		
-		return false;
+		return logstatus.equals("UPDATED");
 	}
 
 }

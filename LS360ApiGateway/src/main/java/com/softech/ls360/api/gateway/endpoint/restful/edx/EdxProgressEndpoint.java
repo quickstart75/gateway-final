@@ -62,9 +62,38 @@ public class EdxProgressEndpoint {
 				
 			
 				LearnerCourseStatistics learnerStatistics = learnerEnrollmentService.getLearnerCourseStatisticsByUsernameAndEdxCourse(username, courseGuid);
-			
+				
 				if( learnerStatistics != null ) {
 					
+					/**
+					 * UPDATING SESSION  START
+					 * =======================
+					 */
+					logger.info(">>>>>>>>>>>>> EDX Updating Session >>>>>>>>>>>> START");
+					
+					LearningSession session = learningSessionService.getLatestSessionByUsernameAndCourseKey(username, courseGuid) ;
+					
+					if(session == null) { 	
+						responseBody.put("message", responseBody.get("message")+"session not found");
+						logger.info(">>>>>>>>>>>>> Session Not Found>>>>>>>>>>>>>>>");
+						EdxSessionLog log=new EdxSessionLog();
+						log.setLogDate(LocalDateTime.now());
+						log.setSession(null);
+						log.setUser(null);
+						log.setStatus("SESSION NOT FOUND");
+						edxSessionLogRepository.save(log);
+					}else {
+						boolean updated=learningSessionService.updateSessionEndTime(session);
+						logger.info(">>>>>>>>>>>>> "+( updated ?"EDX Session Updated" : "EDX Session Not Updated"));
+					}
+					
+					logger.info(">>>>>>>>>>>>> EDX Update Session >>>>>>>>>>>>>> END");
+					
+					/**
+					 * UPDATING PROGRESS OF LEARNER
+					 * ============================
+					 */
+					boolean updateTimeSpent=true;
 					if(progress!=null && !progress.isEmpty()) {
 						
 						//If course is completed
@@ -77,25 +106,13 @@ public class EdxProgressEndpoint {
 						double percentage = Double.parseDouble(progress) * 100;
 						learnerStatistics.setPercentComplete(percentage);
 						learnerStatistics.setLastAccessDate(LocalDateTime.now());
-						
-						learnerEnrollmentService.updateProgressOfEdxCourse(learnerStatistics);
+						learnerEnrollmentService.updateProgressOfEdxCourse(learnerStatistics,username,courseGuid);
+						updateTimeSpent=false;
 						responseBody.put("message","progress updated");
 						logger.info(">>>>>>>>>>>>> EDX Progress Updated");
 					}
-					//Updating Session 
-					logger.info(">>>>>>>>>>>>> EDX Updating Session >>>>>>>>>>>> START");
 					
-					LearningSession session = learningSessionService.getLatestSessionByUsernameAndCourseKey(username, courseGuid) ; 
-					
-					if(session == null) { 	
-						responseBody.put("message", responseBody.get("message")+"session not found");
-						logger.info(">>>>>>>>>>>>> Session Not Found>>>>>>>>>>>>>>>");
-					}
-					
-					else 
-						logger.info(">>>>>>>>>>>>> "+(learningSessionService.updateSessionEndTime(session)?"EDX Session Updated" : "EDX Session Not Updated"));
-					
-					logger.info(">>>>>>>>>>>>> EDX Update Session >>>>>>>>>>>>>> END");
+					if(updateTimeSpent) learnerEnrollmentService.updateProgressOfEdxCourse(learnerStatistics,username,courseGuid);
 					
 				}
 					
@@ -104,8 +121,6 @@ public class EdxProgressEndpoint {
 			}
 		}
 		catch (Exception e) {
-			
-			
 			logger.info("************************** EDX EXCEPTION ************************");
 			logger.info("************************** EXCEPTION : "+e.getMessage());
 			logger.info("************************** EDX EXCEPTION END ************************");
@@ -114,7 +129,7 @@ public class EdxProgressEndpoint {
 			log.setLogDate(LocalDateTime.now());
 			log.setSession(null);
 			log.setUser(null);
-			log.setStatus("EXCEPTION");
+			log.setStatus("EXCEPTION :: " + e.getMessage());
 			edxSessionLogRepository.save(log);
 			
 		}

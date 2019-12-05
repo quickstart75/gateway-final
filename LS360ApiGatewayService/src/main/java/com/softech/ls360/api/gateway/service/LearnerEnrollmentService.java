@@ -39,7 +39,8 @@ public interface LearnerEnrollmentService {
 	LearnerCourseStatistics getLearnerCourseStatisticsByUsernameAndEdxCourse(String username, String courseGuid);
 	
 	
-	LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress);
+	LearnerCourseStatistics updateProgressOfEdxCourse(LearnerCourseStatistics progress,String username,String courseGuid);
 	
 	LearnerEnrollment getLearnerEnrollmentById(Long enrollementId);
+	
 }
