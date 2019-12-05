@@ -148,6 +148,7 @@ public class GenricSwitchApi {
 		property.put("storesync", "api.store.sync");
 		property.put("assessment", "api.assessment.engine");
 		property.put("lms", "api.lms.baseurl");
+		property.put("edx", "api.edx.baseUrl"); 
 		
 		
 		String path=env.getProperty(property.get(server));
