@@ -530,7 +530,12 @@ public class ElasticSearchEndPoint {
 			RestTemplate restTemplate2 = new RestTemplate();
 			HttpEntity requestData2 = new HttpEntity(onjESearch, this.getHttpHeaders());
 			StringBuffer location2 = new StringBuffer();
-			location2.append(elasticSearchBaseURL +"/course_api/search/default/" + request.getStoreId());
+			
+			if(filterEnrolledOrSubscription.equals("all") && request.getUpsell() != null && request.getUpsell())
+				location2.append(elasticSearchBaseURL +"/course_api/search/default/all/" + request.getStoreId());
+			else
+				location2.append(elasticSearchBaseURL +"/course_api/search/default/" + request.getStoreId());
+			
 			ResponseEntity<Object> returnedData3=null;
 			returnedData3 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<Object, Object> magentoAPiResponse =  (LinkedHashMap<Object, Object>)returnedData3.getBody();
