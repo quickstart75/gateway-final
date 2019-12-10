@@ -20,6 +20,8 @@ public class InformalLearningRequest {
 	private List favorites;
 	private String uuid;
 	
+	private Boolean upsell;
+	
 	public String getSearchText() {
 		return searchText;
 	}
@@ -110,6 +112,12 @@ public class InformalLearningRequest {
 	}
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
+	}
+	public Boolean getUpsell() {
+		return upsell;
+	}
+	public void setUpsell(Boolean upsell) {
+		this.upsell = upsell;
 	}
 	
 }
