@@ -23,12 +23,12 @@ public class SubscriptionEnrollmentServiceTest extends LS360ApiGatewayServiceAbs
 	@Autowired
 	private EmailServiceImpl emailService;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
 	
-	@Test
+	//@Test
 	public void enrollSubscriptionCourse(){
 		SubscriptionEnrollmentRequest request = new SubscriptionEnrollmentRequest();
 		String userName = "manager_learner@lms.com";

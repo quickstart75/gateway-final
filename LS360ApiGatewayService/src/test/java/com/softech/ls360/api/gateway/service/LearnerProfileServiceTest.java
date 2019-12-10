@@ -18,12 +18,12 @@ public class LearnerProfileServiceTest extends LS360ApiGatewayServiceAbstractTes
 	@Inject 
 	private CreditReportingFieldRepository creditReportingFieldRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
 	
-	@Test
+	//@Test
 	public void getLearnerProfile() {
 		String userName = "subscription_learner1@lms.com";
 		

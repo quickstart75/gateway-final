@@ -21,8 +21,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-@RunWith(MockitoJUnitRunner.class)
+//@RunWith(MockitoJUnitRunner.class)
 public class UserDetailServiceMockTest {
+	/*
 	@Mock
 	private VU360UserRepository vu360UserRepository;
 	 
@@ -34,7 +35,7 @@ public class UserDetailServiceMockTest {
         MockitoAnnotations.initMocks(this);  
     }
 	
-	 @Test
+	 //@Test
 	 public void testLoadUserByUsername() throws Exception {
 		 System.out.println("testLoadUserByUsername");	
 		 
@@ -74,5 +75,5 @@ public class UserDetailServiceMockTest {
 			     
 		 
 	 }
-
+*/
 }

@@ -11,12 +11,12 @@ public class ClassroomCourseServiceTest extends LS360ApiGatewayServiceAbstractTe
 	@Inject
 	private ClassroomCourseService classroomCourseService;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
 	
-	@Test
+	//@Test
 	public void getClassroomDetails() {
 		//String userName = "asadsqa@mailinator.com";
 		String userName = "ananad.qa";

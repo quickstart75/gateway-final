@@ -17,7 +17,7 @@ public class SubscriptionCourseServiceTest extends LS360ApiGatewayServiceAbstrac
 	@Inject
 	private SubscriptionCourseService subscriptionCourseService;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
@@ -32,7 +32,7 @@ public class SubscriptionCourseServiceTest extends LS360ApiGatewayServiceAbstrac
 		
 	}
 	
-	@Test
+	//@Test
 	public void getSubscriptionCourses() {
 		String userName = "manager_learner@lms.com";
 		
@@ -65,7 +65,7 @@ public class SubscriptionCourseServiceTest extends LS360ApiGatewayServiceAbstrac
 	}
 	
 	/*
-	@Test
+	//@Test
 	public void getSubscriptionEnrollments(){
 		String userName = "manager_learner@lms.com";
 		List<String> subscriptionIds = new ArrayList<String>(); 
