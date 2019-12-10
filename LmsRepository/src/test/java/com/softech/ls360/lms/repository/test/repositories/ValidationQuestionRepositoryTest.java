@@ -28,7 +28,7 @@ public class ValidationQuestionRepositoryTest extends LmsRepositoryAbstractTest 
 		
 	}
 	
-	@Test
+	//@Test
 	public void findValidationQuestionByIds() {
 		
 		logger.info("findByUserName");

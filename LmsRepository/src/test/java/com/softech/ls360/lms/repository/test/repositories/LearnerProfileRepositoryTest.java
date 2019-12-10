@@ -91,7 +91,7 @@ public class LearnerProfileRepositoryTest extends LmsRepositoryAbstractTest  {
 		System.out.println(a);
 	}
 	
-	@Test
+	//@Test
 	public void findLearnerProfile(){
 		
 		String userName = "ali.waqas@360training.com";

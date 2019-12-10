@@ -17,7 +17,7 @@ public class CourseGroupRepositoryTest extends LmsRepositoryAbstractTest {
 	@Inject
 	private CourseGroupRepository courseGroupRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}

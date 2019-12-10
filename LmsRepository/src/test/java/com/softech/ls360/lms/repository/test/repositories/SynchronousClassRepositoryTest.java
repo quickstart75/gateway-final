@@ -29,12 +29,12 @@ public class SynchronousClassRepositoryTest extends LmsRepositoryAbstractTest {
 	@Inject
 	private SynchronousSessionRepository synchronousSessionRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
 	
-	@Test
+	//@Test
 	@Transactional
 	public void findClassroomDetails()
 	{
@@ -55,7 +55,7 @@ public class SynchronousClassRepositoryTest extends LmsRepositoryAbstractTest {
 		}
 	}
 
-	@Test
+	//@Test
 	public void testFind(){
 		try {
 			List<ClassroomSchedule> classroomScheduleStaticticsList = synchronousClassRepository.findScheduleData("c18795ea31824ccf8161881f5c6fa2da");

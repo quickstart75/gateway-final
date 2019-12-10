@@ -50,8 +50,7 @@ public class CourseRepositoryTest extends LmsRepositoryAbstractTest {
 		}
 		 
 	}
-	//
-	@Test
+	//@Test
 	public void findCourseByid() {
 			
 			Long Id = 220278L; //220279L;

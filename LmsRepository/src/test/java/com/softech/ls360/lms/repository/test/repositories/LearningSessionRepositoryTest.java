@@ -30,7 +30,7 @@ public class LearningSessionRepositoryTest extends LmsRepositoryAbstractTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void findCourseApprovals() {
 		
 		logger.info("findCourseApprovals");

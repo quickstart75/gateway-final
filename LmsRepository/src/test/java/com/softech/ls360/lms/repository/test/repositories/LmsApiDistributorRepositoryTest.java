@@ -13,7 +13,7 @@ public class LmsApiDistributorRepositoryTest extends LmsRepositoryAbstractTest {
 	@Inject
 	private LmsApiDistributorRepository lmsApiDistributorRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}

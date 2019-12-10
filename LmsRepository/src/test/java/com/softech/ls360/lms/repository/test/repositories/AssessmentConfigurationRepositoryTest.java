@@ -22,12 +22,12 @@ public class AssessmentConfigurationRepositoryTest extends LmsRepositoryAbstract
 	@Inject
 	private AssessmentConfigurationRepository assessmentConfigurationRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
 	
-	@Test
+	//@Test
 	@Transactional
 	public void findLockedCourse()
 	{

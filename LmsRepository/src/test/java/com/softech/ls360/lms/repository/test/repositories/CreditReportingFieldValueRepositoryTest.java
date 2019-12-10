@@ -35,7 +35,7 @@ public class CreditReportingFieldValueRepositoryTest extends LmsRepositoryAbstra
 		
 	}
 	
-	@Test
+	//@Test
 	@Transactional
 	public void findCreditReportingFieldValue() {
 		

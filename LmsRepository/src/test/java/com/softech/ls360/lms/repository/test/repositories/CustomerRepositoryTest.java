@@ -50,7 +50,7 @@ public class CustomerRepositoryTest extends LmsRepositoryAbstractTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void findCustomerCustomFields() {
 		Long customerId = 1452L;
 		Optional<List<CustomerCustomFields>> optionalCustomerCustomFields = customerRepository.findCustomFieldsById(customerId);

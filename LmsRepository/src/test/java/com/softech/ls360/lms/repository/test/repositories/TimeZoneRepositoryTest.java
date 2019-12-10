@@ -20,7 +20,7 @@ public class TimeZoneRepositoryTest extends LmsRepositoryAbstractTest {
 	@Inject
 	private TimeZoneRepository timeZoneRepository;
 	
-	@Test
+	//@Test
 	public void findAllTimeZones() {
 		
 		List<TimeZone> timeZones = (List<TimeZone>) timeZoneRepository.findAll();

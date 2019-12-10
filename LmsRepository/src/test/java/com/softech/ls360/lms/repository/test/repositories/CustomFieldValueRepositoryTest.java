@@ -35,7 +35,7 @@ public class CustomFieldValueRepositoryTest extends LmsRepositoryAbstractTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void findCustomFieldValue() {
 		
 		logger.info("findCustomFieldValue");

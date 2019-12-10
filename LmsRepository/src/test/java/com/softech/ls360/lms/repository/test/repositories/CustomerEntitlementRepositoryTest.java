@@ -15,7 +15,7 @@ public class CustomerEntitlementRepositoryTest extends LmsRepositoryAbstractTest
 	@Inject
 	private CustomerEntitlementRepository customerEntitlementRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}

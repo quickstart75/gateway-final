@@ -31,7 +31,7 @@ public class LearnerEnrollmentRepositoryTest extends LmsRepositoryAbstractTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void findLearnerEnrollmentCourses() {
 		
 		logger.info("findLearnerEnrollmentCourses");

@@ -15,7 +15,7 @@ public class OrganizationalGroupEntitlementRepositoryTest extends LmsRepositoryA
 	@Inject
 	private OrganizationalGroupEntitlementRepository  organizationalGroupEntitlementRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}

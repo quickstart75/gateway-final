@@ -30,7 +30,7 @@ public class RegulatoryApprovalRepositoryTest extends LmsRepositoryAbstractTest 
 		
 	}
 	
-	@Test
+	//@Test
 	public void findCreditReportingFields() {
 		
 		logger.info("findCreditReportingFields");

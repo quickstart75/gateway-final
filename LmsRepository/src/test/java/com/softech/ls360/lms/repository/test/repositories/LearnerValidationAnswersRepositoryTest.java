@@ -29,7 +29,7 @@ public class LearnerValidationAnswersRepositoryTest extends LmsRepositoryAbstrac
 		
 	}
 	
-	@Test
+	//@Test
 	public void findLearnerValidationAnswers() {
 		
 		logger.info("findLearnerValidationAnswers");

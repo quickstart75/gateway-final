@@ -22,7 +22,7 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 	@Inject
 	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
@@ -30,7 +30,7 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 	
 	
 	
-	@Test
+	//@Test
 	@Transactional
 	public void findMyCoursesCountByUserName()
 	{
@@ -137,7 +137,7 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 	}
 	
 	/*
-	@Test
+	//@Test
 	public void findAllCoursesCountByUserName()
 	{
 		String userName = "noman.test3";
@@ -152,7 +152,7 @@ public class LearnerCourseStatisticsRepositoryTest extends LmsRepositoryAbstract
 		}
 	}
 	
-	@Test
+	//@Test
 	public void findCompletedCoursesCountByUserName()
 	{
 		String userName = "noman.test4";

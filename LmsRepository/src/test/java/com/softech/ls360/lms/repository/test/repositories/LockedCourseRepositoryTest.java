@@ -20,12 +20,12 @@ public class LockedCourseRepositoryTest extends LmsRepositoryAbstractTest {
 	@Inject
 	private LockedCourseRepository lockedCourseRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
 	
-	@Test
+	//@Test
 	@Transactional
 	public void findLockedCourse()
 	{

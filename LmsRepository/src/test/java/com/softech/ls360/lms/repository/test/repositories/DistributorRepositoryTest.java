@@ -33,7 +33,7 @@ public class DistributorRepositoryTest extends LmsRepositoryAbstractTest  {
 		System.out.println(distributor);
 	}
 	
-	@Test
+	//@Test
 	public void findDistributorCustomFields() {
 		
 		Long distributorId = 52L;

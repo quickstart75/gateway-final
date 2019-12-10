@@ -17,9 +17,9 @@ public class ApiFrequencyRestrictionRepositoryTest extends LmsRepositoryAbstract
 	@Inject
 	private ApiFrequencyRestrictionRepository apiFrequencyRestrictionRepository;
 	
-	@Test
+	//@Test
 	public void test1() {
-		
+		System.out.println("Test ");
 	}
 	
 	//@Test

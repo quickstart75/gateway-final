@@ -22,7 +22,7 @@ public class VU360UserRepositoryTest extends LmsRepositoryAbstractTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void findByUserName() {
 		
 		logger.info("findByUserName");

@@ -25,7 +25,7 @@ public class SubscriptionRepositoryTest extends LmsRepositoryAbstractTest {
 		
 	}
 	
-	@Test
+	//@Test
 	@Transactional
 	public void findByUserName() {
 		

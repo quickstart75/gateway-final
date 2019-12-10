@@ -26,7 +26,7 @@ public class LCMSAuthorRepositoryTest extends LmsRepositoryAbstractTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void findByUserID() {
 		
 		logger.info("findByUserID");
