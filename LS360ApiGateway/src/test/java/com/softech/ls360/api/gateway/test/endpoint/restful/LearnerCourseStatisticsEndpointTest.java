@@ -28,7 +28,7 @@ public class LearnerCourseStatisticsEndpointTest extends
 
 	}
 
-	@Test
+	//@Test
 	public void getLearnerCoureStatistics() {
 
 		String restEndPoint = LOCAL_URL + "learner/courses/statistics/byEnrollmentId";
