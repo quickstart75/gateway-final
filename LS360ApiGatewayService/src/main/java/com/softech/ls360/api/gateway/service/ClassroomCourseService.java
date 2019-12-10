@@ -19,4 +19,5 @@ public interface ClassroomCourseService {
 	ClassroomStatistics getClassroomStatistics(Long classId);
 	List<ClassroomCourseInfo> getClassroomCourseScheduleStatistics(String courseGuid);
 	List<Object> getCourseSession(String storeId,Integer timeZone);
+	Map<Object,Object> getCourseSessionWithDetails(String storeId,Integer timeZone,String username);
 }

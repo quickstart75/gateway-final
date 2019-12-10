@@ -15,6 +15,6 @@ public interface SynchronousSessionRepository extends CrudRepository<Synchronous
 			"INNER JOIN SYNCHRONOUSCLASS sc ON c.ID = sc.COURSE_ID " + 
 			"INNER JOIN SYNCHRONOUSSESSION ss ON sc.ID = ss.SYNCHRONOUSCLASS_ID "
 			+ "where sc.PROBABILITY > = 50 AND sc.ISEVENT = 0 AND sc.CLASSSTARTDATE > GETDATE() AND sc.TIMEZONE_ID=:timeZone AND "
-			+ "c.GUID in (:courseGuid)", nativeQuery = true)
+			+ "c.GUID in (:courseGuid) AND ss.status NOT IN ('C','D')", nativeQuery = true)
 	List<Object[]> findSynchronousSessionByCourses(@Param("courseGuid") List<String> courseGuid, @Param("timeZone") Integer timeZone);
 }

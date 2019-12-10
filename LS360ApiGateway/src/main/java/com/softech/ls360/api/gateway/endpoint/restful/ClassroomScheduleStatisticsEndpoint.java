@@ -4,6 +4,7 @@ import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
 import com.softech.ls360.api.gateway.model.ClassroomCourseRequest;
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
 import com.softech.ls360.api.gateway.service.EmailService;
+import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.response.ClassroomCourseInfo;
 import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.entities.LearnerProfile;
@@ -49,7 +50,10 @@ public class ClassroomScheduleStatisticsEndpoint {
 
     @Autowired
     private EmailService emailService;
-
+    
+    @Autowired
+    private LearnerEnrollmentService learnerEnrollmentService;
+    
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
@@ -117,5 +121,44 @@ public class ClassroomScheduleStatisticsEndpoint {
 		
     	return response;
     }
+    @RequestMapping(value="/classes-detail",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<Object, Object> getClassroomCourseDetailsUser(@RequestParam("storeId") String storeId, @RequestParam("timeZone") String timeZone){
+    	Map<Object, Object> response=new HashMap<>();
+   
+    	String username = SecurityContextHolder.getContext().getAuthentication().getName(); 
+    	
+        if(timeZone!=null && !timeZone.isEmpty() && storeId!=null && !storeId.isEmpty()) {
+        	Integer zone= getTimeZoneId(timeZone);
+        	if(zone != null ) {
+        		Map<Object,Object> result=classroomCourseService.getCourseSessionWithDetails(storeId,zone,username);
+    	    	response.put("calender", result);
+    			response.put("status",Boolean.TRUE);
+    			response.put("message","success");
+    			return response;
+        	}
+        	
+    	}
+        
+        response.put("calender", "");
+		response.put("status",Boolean.FALSE);
+		response.put("message","failed");
+        
+		
+    	return response;
+    }
+    
+    public Integer getTimeZoneId(String timeZone) {
+    	
+    	switch (timeZone) {
+		case "CST": return 1;
+		case "PST": return 12;
+		case "EST": return 20;
+		case "MST": return 13;
+		default:	return 0;
+		}
+    	
+    }
+    
     
 }

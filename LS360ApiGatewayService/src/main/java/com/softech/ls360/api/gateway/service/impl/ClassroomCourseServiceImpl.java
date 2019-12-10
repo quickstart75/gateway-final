@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.softech.ls360.api.gateway.service.ClassroomCourseService;
+import com.softech.ls360.api.gateway.service.LearnerEnrollmentService;
 import com.softech.ls360.api.gateway.service.model.response.ClassroomStatistics;
 import com.softech.ls360.api.gateway.service.model.response.LearnerClassroomDetailResponse;
 import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
@@ -45,6 +46,9 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 	
 	@Inject
 	private LearnerEnrollmentRepository learnerEnrollmentRepository;
+	
+	@Autowired
+	private LearnerEnrollmentService learnerEnrollmentService;
 	
 	@Autowired
 	private Environment env;
@@ -256,10 +260,10 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 	public List<Object> getCourseSession(String storeId,Integer timeZone) {
 		
 		try {
-			List<String> courseGuid=null;
-			if(storeId!=null && !storeId.isEmpty()) {
-				courseGuid = getDataFromMagento(storeId);
-			}
+			List<String> courseGuid = ( List<String> ) getDataFromMagento(storeId,false);
+			
+			
+			
 			if(courseGuid!=null) {
 			
 				List<Object[]> sessionCourses = synchronousSessionRepository.findSynchronousSessionByCourses(courseGuid,timeZone);
@@ -303,7 +307,7 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 		return null;
 	}
 	
-	public List<String> getDataFromMagento(String storeId){
+	public Object getDataFromMagento(String storeId, boolean details){
 		try {
 	    	RestTemplate rest=new RestTemplate();
 	
@@ -312,26 +316,137 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 	    	
 	    	Map<String, String> magentoReq=new HashMap<>();
 	    	magentoReq.put("storeId", storeId);
-	    	
-	    	HttpEntity<Map> httpRequest=new HttpEntity<Map>(magentoReq, headers);
-	    	
+	    	HttpEntity<Object> httpRequest=new HttpEntity<>(magentoReq, headers);
 	    	String url = env.getProperty("api.magento.baseURL")+"rest/default/V1/itskills-viltattendance/viltskubystore";
-	    	
-	    	ResponseEntity<List> magentoResponse = null;
-    	
-    		magentoResponse=rest.exchange(url,HttpMethod.POST,httpRequest, List.class); 
-    			
+	    	ResponseEntity<List> magentoResponse=rest.exchange(url,HttpMethod.POST,httpRequest, List.class); 
+    
+    		/**
+    		 * Fetching Data From Magento
+    		 */
+    		
+	    	//If detail true
     		List<String> coursesGuid=new ArrayList<>();
+    		Map<Object, Object> courseDetail=new HashMap<>();
+    		Map<Object, Object> detailResponse=new HashMap<>();
+    		Map<String, Object> magentoData=new HashMap<>();
     		
     		Map<Object, Object> result=(Map<Object, Object>) magentoResponse.getBody().get(0);
-    		coursesGuid = (List<String>) result.get("result");
+    		magentoData = (Map<String, Object>) result.get("result");
     		
-    		return coursesGuid;
+    		for(String key : magentoData.keySet()) {
+    			Map<String, String> record=(Map<String, String>) magentoData.get(key);
+    			Map<Object, Object> data=new HashMap<>();
+    			
+    			data.put("courseName", record.get("courseName"));
+    			data.put("description", record.get("description"));
+    			data.put("courseStatus", record.get("courseName"));
+    			data.put("url", record.get("url"));
+    			data.put("img", record.get("img"));
+    			data.put("guid", key);
+    			courseDetail.put(key, data);
+    			coursesGuid.add(key);
+    			
+    		}
+    		
+    		detailResponse.put("guids", coursesGuid);
+    		detailResponse.put("detail", courseDetail);
+    		
+    		return details ? detailResponse : coursesGuid;
     		
     	}catch (Exception e) {
     		e.printStackTrace();
     		return null;
 		}
+	}
+
+	@Override
+	public Map<Object,Object> getCourseSessionWithDetails(String storeId, Integer timeZone,String username) {
+		try {
+			Map<Object, Object> magentoResponse= (Map<Object, Object>) getDataFromMagento(storeId, true);
+			List<Map<Object, Object>> dataList =new ArrayList<Map<Object,Object>>();
+			
+			
+			List<String> courseGuid = (List<String>) magentoResponse.get("guids");
+			Map<Object, Object> courseDetail = (Map<Object, Object>) magentoResponse.get("detail");
+			
+			if(courseGuid!=null) {
+				
+				List<Object[]> sessionCourses = synchronousSessionRepository.findSynchronousSessionByCourses(courseGuid,timeZone);
+				Map<Object,Object> mainResponse=new HashMap<Object, Object>();
+				
+				for(String guid : courseGuid) {
+				
+					Map<Object, Object> response=(Map<Object, Object>) courseDetail.get(guid);
+					
+					
+					List<Map> syncSession=new ArrayList<Map>();
+					
+					for(Object[] record : sessionCourses) {
+						
+						if(guid.equals(record[3])) {
+							
+							Map<Object, Object> session=new HashMap<Object, Object>();
+							session.put("startDateTime", record[0]);
+							session.put("endDateTime", record[1]);
+							session.put("sessionKey", record[2]);
+							
+							syncSession.add(session);
+							
+						}
+							
+					}
+					if(syncSession.size()>0) {
+						response.put("syncSession", syncSession);
+						dataList.add(response);
+					}
+				}
+				Map<String, Map<String, String>> enrolledCourses=  getEnrolledCourses(username);
+				mainResponse.put("data",dataList);
+				mainResponse.put("enrolledCourses", enrolledCourses);
+				mainResponse.put("totalCourses",courseGuid.size());
+				return mainResponse;
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		
+		return null;
+	}
+	/**
+	 * This method fetch the courses of user in 
+	 * which they are enrolled
+	 * 
+	 * @param username This provide the username 
+	 * @return enrolled courses and status 
+	 */
+	private Map<String, Map<String, String>> getEnrolledCourses(String username) {
+		//enrolledCourses:
+		List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
+	
+		Map<String, Map<String, String>> mapEnrollment = new  HashMap<String, Map<String, String>>();
+	
+	    Map<String, String> subMapEnrollment;
+	
+	    for(Object[] subArr: arrEnrollment){
+	
+	          subMapEnrollment = new HashMap<String,String>();
+	
+	          // if orderstatus is completed in voucher payment case or should be null/empty in credit card payment
+
+	          if(subArr[2] == null || subArr[2].toString().equals("") || subArr[2].toString().equals("completed"))
+	
+	                subMapEnrollment.put("status", subArr[1].toString());
+	
+	          else
+	
+	                subMapEnrollment.put("status", subArr[2].toString());
+	
+	          mapEnrollment.put(subArr[0].toString(), subMapEnrollment); 
+	
+	    }
+	    return mapEnrollment;
 	}
 	
 }
