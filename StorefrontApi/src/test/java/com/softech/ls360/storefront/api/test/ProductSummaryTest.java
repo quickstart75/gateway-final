@@ -17,7 +17,7 @@ public class ProductSummaryTest extends StorefrontApiAbstractTest {
 	@Inject
 	private ProductSummaryService productSummaryService;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}

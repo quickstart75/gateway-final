@@ -20,7 +20,7 @@ public class SubscriptionCourseCountTest extends StorefrontApiAbstractTest {
 	@Inject
 	private SubscriptionCourseCountService subscriptionCourseCountService;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}

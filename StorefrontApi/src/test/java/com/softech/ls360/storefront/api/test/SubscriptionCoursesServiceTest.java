@@ -21,12 +21,12 @@ public class SubscriptionCoursesServiceTest extends StorefrontApiAbstractTest {
 	@Inject
 	private SubscriptionCoursesService subscriptionCoursesService;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
 	
-	@Test
+	//@Test
 	public void getProductSummary() {
 		
 		String storeId = "21701";

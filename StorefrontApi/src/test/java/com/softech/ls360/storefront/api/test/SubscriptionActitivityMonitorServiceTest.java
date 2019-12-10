@@ -20,12 +20,12 @@ public class SubscriptionActitivityMonitorServiceTest extends StorefrontApiAbstr
 	@Inject
 	private SubscriptionActitivityMonitorService subscriptionActitivityMonitorService;
 	
-	@Test
+	//@Test
 	public void test1() {
 		
 	}
 	
-	@Test
+	//@Test
 	public void getProductSummary() {
 		
 		String storeId = "21701";
