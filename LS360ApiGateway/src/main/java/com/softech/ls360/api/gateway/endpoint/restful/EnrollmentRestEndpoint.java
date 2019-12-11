@@ -245,7 +245,13 @@ public class EnrollmentRestEndpoint {
 		return map;
 	}
 	
-	
+	/**
+	 * @desc call after the subscription enrollment using API [learner/subscription/enrollment]
+	 * 
+	 * @url LS360ApiGateway/services/rest/lms/customer/enrollment/statistics/status
+	 * @param {"enrollmentId":["111485"],"status":"inprogress"}
+	 * @return 
+	 */
 	@RequestMapping(value = "/customer/enrollment/statistics/status", method = RequestMethod.PUT)
 	@ResponseBody
 	public Map<Object, Object> updateEnrollmentStatisticsStatus(@RequestBody UpdateEnrollmentStatusRequest enrolRequest) {
