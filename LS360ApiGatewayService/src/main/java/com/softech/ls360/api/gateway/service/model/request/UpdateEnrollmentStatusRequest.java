@@ -3,13 +3,13 @@ package com.softech.ls360.api.gateway.service.model.request;
 import java.util.List;
 
 public class UpdateEnrollmentStatusRequest {
-	List enrollmentId;
+	List<Long> enrollmentId;
 	String status;
 	
-	public List getEnrollmentId() {
+	public List<Long> getEnrollmentId() {
 		return enrollmentId;
 	}
-	public void setEnrollmentId(List enrollmentId) {
+	public void setEnrollmentId(List<Long> enrollmentId) {
 		this.enrollmentId = enrollmentId;
 	}
 	public String getStatus() {

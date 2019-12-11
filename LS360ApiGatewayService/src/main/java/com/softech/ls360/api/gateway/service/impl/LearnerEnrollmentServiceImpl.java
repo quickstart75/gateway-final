@@ -152,7 +152,28 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 	
 	@Override
 	public void updateLearnerEnrollmentStatisticsStatus(String status, List<Long> enrollmentIds){
-		learnerEnrollmentRepository.updateLearnerCourseStatisticsStatus( status, enrollmentIds);
+		for(Long enrollmentId : enrollmentIds) {
+			
+			LearnerEnrollment enrollment=new LearnerEnrollment();
+			enrollment.setId(enrollmentId);
+			
+			//Fetching Statistics
+			LearnerCourseStatistics statistics = learnerCourseStatisticsRepository.findByLearnerEnrollment(enrollment);
+			
+			if(statistics != null) {
+				
+				if(status.equals("inprogress"))
+					statistics.setFirstAccessDate(LocalDateTime.now());
+				
+				statistics.setStatus(status);
+				
+				learnerCourseStatisticsRepository.save(statistics);
+				
+			}
+			
+			
+		}
+//		learnerEnrollmentRepository.updateLearnerCourseStatisticsStatus( status, enrollmentIds);
 	}
 	
 	@Override
