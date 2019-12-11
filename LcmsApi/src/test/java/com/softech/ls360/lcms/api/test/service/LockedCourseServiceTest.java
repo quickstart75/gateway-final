@@ -27,7 +27,7 @@ public class LockedCourseServiceTest extends LcmsApiAbstractTest{
 		
 	}
 	
-	@Test
+	//@Test
 	public void getLockedCourseStatus() {
 
 		String commaSeperatedEnrollmentIds = "272037,270965,245046,266427,271393,224276,218802,268134,268120,268120";
