@@ -132,7 +132,7 @@ public class ClassroomScheduleStatisticsEndpoint {
         	Integer zone= getTimeZoneId(timeZone);
         	if(zone != null ) {
         		Map<Object,Object> result=classroomCourseService.getCourseSessionWithDetails(storeId,zone,username);
-    	    	response.put("calender", result);
+    	    	response.put("calendar", result);
     			response.put("status",Boolean.TRUE);
     			response.put("message","success");
     			return response;
