@@ -232,7 +232,7 @@ public class ElasticSearchEndPoint {
 			List<Object[]> arrEnrollment = learnerEnrollmentService.getEnrolledCoursesInfoByUsername(username);
 			
 			// if no enrollments and no subscription, return empty array
-			if(request.getUpsell() != null && request.getUpsell()){
+			if(request.getUpsell() != null && request.getUpsell() && filterEnrolledOrSubscription.equals("all")){
 				// do nothing
 			}else if(arrEnrollment.size()==0 && (request.getSubsCode()==null || request.getSubsCode().equals(""))){
 				returnResponse.put("status", Boolean.TRUE);
@@ -360,7 +360,7 @@ public class ElasticSearchEndPoint {
 				onjESearch.setCourseGuids(new ArrayList());
 			}
 			
-			if(request.getUpsell() != null && request.getUpsell()){
+			if(request.getUpsell() != null && request.getUpsell() && filterEnrolledOrSubscription.equals("all")){
 				// do thing
 			}else if(filterEnrolledOrSubscription.equals("all") && (onjESearch.getCourseGuids()==null || onjESearch.getCourseGuids().size() == 0 )
 					&& (onjESearch.getSubscriptions() ==null || onjESearch.getSubscriptions().size()==0)){
