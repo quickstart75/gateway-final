@@ -276,6 +276,9 @@ public class PersonalizedEndPoint {
 		info.setInformalLearning(new InformalLearningFilter());
 		info.setFavorites(new ArrayList<>());
 		
+		//Upsell
+		info.setUpsell(true);
+		
 		HttpEntity<Object> request=new HttpEntity<>(info,headers);
 		ResponseEntity<Object> response=null;
 		
