@@ -15,10 +15,10 @@ public class DistributorEntitlementRepositoryTest extends LmsRepositoryAbstractT
 	@Inject
 	private DistributorEntitlementRepository distributorEntitlementRepository;
 
-	@Test
-	public void test1() {
+	//@Test
+	//public void test1() {
 		
-	}
+	//}
 	
 	//@Test
 	public void findById() {

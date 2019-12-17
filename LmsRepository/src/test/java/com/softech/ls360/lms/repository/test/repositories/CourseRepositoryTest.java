@@ -17,10 +17,10 @@ public class CourseRepositoryTest extends LmsRepositoryAbstractTest {
 	@Inject
 	private CourseRepository courseRepository;
 	
-	@Test
-	public void test1() {
+	//@Test
+	//public void test1() {
 		
-	}
+	//}
 	
 	//@Test
 	public void findCoursesInCourseGroup() {

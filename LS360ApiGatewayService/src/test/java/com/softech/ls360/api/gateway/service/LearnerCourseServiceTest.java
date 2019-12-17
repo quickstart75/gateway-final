@@ -23,6 +23,8 @@ import com.softech.ls360.api.gateway.service.model.response.ClassroomCourseInfo;
 import com.softech.ls360.lms.repository.entities.Subscription;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
+import junit.framework.Assert;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=LS360ApiGatewayServiceAppConfig.class)
 public class LearnerCourseServiceTest extends LS360ApiGatewayServiceAbstractTest {
@@ -32,6 +34,9 @@ public class LearnerCourseServiceTest extends LS360ApiGatewayServiceAbstractTest
 	@Inject
 	private LearnerCourseService learnerCourseService;
 
+	@Inject
+	private LearnerService learnerService;
+	
 	@Inject
 	private ClassroomCourseService classroomCourseService;
 
@@ -53,18 +58,35 @@ public class LearnerCourseServiceTest extends LS360ApiGatewayServiceAbstractTest
 		
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
-	public void findCoursesById() {
+	public void validateCoursesById() {
 		
-		logger.info(" a a a a a " );
-		logger.info(" a a a a a " );
-		logger.info(" a a a a a " );
-		Long c = courseService.findIdByGuid("fd5ca907e21c4059a88e9e17b717f630");
-		logger.info(" a a a a a " + c);
-		logger.info(" a a a a a " );
-		logger.info(" a a a a a " );
+		logger.info(" TEST ::: Find Course by GUID" );
+		logger.info(" ........ " );
+		logger.info(" ........ " );
+		Long courseId = courseService.findIdByGuid("fd5ca907e21c4059a88e9e17b717f630ss");
+		if(courseId!=null && courseId>0)
+			Assert.assertTrue(true);
+		else
+			Assert.assertTrue(false);
+		logger.info(" ........ ");
+		logger.info(" ........ ");
 		
 	}
+	
+	@Test
+	public void validateUserByUserName() {
+		
+		logger.info(" TEST ::: Find Learner by username" );
+		logger.info(" ........ " );
+		logger.info(" ........ " );
+		learnerService.findByVu360UserUsername("dummy_user");
+		logger.info(" ........ " );
+		logger.info(" ........ " );
+		
+	}
+	
 	//@Test
 	public void getCourseCount() {
 		fail("Not yet implemented");
