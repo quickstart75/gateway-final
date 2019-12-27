@@ -11,6 +11,7 @@ import org.hibernate.mapping.Collection;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -42,6 +43,9 @@ public class SkillGraphEndpoint {
 	
 	@Autowired
 	private LearnerEnrollmentService learnerEnrollmentService;
+	
+	@Autowired
+	Environment env;
 	
 	
 	@RequestMapping(value = "/objective/skillGraph",method = RequestMethod.POST)
@@ -101,7 +105,7 @@ public class SkillGraphEndpoint {
 			HttpHeaders header=new HttpHeaders();
 			header.setContentType(MediaType.APPLICATION_JSON_UTF8);
 			HttpEntity<Object> request=new HttpEntity<Object>(magentoRequest,header);
-			ResponseEntity<Object> response=restTemplate.exchange("https://www.quickstart.com/rest/default/V1/personalization/getList", HttpMethod.POST, request, Object.class);
+			ResponseEntity<Object> response=restTemplate.exchange(env.getProperty("api.magento.baseURL")+"/rest/default/V1/personalization/getList", HttpMethod.POST, request, Object.class);
 		
 			/**
 			 * Fetching personal and organizational goals from magento
@@ -241,7 +245,7 @@ public class SkillGraphEndpoint {
 		requestBody.put("query", query);
 		
 		HttpEntity<Object> request=new HttpEntity<Object>(requestBody, headers) ;
-		ResponseEntity<Map> responseFromURL = restTemplate.exchange("http://3.92.170.103:5555/", HttpMethod.POST, request, Map.class);
+		ResponseEntity<Map> responseFromURL = restTemplate.exchange(env.getProperty("api.recommendation.engine"), HttpMethod.POST, request, Map.class);
 		
 		/**
 		 * Parsing LearningPath Data
@@ -264,38 +268,7 @@ public class SkillGraphEndpoint {
 		
 		System.out.println(new JSONObject(learningPath));
 		return learningPath;
-		
-//		/**
-//		 * Test
-//		 */
-//		Map<Object, List<String>> learningPath_2 = new HashMap<Object, List<String>>();
-//		
-//		List<String> courseGuid = new ArrayList<String>();
-//		courseGuid.add("b7a5d3e8960a4a3e87fe9e75adb84b8a");
-//		courseGuid.add("06f67290f6874b4dab64b27a53730665");
-//		courseGuid.add("8365e08621754f2aaa8e9260f80b4b3b");
-//		courseGuid.add("49c6b3d95e5049aa88e6bea3baf57dee");
-//		learningPath_2.put("4754-woswkeitrmk3owuvb0", courseGuid);
-//		
-//		List<String> courseGuid2 = new ArrayList<String>();
-//		courseGuid2.add("7e1208a438b747c1a67a683e7607058c");
-//		courseGuid2.add("4922d51339fb4315a8e13e3d4e37e694");
-//		courseGuid2.add("a5943de831374bec9ba3269e236046a7");
-//		courseGuid2.add("c73053c777b5479c8c31add73c578287");
-//		learningPath_2.put("4754-qmsg8tlihp7k3owu7lt", courseGuid2);
-//		
-//		
-//		
-//		System.out.println(new JSONObject(learningPath_2));
-//		return learningPath_2;
-//		
-		
-		
-	}
-
-	private List<Object> getDataFromRecommendation() {
-		// TODO Auto-generated method stub
-		return null;
+			
 	}
 
 	public static void main(String[] args) {
