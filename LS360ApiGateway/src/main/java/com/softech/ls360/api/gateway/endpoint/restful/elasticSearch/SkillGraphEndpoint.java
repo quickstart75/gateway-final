@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.endpoint.restful.elasticSearch;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -144,78 +145,77 @@ public class SkillGraphEndpoint {
 			return null;
 		}
 	}
-	
+	/**
+	 * Calculate enrollment and percentage of skill/competencies
+	 * Sort them based on enrollment amount 
+	 * 
+	 * @param objectiveId 		Provide goal-id's of the user
+	 * @param username 			Provide user-name
+	 * @param type 				Provide type of goals-id
+	 * @param organizationId 	Provide Organization Id;
+	 * 
+	 * @return Top 10 skill/competencies details
+	 */
 	private Object calculatEnrollment(List<String> objectiveId,String username,String type,Long organizationId) {
 		
 		try {
-			List<Map<String, Object>> skillDetails=new ArrayList<>();
+			List<Map<String, Object>> mainResponse=new ArrayList<>();
 			Map<Object, List<String>>  learningPaths = (objectiveId==null || objectiveId.isEmpty() ) ? new HashMap<>() : getLearningPaths(objectiveId);
-			
 			List<String> enrollments = new ArrayList<>();
 			Integer total = 0;
 			Map<String, Integer> orgData=null;
 			
 			if(type.equals("organization")) {
 				orgData=learnerEnrollmentService.getEnrolledCoursesByCustomer(organizationId);
-				
-				for(String guid : orgData.keySet()) {
-					enrollments.add(guid);
-					total+=orgData.get(guid);
-				}
-				
+				enrollments.addAll(orgData.keySet());
 			}
-			else {
+			else 
 				enrollments = learnerEnrollmentService.getEnrolledCoursesGuidByUsername(username);
-				total = enrollments.size();
-			}
 			
-			
-			/**
-			 * Calculating enrolled courses
-			 */
-			
+			//Calculating enrollment count according to skill
 			for( Object skill : learningPaths.keySet() ) {
 				int enrolledCount=0;
 				Map<String, Object> skillData=new HashMap<>();
 				for(String guid : enrollments) {
-					
 					for (String skillGuid : learningPaths.get(skill)) {
 						if(skillGuid.equals(guid)) {
 							enrolledCount++;
+							total++;
 							break;
 						}
 					}
-					
 				}
 				if(enrolledCount>0) {
 					skillData.put("enrollmentsCount", enrolledCount);
-					skillData.put("percentage", ((double)enrolledCount/total)*100d);
+					skillData.put("percentage", ((double)enrolledCount));
 					skillData.put("learningPath", skill);
-					skillDetails.add(skillData);
+					mainResponse.add(skillData);
 				}
 			}
 			
-			/**
-			 * 
-			 */
+			//Calculating percentage
+			for(Map<String, Object> record : mainResponse) {
+				double percentage = ((double) record.get("percentage") / total)*100d;
+				record.replace("percentage", new DecimalFormat("#0.00").format(percentage));
+			}
 			
-			Collections.sort(skillDetails, new Comparator<Map<String, Object>>() {
+			//Sorting Data On Enrollment Count
+			Collections.sort(mainResponse, new Comparator<Map<String, Object>>() {
 				public int compare(Map<String, Object> o1, Map<String, Object> o2) {
 					int a = Integer.parseInt(o1.get("enrollmentsCount").toString());
 					int b = Integer.parseInt(o2.get("enrollmentsCount").toString());
-					
 					return a > b ? -1 : a < b ? 1 : 0 ;
-					
 				};
 			});
 			
-			skillDetails.subList(10, skillDetails.size()).clear();
-			System.out.println(new JSONObject(skillDetails)); 
-			return skillDetails;
+			//Getting Top 10 Skills Data
+			if(mainResponse.size()>10) 
+				mainResponse.subList(10, mainResponse.size()).clear();
+			
+			System.out.println(new JSONObject(mainResponse)); 
+			return mainResponse;
 		}catch (Exception e) {
 			e.printStackTrace();
-//			logger.info(">>>>>>>>>>>>>>> Exception occurs while send request to recommendation >>>>>>>>>>>>> :getDataFromGraphQL() >>>");
-//			logger.info(">>>>>>>>>>>>>>Error : "+e.getMessage());
 			return null;
 		}
 		
