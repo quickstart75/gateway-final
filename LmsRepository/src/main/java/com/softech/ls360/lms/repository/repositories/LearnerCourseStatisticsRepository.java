@@ -384,6 +384,16 @@ public interface LearnerCourseStatisticsRepository extends CrudRepository<Learne
     	   ,nativeQuery=true)
     List<Object[]> getEnrolledCoursesInfoByUsername(@Param("username") String username);
     
+    @Query(value=" SELECT  c.guid" +
+    	    " FROM vu360user u  " +
+    	    " inner join Learner l on l.vu360user_id=u.id " +
+    	    " inner join LEARNERENROLLMENT le on le.LEARNER_ID=l.id   " +
+    	    " inner join LEARNERCOURSESTATISTICS lcs on lcs.LEARNERENROLLMENT_ID = le.id   " +
+    	    " inner join course c on c.id=le.course_id  " +
+    	    " where le.ENROLLMENTSTATUS='Active' and u.username=:username " 
+    	   ,nativeQuery=true)
+    List<String> getEnrolledCoursesGuidByUsername(@Param("username") String username);
+    
     @EntityGraph(value = "LearnerCourseStatistics.LearnerEnrollments", type = EntityGraphType.LOAD)
     List<LearnerCourseStatistics> findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_Course_courseGuidAndLearnerEnrollment_enrollmentStatus(String userName, String guid, String enrollmentStatus);
 

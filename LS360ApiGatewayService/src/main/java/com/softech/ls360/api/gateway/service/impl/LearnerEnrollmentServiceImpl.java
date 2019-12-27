@@ -644,4 +644,19 @@ public class LearnerEnrollmentServiceImpl implements LearnerEnrollmentService {
 		return (enrollementId!=null) ? learnerEnrollmentRepository.findOne(enrollementId) : null;
 		
 	}
+
+	@Override
+	public List<String> getEnrolledCoursesGuidByUsername(String username) {
+		return learnerCourseStatisticsRepository.getEnrolledCoursesGuidByUsername(username);
+	}
+
+	@Override
+	public Map<String, Integer> getEnrolledCoursesByCustomer(Long customerId) {
+		
+		Map<String, Integer> row=new HashMap<String, Integer>();
+		for(Object[] record : learnerEnrollmentRepository.getEnrolledCoursesByCustomer(customerId)) 
+			row.put((String)record[1], (Integer)record[2]);
+		
+		return row;
+	}
 }

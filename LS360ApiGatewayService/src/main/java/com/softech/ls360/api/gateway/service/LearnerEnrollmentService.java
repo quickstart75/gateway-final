@@ -43,4 +43,8 @@ public interface LearnerEnrollmentService {
 	
 	LearnerEnrollment getLearnerEnrollmentById(Long enrollementId);
 	
+	List<String> getEnrolledCoursesGuidByUsername(String username);
+	
+	Map<String, Integer> getEnrolledCoursesByCustomer(Long customerId);
+	
 }

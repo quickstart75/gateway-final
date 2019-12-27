@@ -102,4 +102,10 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
 			"	Inner Join LEARNERENROLLMENT le on le.LEARNER_ID=l.id" + 
 			"	where le.id=:enrollmentId", nativeQuery = true)
 	public String getVU360UserByEnrollmentId(@Param("enrollmentId") long enrollmentId);
+	
+	@Query(value = "select c.name, c.guid, count(le.id) from learnerenrollment le inner join course c " + 
+			"on c.id=le.course_id inner join learner l " + 
+			"on l.id = le.learner_id where customer_id=:customerId " + 
+			"group by c.name, c.guid", nativeQuery = true)
+	public List<Object[]> getEnrolledCoursesByCustomer(@Param("customerId") Long customerId);
 }
