@@ -115,8 +115,7 @@ public class SkillGraphEndpoint {
 			HttpHeaders header=new HttpHeaders();
 			header.setContentType(MediaType.APPLICATION_JSON_UTF8);
 			HttpEntity<Object> request=new HttpEntity<Object>(magentoRequest,header);
-//			String url=env.getProperty("api.magento.baseURL")+"/rest/default/V1/personalization/getList";
-			String url="https://quickstart.com/rest/default/V1/personalization/getList";
+			String url=env.getProperty("api.magento.baseURL")+"/rest/default/V1/personalization/getList";
 			ResponseEntity<Object> response=restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
 		
 			/**
