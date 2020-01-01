@@ -54,30 +54,39 @@ public class SkillGraphEndpoint {
 	public Object getSkillGraph(@RequestBody Map<String, String> request, @RequestHeader("Authorization") String authentication) {
 		
 		Map<Object, Object> responseBody=new HashMap<>();
-		
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		String customerId=request.get("customerId")==null ? "" : request.get("customerId");
-		String websiteId=request.get("websiteId")==null ? "" : request.get("websiteId");
-		String storeId=	request.get("storeId")==null ? "" : request.get("storeId");
-		
-		// Validating All Inputs 
-		if(customerId.isEmpty() || websiteId.isEmpty() || storeId.isEmpty()) {
-			responseBody.put("result", "");
-			responseBody.put("status", Boolean.FALSE);
-			responseBody.put("message", "Provide All Parameters");
-			return responseBody;
+		try {
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			String customerId=request.get("customerId")==null ? "" : request.get("customerId");
+			String websiteId=request.get("websiteId")==null ? "" : request.get("websiteId");
+			String storeId=	request.get("storeId")==null ? "" : request.get("storeId");
+			
+			// Validating All Inputs 
+			if(customerId.isEmpty() || websiteId.isEmpty() || storeId.isEmpty()) {
+				responseBody.put("result", "");
+				responseBody.put("status", Boolean.FALSE);
+				responseBody.put("message", "Provide All Parameters");
+				return responseBody;
+			}
+			Map<Object, Object> result=new HashMap<Object, Object>();
+			Customer customer = customerService.findByUsername(username);
+			Long organizationId = customer!=null ? customer.getId() : 0l;
+			
+			Map<Object, List<String>> magento = getDataFromMagento(storeId, username, customerId,organizationId);
+			
+			result.put("personal", calculatEnrollment(magento.get("customer"), username,"customer",organizationId));
+			
+			if(customer!=null)
+				result.put("organizational", calculatEnrollment(magento.get("organization"), username,"organization",organizationId));
+			
+			responseBody.put("result", result);
+			responseBody.put("message", "success");
+			responseBody.put("status", true);
 		}
-		
-		Customer customer = customerService.findByUsername(username);
-		Long organizationId = customer!=null ? customer.getId() : 0l;
-		
-		Map<Object, List<String>> magento = getDataFromMagento(storeId, username, customerId,organizationId);
-		
-		responseBody.put("personal", calculatEnrollment(magento.get("customer"), username,"customer",organizationId));
-		
-		if(customer!=null)
-			responseBody.put("organizational", calculatEnrollment(magento.get("organization"), username,"organization",organizationId));
-		
+		catch (Exception e) {
+			responseBody.put("result", "");
+			responseBody.put("message", e.getMessage());
+			responseBody.put("status", false);
+		}
 		return responseBody;
 	}
 	
@@ -106,7 +115,9 @@ public class SkillGraphEndpoint {
 			HttpHeaders header=new HttpHeaders();
 			header.setContentType(MediaType.APPLICATION_JSON_UTF8);
 			HttpEntity<Object> request=new HttpEntity<Object>(magentoRequest,header);
-			ResponseEntity<Object> response=restTemplate.exchange(env.getProperty("api.magento.baseURL")+"/rest/default/V1/personalization/getList", HttpMethod.POST, request, Object.class);
+//			String url=env.getProperty("api.magento.baseURL")+"/rest/default/V1/personalization/getList";
+			String url="https://quickstart.com/rest/default/V1/personalization/getList";
+			ResponseEntity<Object> response=restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
 		
 			/**
 			 * Fetching personal and organizational goals from magento
@@ -142,7 +153,7 @@ public class SkillGraphEndpoint {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return new HashMap<Object, List<String>>();
 		}
 	}
 	/**
@@ -169,7 +180,7 @@ public class SkillGraphEndpoint {
 				orgData=learnerEnrollmentService.getEnrolledCoursesByCustomer(organizationId);
 				enrollments.addAll(orgData.keySet());
 			}
-			else 
+			else  
 				enrollments = learnerEnrollmentService.getEnrolledCoursesGuidByUsername(username);
 			
 			//Calculating enrollment count according to skill
