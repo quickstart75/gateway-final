@@ -21,6 +21,7 @@ import com.softech.ls360.lms.repository.entities.Distributor;
 import com.softech.ls360.lms.repository.entities.Learner;
 import com.softech.ls360.lms.repository.entities.LearnerGroupMember;
 import com.softech.ls360.lms.repository.projection.VU360UserDetailProjection;
+import com.softech.ls360.lms.repository.repositories.LearnerEnrollmentRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerGroupMemberRepository;
 import com.softech.ls360.lms.repository.repositories.LearnerRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
@@ -32,6 +33,9 @@ public class LearnerServiceImpl implements LearnerService {
 
 	@Inject
 	private LearnerRepository learnerRepository;
+	
+	@Inject
+	private LearnerEnrollmentRepository learnerEnrollmentRepository;
 	
 	@Inject
 	private LearnerGroupMemberRepository learnerGroupMemberRepository;
@@ -212,6 +216,11 @@ public List<EnrollmentDetailVO> getEnrollmentsByCustomerID(Long customerID){
 		 }
 		return lst;
 	}
+
+@Override
+public List<Object[]> getCustomerLearnerEnrollmentCount(String startDate, String endDate) {
+	return learnerEnrollmentRepository.getEnrollmentOfCustomerByDate(startDate, endDate);
+}
      
 
 

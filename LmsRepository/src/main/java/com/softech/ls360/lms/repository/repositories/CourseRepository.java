@@ -50,4 +50,7 @@ public interface CourseRepository extends CrudRepository<Course, Long> {
 	@Query(value = " SELECT LEARNINGOBJECTIVES, SUPPLEMENT_COURSE_ID, NAME FROM COURSE WHERE GUID =:guid " +
 			   	   " AND LEARNINGOBJECTIVES LIKE CONCAT('%', :searchText, '%') ", nativeQuery = true)
 	Object[] getCourseMaterialByGuid(@Param("guid") String guid, @Param("searchText") String searchText);
+	
+	@Query(value="select * from course where THIRDPARTYGUID NOT IN ('','undefined','3rd party GUID','Test','test 3rd Party GUID') and guid=:guid",nativeQuery=true)
+	Course findEdxCourse(@Param("guid") String guid);
 }

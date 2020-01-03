@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.softech.ls360.lms.repository.entities.Course;
+
 public interface CourseService {
 	public Map<String, String> getCourseOutlineByGuids(List<String> guids);
 	public String getSampleCertificateByGuid(String guid);
@@ -13,4 +15,6 @@ public interface CourseService {
 	public LinkedHashMap<String, String> findLessonWithFirstSlideIdByGuids(List<String> lessonguids);
 	Long findIdByGuid(String guid);
 	public Object[] getCourseMaterialByGuid(String guids, String searchText);
+	
+	public Course findEdxCourse(String guid);
 }

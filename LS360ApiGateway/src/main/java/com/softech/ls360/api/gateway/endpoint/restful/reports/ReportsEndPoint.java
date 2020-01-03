@@ -1,6 +1,7 @@
 package com.softech.ls360.api.gateway.endpoint.restful.reports;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.softech.ls360.api.gateway.config.spring.annotation.RestEndpoint;
@@ -133,7 +135,45 @@ public class ReportsEndPoint {
 		
 	return col;
 }
-	
+	@RequestMapping(value = "/lfEnrollment-report", method = RequestMethod.GET)
+	@ResponseBody
+	public Object lfEnrollmentReport(HttpServletResponse response,
+			@RequestParam(value = "startDate",required = true) String startDate,
+			@RequestParam(value = "endDate",required = true) String endDate) throws IOException {
+		
+		
+		boolean validDate=true;
+		try {
+			DateFormat date=new SimpleDateFormat("yyyy-MM-dd");
+			date.parse(startDate);
+			date.parse(endDate);
+		}catch (Exception e) {
+			e.printStackTrace();
+			validDate=false;
+		}
+		
+		if(validDate) {
+			response.setContentType("application/csv");   
+			
+			response.setHeader("content-disposition","attachment;filename =filename.csv"); 
+			ServletOutputStream  writer = response.getOutputStream();   
+			writer.println("Customer-Name ,Enrollment-Count");
+			
+			List<Object[]> records = learnerService.getCustomerLearnerEnrollmentCount(startDate+" 00:00:00",endDate + " 23:59:59");
+			
+	        for(Object[] row : records) 
+	        	writer.println(row[0]+ ", "+ row[1]);
+	        
+	        writer.flush();
+	        writer.close();
+	      
+	        ResponseEntity entity=new ResponseEntity<>(response,HttpStatus.OK);
+	        return null;
+		}
+		Map<String ,String> reports = new HashMap<String, String>() ;
+		reports.put("Error", "Enter Valid Date");
+		return reports ;
+	}
 		
 
 long getDateDiff(String sDate, String eDate) {

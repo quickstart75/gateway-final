@@ -108,4 +108,12 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
 			"on l.id = le.learner_id where customer_id=:customerId " + 
 			"group by c.name, c.guid", nativeQuery = true)
 	public List<Object[]> getEnrolledCoursesByCustomer(@Param("customerId") Long customerId);
+	
+	@Query(value = "select c.name,count(le.id) from learnerenrollment le " + 
+			"inner join learner l on l.id = le.learner_id " + 
+			"inner join customer c on c.id = l.customer_id " + 
+			"where c.DISTRIBUTOR_ID = 11952 " + 
+			"and (le.ENROLLMENTDATE between :startDate and :endDate) " + 
+			"group by c.name", nativeQuery = true)
+	public List<Object[]> getEnrollmentOfCustomerByDate(@Param("startDate") String startDate, @Param("endDate") String endDate);
 }

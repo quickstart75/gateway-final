@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.softech.ls360.api.gateway.service.CourseService;
+import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.repositories.CourseRepository;
 
 @Service
@@ -129,6 +130,11 @@ public class CourseServiceImpl implements CourseService{
 		
 		Object[] arrCO = courseRepository.getCourseMaterialByGuid(guid, searchText);
 		return arrCO;
+	}
+
+	@Override
+	public Course findEdxCourse(String guid) {
+		return courseRepository.findEdxCourse(guid);
 	}
 
 

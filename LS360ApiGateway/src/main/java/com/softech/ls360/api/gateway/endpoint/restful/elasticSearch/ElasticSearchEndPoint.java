@@ -46,6 +46,7 @@ import com.softech.ls360.api.gateway.service.model.request.ElasticSearchCourseRe
 import com.softech.ls360.api.gateway.service.model.request.GeneralFilter;
 import com.softech.ls360.api.gateway.service.model.request.InformalLearningRequest;
 import com.softech.ls360.api.gateway.service.model.response.LearnerSubscription;
+import com.softech.ls360.lms.repository.entities.Course;
 import com.softech.ls360.lms.repository.entities.GroupProductEnrollment;
 import com.softech.ls360.lms.repository.entities.GroupProductEntitlementCourse;
 import com.softech.ls360.lms.repository.entities.VU360User;
@@ -89,6 +90,9 @@ public class ElasticSearchEndPoint {
 	@Value( "${api.recommendation.engine}" )
     private String recommendationBaseURL;
 	
+	@Value( "${api.edx.baseUrl}" )
+	private String edxBaseUrl;
+	
 	@Inject
 	InformalLearningActivityService informalLearningActivityService;
 	
@@ -99,6 +103,8 @@ public class ElasticSearchEndPoint {
 	public Map<Object, Object> informalLearning(@RequestHeader("Authorization") String authorization, @RequestBody InformalLearningRequest request) throws Exception {
 		
 		Map<Object, Object> returnResponse = new HashMap<Object, Object>();
+		List<Map<Object, Object>> technicalInfo=new ArrayList<>();
+		
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		
 		if(request.getSearchType().equalsIgnoreCase("favorites")){
@@ -106,6 +112,8 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("favorites", new LinkedHashMap<String, Object>());
+				technicalInfo.add(addinfo("", "", "", "Favorite Call"));
+				returnResponse.put("technicalInfo", technicalInfo);
 				return returnResponse;
 			}
 			
@@ -144,6 +152,8 @@ public class ElasticSearchEndPoint {
 		
 			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
+			
+			technicalInfo.add(addinfo(location2, new JSONArray(requestData2), magentoAPiResponse, "Elastic Search Customized Search"));
 			
 			//-----------------------------------------------------------------
 			//--------Getting enrolled bundle product >>>>>>>>>> FAVORITES TAB
@@ -212,7 +222,7 @@ public class ElasticSearchEndPoint {
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "Success");
 			returnResponse.put("favorites", magentoAPiResponse);
-			
+			returnResponse.put("technicalInfo", technicalInfo);
 			return returnResponse;
 		}
 		// COURSE --------------------------------------------------------------------------------------------------
@@ -238,11 +248,15 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
+				technicalInfo.add(addinfo("", "", "", "No Enrolled Courses & No Subscription Code"));
+				returnResponse.put("technicalInfo", technicalInfo);
 				return returnResponse;
 			}else if( filterEnrolledOrSubscription.equals("subscription") && (request.getSubsCode()==null || request.getSubsCode().equals(""))){
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
+				technicalInfo.add(addinfo("", "", "", "No Subscription Found"));
+				returnResponse.put("technicalInfo", technicalInfo);
 				return returnResponse;
 			}
 			
@@ -257,6 +271,8 @@ public class ElasticSearchEndPoint {
 				requestmap.put("websiteId", request.getWebsiteId());
 				requestmap.put("subsCode", request.getSubsCode());
 				onjESearch.setSubscriptions(elasticSearchService.getMagentoSubscriptionIdByUsername(requestmap));
+				
+				technicalInfo.add(addinfo(magentoBaseURL + "/rest/default/V1/itskills-mycourses/getUserSubscription", requestmap, onjESearch.getSubscriptions(), "Magento User Subscription Call"));
 			}
 			//-----------end-----------get subscription id from magento-------------------------------------------------------------------------------------
 
@@ -368,6 +384,8 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
+				technicalInfo.add(addinfo("", "", "", "Elastic Search Call No Courses And No Subscription "));
+				returnResponse.put("technicalInfo", technicalInfo);
 				return returnResponse;
 			}else if(filterEnrolledOrSubscription.equals("subscription") 
 					&& ( onjESearch.getSubscriptions() == null || onjESearch.getSubscriptions().size()==0 )){
@@ -375,6 +393,8 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
+				technicalInfo.add(addinfo("", "", "", "Elastic Search Call No Subscription"));
+				returnResponse.put("technicalInfo", technicalInfo);
 				return returnResponse;
 				
 			}else if( filterEnrolledOrSubscription.equals("new_started") && lstNew_StartedGuids.size()==0 
@@ -383,6 +403,8 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
+				technicalInfo.add(addinfo("", "", "", "Elastic Search(new_started) Call No Courses And No Subscription "));
+				returnResponse.put("technicalInfo", technicalInfo);
 				return returnResponse;
 				
 			}else if( filterEnrolledOrSubscription.equals("completed") && lstCompletedGuids.size()==0 
@@ -391,6 +413,8 @@ public class ElasticSearchEndPoint {
 				returnResponse.put("status", Boolean.TRUE);
 				returnResponse.put("message", "Success");
 				returnResponse.put("courses", new ArrayList());
+				technicalInfo.add(addinfo("", "", "", "Elastic Search(completed) Call No Courses And No Subscription "));
+				returnResponse.put("technicalInfo", technicalInfo);
 				return returnResponse;
 			}
 			//--------------------------------------
@@ -479,6 +503,9 @@ public class ElasticSearchEndPoint {
 						filterEnrolledOrSubscription.equals("all") || filterEnrolledOrSubscription.equals("subscription")){
 					
 					allSubscriptionVILTGuids = elasticSearchService.getSubscriptionViltCourses(onjESearch, request.getStoreId());
+				
+					technicalInfo.add(addinfo(elasticSearchBaseURL+"/course_api/search/default/", onjESearch, allSubscriptionVILTGuids, "Elastic Search VILT Course Call"));
+
 					boolean flag = true;
 					
 					if(allSubscriptionVILTGuids!=null && allSubscriptionVILTGuids.size()>0){
@@ -546,6 +573,8 @@ public class ElasticSearchEndPoint {
 			magentoAPiResponse.put("enrolledCourses", mapEnrollment);
 			magentoAPiResponse.put("requestData", onjESearch);
 			
+			technicalInfo.add(addinfo(location2, new ObjectMapper().convertValue(onjESearch, Map.class), magentoAPiResponse, "Elastic Search Store Courses"));
+			
 			logger.info("");logger.info("");logger.info("");
 			logger.info("=======================================================================================");
 			logger.info("elasticSearch url :: " + location2);
@@ -592,6 +621,7 @@ public class ElasticSearchEndPoint {
 			returnResponse.put("status", Boolean.TRUE);
 			returnResponse.put("message", "Success");
 			returnResponse.put("courses", magentoAPiResponse);
+			returnResponse.put("technicalInfo", technicalInfo);
 			return returnResponse;
 		}else if(request.getSearchType().equalsIgnoreCase("learningPaths")){
 			RestTemplate restTemplate2 = new RestTemplate();
@@ -616,7 +646,8 @@ public class ElasticSearchEndPoint {
 				 returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 				 List <Object> magentoAPiResponse = (List <Object>)returnedData2.getBody();
 				 mapAPiResponse = ( LinkedHashMap<String, Object>)magentoAPiResponse.get(0);
-			     
+				
+				 technicalInfo.add(addinfo(location2, new ObjectMapper().convertValue(request, Map.class), magentoAPiResponse, "Magento Learning Path Call"));
 				 
 				 
 				//-----------------------------------------
@@ -790,7 +821,8 @@ public class ElasticSearchEndPoint {
 				returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 				LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 				
-				returnResponse.put("expertConnect", magentoAPiResponse);  
+				returnResponse.put("expertConnect", magentoAPiResponse); 
+				returnResponse.put("technicalInfo", technicalInfo);
 				
 			}catch(Exception ex) {	
 				logger.info(" expertConnect area    /content/search    ");
@@ -799,7 +831,7 @@ public class ElasticSearchEndPoint {
 				logger.info("   /content/search    ");
 			}
 		}
-		
+		returnResponse.put("technicalInfo", technicalInfo);
 		returnResponse.put("status", Boolean.TRUE);
 		returnResponse.put("message", "Success");
 		
@@ -807,6 +839,17 @@ public class ElasticSearchEndPoint {
 		
 	}
 	
+
+	private Map<Object, Object> addinfo(Object url, Object request, Object response, String message) {
+		Map<Object, Object> technical=new HashMap<Object, Object>();
+		technical.put("url", url);
+		technical.put("request", request);
+		technical.put("response", response);
+		technical.put("message", message);
+		return technical;
+		
+	}
+
 
 	@RequestMapping(value = "/course/bitesized", method = RequestMethod.POST)
 	@ResponseBody
@@ -816,9 +859,39 @@ public class ElasticSearchEndPoint {
 		List<Map<String, String>> lstresponse = new ArrayList<Map<String, String>>();
 		Map<String, Map> mapLessonRandomOrder = new HashMap<String, Map>();
 		String courseGuid = filter.getFilter().get("courseGuid").toString();
-		
+//		 magento_baseUrl+"edx/cas/login/?guid="+edxCourseGuid+"&url=courses/"+edxCourseGuid+"/courseware/"+moduleGuid+"&previewMode=edx"
+		Course edxCourse = courseService.findEdxCourse(courseGuid);
 		
 			try {
+				if(edxCourse!=null) {
+					String thirdPartyGuid = edxCourse.getThirdPartyGuid();
+					String edxModuleURL=magentoBaseURL+"edx/cas/login/?guid="+thirdPartyGuid+"&url=courses/"+thirdPartyGuid+"/courseware/";
+					
+					//Edx API call
+					RestTemplate restTemplate=new RestTemplate();
+					Map<String, String> body=new HashMap<>();
+					body.put("course_id", edxCourse.getThirdPartyGuid());
+					HttpEntity<Object> request=new HttpEntity<>(body,getHttpHeaders());
+					ResponseEntity<Map> edxResponse = restTemplate.exchange(edxBaseUrl+"courses/modules", HttpMethod.POST, request, Map.class);
+					
+					JSONArray modules = new JSONObject(edxResponse.getBody()).getJSONObject("Table of contents").getJSONArray("chapters");
+					
+					
+					for (int i = 0; i < modules.length(); i++) {
+						Map<String, String> response = new HashMap<String, String>();
+						response.put("description", "");
+						response.put("name", modules.getJSONObject(i).getString("display_name"));
+						response.put("url", edxModuleURL+ modules.getJSONObject(i).getString("url_name")+"&previewMode=edx");
+//						System.out.println("lms-openedx.quickstart.com/courses/"+thirdPartyGuid+"/courseware/"+modules.getJSONObject(i).getString("url_name")+"/");
+						lstresponse.add(response);
+					}
+					returnResponse.put("status", Boolean.TRUE);
+					returnResponse.put("message", "Success");
+					returnResponse.put("result",lstresponse);
+					return returnResponse;
+					
+				}
+				
 				List<String> lstSearch = new ArrayList<String>();
 				if(filter.getFilter().get("keyword")!=null)
 					lstSearch = (ArrayList) filter.getFilter().get("keyword");

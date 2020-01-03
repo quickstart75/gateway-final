@@ -101,6 +101,7 @@ public class Course extends AuditedEntity implements Serializable {
 	private String durationUnit;
 	private String supplementCourseId;
 	private String courseInstructions;
+	private String thirdPartyGuid;
 	//@OneToOne
 //	@Fetch(FetchMode.JOIN)
 	
@@ -114,6 +115,14 @@ public class Course extends AuditedEntity implements Serializable {
 
 	private List<CourseCourseGroup> courseCourseGroup;
 	private List<CourseCustomerEntitlement> courseCustomerEntitlement;
+
+	public String getThirdPartyGuid() {
+		return thirdPartyGuid;
+	}
+
+	public void setThirdPartyGuid(String thirdPartyGuid) {
+		this.thirdPartyGuid = thirdPartyGuid;
+	}
 
 	public String getName() {
 		return name;

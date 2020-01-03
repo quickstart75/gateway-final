@@ -27,4 +27,6 @@ public interface LearnerService {
 	List<EnrollmentVO> getEnrollmentsByDates(String sDate, String eDate);
 	
 	List<EnrollmentDetailVO> getEnrollmentsByCustomerID(Long customerID);
+	
+	List<Object []> getCustomerLearnerEnrollmentCount(String startDate,String endDate);
 }
