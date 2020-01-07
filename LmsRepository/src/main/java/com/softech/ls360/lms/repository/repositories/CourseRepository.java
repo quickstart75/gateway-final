@@ -53,4 +53,10 @@ public interface CourseRepository extends CrudRepository<Course, Long> {
 	
 	@Query(value="select * from course where THIRDPARTYGUID NOT IN ('','undefined','3rd party GUID','Test','test 3rd Party GUID') and guid=:guid",nativeQuery=true)
 	Course findEdxCourse(@Param("guid") String guid);
+	
+	@Query(value = "SELECT TOP 1 c.* FROM CONTENTOBJECT co " + 
+			"INNER JOIN COURSE c ON c.id = co.course_id " + 
+			"WHERE DEMOABLE = 1 AND c.guid=:guid ", nativeQuery = true)
+	List<Object[]> findDemoByCourseGuid(@Param("guid") String guid);
+	
 }

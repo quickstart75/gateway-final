@@ -137,5 +137,10 @@ public class CourseServiceImpl implements CourseService{
 		return courseRepository.findEdxCourse(guid);
 	}
 
+	@Override
+	public Boolean findDemoByCourseGuid(String guid) {
+		return courseRepository.findDemoByCourseGuid(guid).size()>0;
+	}
+
 
 }

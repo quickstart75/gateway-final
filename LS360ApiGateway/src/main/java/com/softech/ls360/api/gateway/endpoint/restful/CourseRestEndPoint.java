@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +25,9 @@ public class CourseRestEndPoint {
 	@Inject
 	private CourseService courseService;
 	
+	@Autowired
+	private Environment env;
+	
 	@RequestMapping(value = "/course/getCourseOutlineByGuids", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, String> getCourseGuid(@RequestBody CourseRequest courseRequest) throws Exception {
@@ -36,9 +41,25 @@ public class CourseRestEndPoint {
 	@ResponseBody
 	public String getSampleCertificateByGuids(@PathVariable String guid) throws Exception {
 		
-		String location = courseService.getSampleCertificateByGuid(guid);
+	 	String location = courseService.getSampleCertificateByGuid(guid);
 		return location;
 		
 	}
 	
+	@RequestMapping(value = "/course/demo/{guid}", method = RequestMethod.GET)
+	@ResponseBody
+	public Object getCourseDemoUrl(@PathVariable(required = true) String guid) {
+		Map<String, Object> response = new HashMap<>();
+		String url="";
+		if(courseService.findDemoByCourseGuid(guid))
+			url=env.getProperty("api.player.baseURL")+"/courseGUID="+guid+"&DEMO=true";
+		
+		
+		response.put("result", url);
+		response.put("message", "success");
+		response.put("status", Boolean.TRUE);
+		
+		
+		return response;
+	}
 }

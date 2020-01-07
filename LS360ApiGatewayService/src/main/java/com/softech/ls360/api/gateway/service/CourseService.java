@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.repository.query.Param;
+
 import com.softech.ls360.lms.repository.entities.Course;
 
 public interface CourseService {
@@ -17,4 +19,5 @@ public interface CourseService {
 	public Object[] getCourseMaterialByGuid(String guids, String searchText);
 	
 	public Course findEdxCourse(String guid);
+	public Boolean findDemoByCourseGuid(String guid);
 }
