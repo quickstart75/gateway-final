@@ -448,5 +448,12 @@ public class ClassroomCourseServiceImpl implements ClassroomCourseService{
 	    }
 	    return mapEnrollment;
 	}
+
+	public List<Object[]> testAPILog() {
+		logger.info(">>>>>>>> PRINTING LOG >>>>>>>>>>>>>>> TEST API >>>>>>>>>>>>>>");
+		logger.info(">>>>>>>> PRINTING LOG >>>>>>>>>>>>>>> TEST API >>>>>>>>>>>>>>");
+		logger.info(">>>>>>>> PRINTING LOG >>>>>>>>>>>>>>> TEST API >>>>>>>>>>>>>>");
+		return learnerEnrollmentRepository.getTop10Result();
+	}
 	
 }

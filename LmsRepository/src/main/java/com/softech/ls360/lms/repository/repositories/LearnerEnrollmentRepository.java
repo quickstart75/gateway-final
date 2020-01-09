@@ -116,4 +116,7 @@ public interface LearnerEnrollmentRepository extends CrudRepository<LearnerEnrol
 			"and (le.ENROLLMENTDATE between :startDate and :endDate) " + 
 			"group by c.name", nativeQuery = true)
 	public List<Object[]> getEnrollmentOfCustomerByDate(@Param("startDate") String startDate, @Param("endDate") String endDate);
+	
+	@Query(value = "select top 10 * from learnerenrollment order by id DESC",  nativeQuery = true)
+	public List<Object[]> getTop10Result();
 }
