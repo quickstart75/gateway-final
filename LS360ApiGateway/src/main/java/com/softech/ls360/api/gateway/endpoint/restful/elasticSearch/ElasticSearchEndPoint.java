@@ -153,7 +153,7 @@ public class ElasticSearchEndPoint {
 			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 			
-			technicalInfo.add(addinfo(location2, new JSONArray(requestData2), magentoAPiResponse, "Elastic Search Customized Search"));
+			technicalInfo.add(addinfo(location2, new ObjectMapper().convertValue(onjESearch, Map.class), magentoAPiResponse, "Elastic Search Customized Search"));
 			
 			//-----------------------------------------------------------------
 			//--------Getting enrolled bundle product >>>>>>>>>> FAVORITES TAB
