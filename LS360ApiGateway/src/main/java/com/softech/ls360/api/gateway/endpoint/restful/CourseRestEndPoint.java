@@ -52,7 +52,7 @@ public class CourseRestEndPoint {
 		Map<String, Object> response = new HashMap<>();
 		String url="";
 		if(courseService.findDemoByCourseGuid(guid))
-			url=env.getProperty("api.player.baseURL")+"/courseGUID="+guid+"&DEMO=true";
+			url=env.getProperty("api.player.baseURL")+"/CoursePlayer.aspx?courseGUID="+guid+"&DEMO=true";
 		
 		
 		response.put("result", url);
