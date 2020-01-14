@@ -552,7 +552,7 @@ public class ElasticSearchEndPoint {
 			//---------------------------------------------------------------------------------------------------
 			if(filterEnrolledOrSubscription.equals("all") && (request.getUuid()!=null && !request.getUuid().equals(""))){
 				//If no Subsbcode 
-				if((onjESearch.getSubscriptions() !=null && onjESearch.getSubscriptions().size()>0)) {
+				if((onjESearch.getSubscriptions() !=null && onjESearch.getSubscriptions().size()>0) || request.getUpsell()) {
 					List<String> mocLearningPaths = this.getGraphQLData(request.getUuid());
 					onjESearch.setSubsCourseGuids(mocLearningPaths);
 				}

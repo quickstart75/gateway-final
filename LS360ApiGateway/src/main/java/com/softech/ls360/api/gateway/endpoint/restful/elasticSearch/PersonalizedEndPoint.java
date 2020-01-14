@@ -47,8 +47,6 @@ public class PersonalizedEndPoint {
 	@RequestMapping(value = "/personalized-courses-summary", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public Object getCourseData(@RequestHeader String authorization,  @RequestBody Map<Object, Object> data) {
-			
-		
 		
 		Map<Object, Object> responseBody=new HashMap<>();
 		
@@ -86,8 +84,7 @@ public class PersonalizedEndPoint {
 				forLearningTopics.put("name", learningTopics.get(key));
 				forLearningTopics.put("count", response==null ? "0" : response.get("totalHits").toString());
 				courses.add(forLearningTopics);
-	
-				
+		
 			}
 			
 			//Getting total count
@@ -124,7 +121,6 @@ public class PersonalizedEndPoint {
 		return responseBody;
 	}
 	private Object learningPathDetail(Map<Object, Object> data) {
-		// TODO Auto-generated method stub
 		
 		Map<Object, Object> response=new HashMap<>();
 		
@@ -229,8 +225,8 @@ public class PersonalizedEndPoint {
 		
 		info.setSubsCode(requestBody.get("subsCode").toString());
 		info.setUuid(requestBody.get("uuid").toString());
-		info.setStoreId(2);
-		info.setWebsiteId(2);
+		info.setStoreId(Integer.parseInt(requestBody.get("storeId").toString()));
+		info.setWebsiteId(Integer.parseInt(requestBody.get("websiteId").toString()));
 		info.setSearchType("courses");
 		info.setPageSize(1);
 		info.setPageNumber(1);
@@ -277,7 +273,7 @@ public class PersonalizedEndPoint {
 		info.setFavorites(new ArrayList<>());
 		
 		//Upsell
-		info.setUpsell(true);
+		info.setUpsell((Boolean) requestBody.get("upsell"));
 		
 		HttpEntity<Object> request=new HttpEntity<>(info,headers);
 		ResponseEntity<Object> response=null;
