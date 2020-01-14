@@ -317,7 +317,7 @@ public class ElasticSearchEndPoint {
 			}
 			onjESearch.setCategories(lstCategories);
 			//------------------------------------------------------------------------------
-			//---------------------------------------GroupProduct---------------------------------------
+			//---------------------------------------GroupProduct---------------------------
 			//------------------------------------------------------------------------------
 			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
 			List<String> lstAllGuids = new ArrayList<String>();
