@@ -79,7 +79,7 @@
 		
 		<org.apache.httpcomponents.httpclient.version>4.5.2</org.apache.httpcomponents.httpclient.version>
 		
-		<jackson.version>2.8.3</jackson.version>
+		<jackson.version>2.10.2</jackson.version>
 		
 		<jaxb2-basics.version>0.11.0</jaxb2-basics.version>
 		
