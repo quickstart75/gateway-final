@@ -65,7 +65,7 @@
 		<xmlschema-core.version>2.2.1</xmlschema-core.version>
 		
 		<!-- Spring oauth2 -->
-		<spring-security-oauth2.version>2.0.11.RELEASE</spring-security-oauth2.version>
+		<spring-security-oauth2.version>2.0.18.RELEASE</spring-security-oauth2.version>
 		<spring-security-jwt.version>1.0.5.RELEASE</spring-security-jwt.version>
 		
 		<!-- Hibernate -->
