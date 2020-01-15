@@ -1,5 +1,6 @@
 package com.softech.ls360.api.gateway.service;
 
+
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
@@ -10,20 +11,32 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.softech.ls360.api.gateway.service.config.spring.LS360ApiGatewayServiceAppConfig;
 import com.softech.ls360.api.gateway.service.config.spring.properties.ApiGatewayServicePropertiesConfig;
 import com.softech.ls360.api.gateway.service.impl.EmailServiceImpl;
+import com.softech.ls360.api.gateway.service.model.request.UserCoursesRequest;
+import com.softech.ls360.api.gateway.service.model.request.UserRequest;
 import com.softech.ls360.api.gateway.service.model.response.ClassroomCourseInfo;
+import com.softech.ls360.api.gateway.service.model.response.LearnerCourseResponse;
+import com.softech.ls360.api.gateway.service.model.response.LearnerEnrollmentStatistics;
+import com.softech.ls360.lms.repository.entities.LearnerCourseStatistics;
 import com.softech.ls360.lms.repository.entities.Subscription;
+import com.softech.ls360.lms.repository.repositories.LearnerCourseStatisticsRepository;
 import com.softech.ls360.lms.repository.repositories.SubscriptionRepository;
 
-import junit.framework.Assert;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=LS360ApiGatewayServiceAppConfig.class)
@@ -38,6 +51,9 @@ public class LearnerCourseServiceTest extends LS360ApiGatewayServiceAbstractTest
 	private LearnerService learnerService;
 	
 	@Inject
+	private LearnerCourseStatisticsRepository learnerCourseStatisticsRepository;
+	
+	@Inject
 	private ClassroomCourseService classroomCourseService;
 
 	@Inject
@@ -45,8 +61,7 @@ public class LearnerCourseServiceTest extends LS360ApiGatewayServiceAbstractTest
 
 	@Autowired
 	private ApiGatewayServicePropertiesConfig config;
-
-
+	
 	@Autowired
 	private EmailServiceImpl emailService;
 	
@@ -65,7 +80,7 @@ public class LearnerCourseServiceTest extends LS360ApiGatewayServiceAbstractTest
 		logger.info(" TEST ::: Find Course by GUID" );
 		logger.info(" ........ " );
 		logger.info(" ........ " );
-		Long courseId = courseService.findIdByGuid("fd5ca907e21c4059a88e9e17b717f630ss");
+		Long courseId = courseService.findIdByGuid(TestSuite.COURSE_GUID);
 		if(courseId!=null && courseId>0)
 			Assert.assertTrue(true);
 		else
@@ -86,6 +101,73 @@ public class LearnerCourseServiceTest extends LS360ApiGatewayServiceAbstractTest
 		logger.info(" ........ " );
 		
 	}
+	
+	@Test
+	public void enrolledCourses() {
+		logger.info(" TEST ::: Enrolled Course Details" );
+		logger.info(" ........ " );
+		logger.info(" ........ " );
+
+		UserRequest user=new UserRequest();
+		user.setCourseGuid(TestSuite.COURSE_GUID);
+		user.setUserName(TestSuite.USERNAME);
+		user.setStoreId(2);
+		LearnerEnrollmentStatistics statistics=learnerCourseService.getLearnerCourse(user);
+		Assert.assertTrue("Enrolled Course Details",statistics!=null);
+		
+		logger.info(" ........ " );
+		logger.info(" ........ " );
+	}
+	@Test
+	public void allEnrolledCourses() {
+		logger.info(" TEST ::: All Enrolled Courses" );
+		logger.info(" ........ " );
+		logger.info(" ........ " );
+
+		Direction sortDirection = Sort.Direction.ASC;
+		
+		PageRequest request = new PageRequest(1, 50, sortDirection, "learnerEnrollment.course.name");
+		Page<LearnerCourseStatistics> page = learnerCourseStatisticsRepository.findAllByLearnerEnrollment_Learner_vu360User_usernameAndLearnerEnrollment_enrollmentStatusAndLearnerEnrollment_course_nameLike(TestSuite.USERNAME, "Active", "%"+""+"%", request);
+		
+		Assert.assertTrue("Enrolled Courses",page!=null);
+		
+		logger.info(" ........ " );
+		logger.info(" ........ " );
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	//@Test
 	public void getCourseCount() {
@@ -132,4 +214,7 @@ public class LearnerCourseServiceTest extends LS360ApiGatewayServiceAbstractTest
 		}
 	}
 
+	public void testCasesProd() {
+//		ResponseEntity<Object> responseEntity = employeeController.addEmployee(employee);
+	}
 }
