@@ -153,7 +153,7 @@ public class ElasticSearchEndPoint {
 			returnedData2 = restTemplate2.postForEntity(location2.toString(), requestData2 ,Object.class);
 			LinkedHashMap<String, Object> magentoAPiResponse =  (LinkedHashMap<String, Object>)returnedData2.getBody();
 			
-			technicalInfo.add(addinfo(location2, new JSONArray(requestData2), magentoAPiResponse, "Elastic Search Customized Search"));
+			technicalInfo.add(addinfo(location2, new ObjectMapper().convertValue(onjESearch, Map.class), magentoAPiResponse, "Elastic Search Customized Search"));
 			
 			//-----------------------------------------------------------------
 			//--------Getting enrolled bundle product >>>>>>>>>> FAVORITES TAB
@@ -317,7 +317,7 @@ public class ElasticSearchEndPoint {
 			}
 			onjESearch.setCategories(lstCategories);
 			//------------------------------------------------------------------------------
-			//---------------------------------------GroupProduct---------------------------------------
+			//---------------------------------------GroupProduct---------------------------
 			//------------------------------------------------------------------------------
 			List<GroupProductEnrollment> lstGroupProduct = groupProductService.searchGroupProductEnrollmentByUsrename(username);
 			List<String> lstAllGuids = new ArrayList<String>();
@@ -552,7 +552,7 @@ public class ElasticSearchEndPoint {
 			//---------------------------------------------------------------------------------------------------
 			if(filterEnrolledOrSubscription.equals("all") && (request.getUuid()!=null && !request.getUuid().equals(""))){
 				//If no Subsbcode 
-				if((onjESearch.getSubscriptions() !=null && onjESearch.getSubscriptions().size()>0)) {
+				if((onjESearch.getSubscriptions() !=null && onjESearch.getSubscriptions().size()>0) || request.getUpsell()) {
 					List<String> mocLearningPaths = this.getGraphQLData(request.getUuid());
 					onjESearch.setSubsCourseGuids(mocLearningPaths);
 				}
