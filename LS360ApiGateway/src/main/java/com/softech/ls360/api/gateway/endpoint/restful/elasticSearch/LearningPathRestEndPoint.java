@@ -20,6 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -774,6 +775,30 @@ public class LearningPathRestEndPoint {
 			return mainResponseBody;
 		}
 		
+	}
+	@RequestMapping(value = "/cicd", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<?> bundleProductFlyOut(@RequestBody Map<Object, Object> request){
+		Map<Object , Object> responseBody=new HashMap<Object, Object>();
+		
+		try {
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			responseBody.put("result", "CI-CD TEST API");
+			responseBody.put("message", username);
+			responseBody.put("status", Boolean.FALSE);
+			
+			
+			return new ResponseEntity<Object>(responseBody,HttpStatus.OK);
+		}catch (Exception e) {
+			logger.info(">>>>>>>>>>>>>>> Group Product Exception >>>>>>>>>>>");
+			logger.info(e.getMessage());
+			
+			responseBody.put("result", "");
+			responseBody.put("message", e.getMessage());
+			responseBody.put("status", Boolean.FALSE);
+			
+			return new ResponseEntity<Object>(responseBody,HttpStatus.BAD_REQUEST);
+		}
 	}
 	
 }
