@@ -787,7 +787,6 @@ public class LearningPathRestEndPoint {
 			responseBody.put("message", username);
 			responseBody.put("status", Boolean.FALSE);
 			
-			
 			return new ResponseEntity<Object>(responseBody,HttpStatus.OK);
 		}catch (Exception e) {
 			logger.info(">>>>>>>>>>>>>>> Group Product Exception >>>>>>>>>>>");
