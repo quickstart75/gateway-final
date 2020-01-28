@@ -783,7 +783,7 @@ public class LearningPathRestEndPoint {
 		
 		try {
 			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			responseBody.put("result", "CI-CD TEST API-CHANGES");
+			responseBody.put("result", "CI-CD TEST API-CHANGES-2");
 			responseBody.put("message", username);
 			responseBody.put("status", Boolean.FALSE);
 			
