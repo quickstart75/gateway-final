@@ -30,7 +30,7 @@
   	    <java-version>1.8</java-version>
   	
   	    <!-- Logging -->
-		<log4j.version>2.7</log4j.version>
+		<log4j.version>2.13.3</log4j.version>
 		<jboss-logging.version>3.3.0.Final</jboss-logging.version>
 		<slf4j-api.verion>1.7.21</slf4j-api.verion>
   	
